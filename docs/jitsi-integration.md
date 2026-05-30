@@ -79,6 +79,26 @@ O backend não sobrescreve `room_name` nem `meeting_url` quando esses campos já
 possuem valor. Uma alteração futura que regenere esses campos deve documentar o
 motivo e tratar o impacto para alunos, professor e avisos enviados.
 
+## Ações no Desk
+
+O formulário `Bruce Live Class` possui ações simples no grupo `Jitsi`, sem
+frontend Vue nesta etapa:
+
+- `Abrir aula`: abre o `meeting_url` já salvo em uma nova aba.
+- `Copiar link`: copia o `meeting_url` quando o contexto do navegador permitir.
+  Se a cópia automática falhar, o Desk mostra o link para cópia manual.
+- `Iniciar aula`: valida permissão no backend, marca aulas `Agendada` como
+  `Ao vivo` e abre o `meeting_url` em uma nova aba.
+
+As ações não montam URL no frontend e não hardcodam domínio. Elas usam apenas o
+`meeting_url` registrado no documento.
+
+Se a aula ainda não tiver `meeting_url`, o usuário vê uma mensagem amigável em
+português orientando salvar a aula novamente ou revisar a configuração do Jitsi.
+
+A ação `Iniciar aula` exige permissão de escrita no documento antes de alterar o
+status. Aulas `Encerrada` ou `Cancelada` não podem ser iniciadas por essa ação.
+
 ## Permissões iniciais
 
 As permissões iniciais seguem papéis já existentes no Frappe LMS:

@@ -67,3 +67,31 @@ class BruceLiveClass(Document):
 	@staticmethod
 	def room_name_exists(room_name):
 		return frappe.db.exists("Bruce Live Class", {"room_name": room_name})
+
+
+@frappe.whitelist()
+def start_live_class(name):
+	doc = frappe.get_doc("Bruce Live Class", name)
+	doc.check_permission("write")
+
+	if not doc.meeting_url:
+		frappe.throw(_("Esta aula ainda não tem link Jitsi. Salve a aula novamente ou revise a configuração do Jitsi."))
+
+	if doc.status == "Ao vivo":
+		return {
+			"status": doc.status,
+			"meeting_url": doc.meeting_url,
+			"message": _("A aula já está ao vivo."),
+		}
+
+	if doc.status != "Agendada":
+		frappe.throw(_("Somente aulas agendadas podem ser iniciadas."))
+
+	doc.status = "Ao vivo"
+	doc.save()
+
+	return {
+		"status": doc.status,
+		"meeting_url": doc.meeting_url,
+		"message": _("A aula foi marcada como ao vivo."),
+	}

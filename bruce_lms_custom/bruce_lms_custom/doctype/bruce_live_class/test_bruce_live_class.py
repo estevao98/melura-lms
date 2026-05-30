@@ -6,7 +6,12 @@ from unittest.mock import Mock, patch
 
 import frappe
 
-from bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class import BruceLiveClass
+from bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class import (
+	BruceLiveClass,
+	start_live_class,
+)
+
+start_live_class_without_frappe_wrapper = getattr(start_live_class, "__wrapped__", start_live_class)
 
 
 class TestBruceLiveClass(unittest.TestCase):
@@ -65,3 +70,69 @@ class TestBruceLiveClass(unittest.TestCase):
 
 		self.assertEqual(doc.room_name, "sala-existente")
 		self.assertEqual(doc.meeting_url, "https://meet.jit.si/sala-existente")
+
+	def test_start_live_class_marks_scheduled_class_as_live(self):
+		doc = Mock(status="Agendada", meeting_url="https://meet.jit.si/sala-existente")
+
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class.frappe.get_doc",
+				return_value=doc,
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class._",
+				side_effect=lambda message, *args, **kwargs: message,
+			),
+		):
+			result = start_live_class_without_frappe_wrapper("BLC-2026-00001")
+
+		doc.check_permission.assert_called_once_with("write")
+		doc.save.assert_called_once_with()
+		self.assertEqual(doc.status, "Ao vivo")
+		self.assertEqual(result["meeting_url"], "https://meet.jit.si/sala-existente")
+
+	def test_start_live_class_requires_meeting_url(self):
+		doc = Mock(status="Agendada", meeting_url="")
+
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class.frappe.get_doc",
+				return_value=doc,
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class.frappe.throw",
+				side_effect=Exception("sem link"),
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class._",
+				side_effect=lambda message, *args, **kwargs: message,
+			),
+		):
+			with self.assertRaisesRegex(Exception, "sem link"):
+				start_live_class_without_frappe_wrapper("BLC-2026-00001")
+
+		doc.check_permission.assert_called_once_with("write")
+		doc.save.assert_not_called()
+
+	def test_start_live_class_rejects_closed_class(self):
+		doc = Mock(status="Encerrada", meeting_url="https://meet.jit.si/sala-existente")
+
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class.frappe.get_doc",
+				return_value=doc,
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class.frappe.throw",
+				side_effect=Exception("status inválido"),
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class._",
+				side_effect=lambda message, *args, **kwargs: message,
+			),
+		):
+			with self.assertRaisesRegex(Exception, "status inválido"):
+				start_live_class_without_frappe_wrapper("BLC-2026-00001")
+
+		doc.check_permission.assert_called_once_with("write")
+		doc.save.assert_not_called()
