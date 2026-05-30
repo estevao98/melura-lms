@@ -62,6 +62,23 @@ vazio. O valor usa:
 Esse formato evita nomes previsíveis e prepara a aula para uso posterior com a
 Jitsi IFrame API.
 
+Ao salvar a aula, o backend também preenche `meeting_url` quando o campo está
+vazio. A URL é montada a partir do domínio configurado em
+`Bruce Jitsi Settings.domain` e do `room_name` gerado, por exemplo:
+
+```text
+https://meet.jit.si/bruce-enem-token-seguro
+```
+
+Se `Bruce Jitsi Settings` não estiver disponível, a geração usa fallback seguro:
+
+- domínio: `meet.jit.si`;
+- prefixo da sala: `bruce`.
+
+O backend não sobrescreve `room_name` nem `meeting_url` quando esses campos já
+possuem valor. Uma alteração futura que regenere esses campos deve documentar o
+motivo e tratar o impacto para alunos, professor e avisos enviados.
+
 ## Permissões iniciais
 
 As permissões iniciais seguem papéis já existentes no Frappe LMS:

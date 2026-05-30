@@ -1,14 +1,21 @@
 # Copyright (c) 2026, Estevão Oliveira Portes and contributors
 # For license information, please see license.txt
 
-import secrets
 import re
+import secrets
+from dataclasses import dataclass
 from urllib.parse import quote
 
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import get_datetime
+
+
+@dataclass(frozen=True)
+class JitsiSettings:
+	domain: str = "meet.jit.si"
+	room_prefix: str = "bruce"
 
 
 class BruceLiveClass(Document):
@@ -23,16 +30,17 @@ class BruceLiveClass(Document):
 		if not self.room_name:
 			self.room_name = self.generate_room_name()
 
-		self.meeting_url = self.build_meeting_url()
+		if not self.meeting_url:
+			self.meeting_url = self.build_meeting_url()
 
 	def generate_room_name(self):
-		settings = frappe.get_single("Bruce Jitsi Settings")
+		settings = self.get_jitsi_settings()
 		prefix = re.sub(r"[^a-z0-9]+", "-", (settings.room_prefix or "bruce").strip().lower()).strip("-")
 		prefix = prefix or "bruce"
 
 		for _attempt in range(5):
 			room_name = f"{prefix}-{secrets.token_urlsafe(18)}"
-			if not frappe.db.exists("Bruce Live Class", {"room_name": room_name}):
+			if not self.room_name_exists(room_name):
 				return room_name
 
 		frappe.throw(_("Não foi possível gerar uma sala Jitsi única. Tente novamente."))
@@ -41,10 +49,21 @@ class BruceLiveClass(Document):
 		if not self.room_name:
 			return self.meeting_url
 
-		settings = frappe.get_single("Bruce Jitsi Settings")
+		settings = self.get_jitsi_settings()
 		domain = (settings.domain or "meet.jit.si").strip().rstrip("/")
 
 		if "://" not in domain:
 			domain = f"https://{domain}"
 
 		return f"{domain}/{quote(self.room_name, safe='')}"
+
+	@staticmethod
+	def get_jitsi_settings():
+		try:
+			return frappe.get_single("Bruce Jitsi Settings")
+		except frappe.DoesNotExistError:
+			return JitsiSettings()
+
+	@staticmethod
+	def room_name_exists(room_name):
+		return frappe.db.exists("Bruce Live Class", {"room_name": room_name})
