@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:BLC-{YYYY}-{#####}",
+ "creation": "2026-05-30 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "status",
+  "whatsapp_status",
+  "section_break_schedule",
+  "course",
+  "batch",
+  "instructor",
+  "column_break_schedule",
+  "starts_at",
+  "ends_at",
+  "section_break_jitsi",
+  "room_name",
+  "column_break_jitsi",
+  "meeting_url"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Título",
+   "reqd": 1
+  },
+  {
+   "default": "Agendada",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Agendada\nAo vivo\nEncerrada\nCancelada",
+   "reqd": 1
+  },
+  {
+   "default": "Não enviado",
+   "fieldname": "whatsapp_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status do WhatsApp",
+   "options": "Não enviado\nPendente\nEnviado\nFalhou\nReenviado",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_schedule",
+   "fieldtype": "Section Break",
+   "label": "Dados da aula"
+  },
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Curso",
+   "options": "LMS Course",
+   "reqd": 1
+  },
+  {
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Turma",
+   "options": "LMS Batch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "instructor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Professor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_schedule",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "starts_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Início",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ends_at",
+   "fieldtype": "Datetime",
+   "label": "Término",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_jitsi",
+   "fieldtype": "Section Break",
+   "label": "Jitsi"
+  },
+  {
+   "description": "Gerado no backend de forma única e não previsível.",
+   "fieldname": "room_name",
+   "fieldtype": "Data",
+   "label": "Nome da sala",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_jitsi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "meeting_url",
+   "fieldtype": "Small Text",
+   "label": "Link da aula",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Bruce Lms Custom",
+ "name": "Bruce Live Class",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "LMS Student",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "starts_at",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}
