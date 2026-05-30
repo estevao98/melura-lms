@@ -1,221 +1,332 @@
 # Papéis e permissões
 
-Este documento define os papéis operacionais esperados para o `bruce_lms_custom`.
+Este documento define a base documental de papéis e permissões do projeto
+`bruce_lms_custom`.
 
-As permissões devem ser implementadas dentro da app customizada e integradas aos papéis do Frappe/Frappe LMS quando fizer sentido. O usuário `Administrator` não deve ser usado como usuário operacional do professor.
+Esta etapa é apenas documental. Ela não cria DocTypes, não cria papéis no banco,
+não altera permissões reais e não implementa código. A implementação futura deve
+acontecer dentro da app `bruce_lms_custom`, sem modificar diretamente `frappe/`,
+`lms/`, `frappe-ui/` ou `jitsi-meet/`.
 
-## Princípios
+## Objetivos
 
-- Usar o menor privilégio necessário.
-- Separar operação acadêmica, administração LMS, integração e manutenção técnica.
-- Validar ações críticas no backend.
-- Evitar acesso de aluno a qualquer operação administrativa.
-- Não expor configurações sensíveis para professor ou aluno.
-- Manter permissões auditáveis.
+- Separar responsabilidades entre operação acadêmica, administração LMS,
+  integração e manutenção técnica.
+- Garantir que professor, aluno e administração tenham apenas o acesso necessário.
+- Evitar o uso do usuário `Administrator` como usuário operacional.
+- Preparar a futura implementação de permissões para aulas ao vivo, WhatsApp,
+  KPIs e configurações.
+- Manter a experiência e a documentação em português brasileiro.
 
-## Root Técnico
+## Regra sobre o usuário Administrator
 
-Responsável por manutenção técnica do ambiente.
+O usuário `Administrator` do Frappe é uma conta técnica de alto privilégio. Ele
+não deve ser usado como usuário operacional do professor, nem para rotina diária
+de aulas, turmas, envio de WhatsApp ou acompanhamento do painel.
 
-Pode:
+Para o professor, deve existir um usuário humano próprio, com o papel `Professor`
+e permissões limitadas ao fluxo acadêmico necessário. O `Administrator` deve ser
+reservado para manutenção técnica excepcional, instalação, recuperação de acesso
+ou diagnóstico controlado.
 
-- instalar e atualizar apps;
-- executar migrações;
+Essa separação reduz risco operacional, melhora auditoria e evita que uma ação
+cotidiana do professor seja registrada como se tivesse sido feita por uma conta
+técnica global.
+
+## Princípios de permissão
+
+- Aplicar o menor privilégio necessário.
+- Validar ações críticas no backend, mesmo quando o frontend ocultar botões.
+- Impedir que alunos acessem operações administrativas, logs internos ou
+  configurações.
+- Não expor API keys, tokens, endpoints sensíveis ou segredos no frontend.
+- Registrar ações operacionais relevantes, como início de aula e reenvio de
+  WhatsApp.
+- Manter logs úteis para suporte sem armazenar dados sensíveis desnecessários.
+- Relacionar permissões aos vínculos reais de curso, turma, aula e matrícula.
+
+## Papéis previstos
+
+### Root Técnico
+
+Papel de manutenção técnica do ambiente e da app.
+
+Responsabilidades:
+
+- instalar, atualizar e migrar apps;
 - configurar variáveis de ambiente e `site_config.json`;
-- configurar integrações sensíveis;
+- configurar segredos e integrações sensíveis;
 - revisar logs técnicos;
-- corrigir incidentes;
-- criar usuários operacionais quando necessário.
+- apoiar incidentes e recuperação de acesso;
+- criar ou ajustar usuários operacionais quando necessário.
 
-Não deve:
+Permissões esperadas:
 
-- ser usado como usuário diário do professor;
-- substituir papéis operacionais em fluxos normais;
-- expor credenciais em telas ou documentação.
+- acesso técnico amplo quando indispensável;
+- acesso a configurações sensíveis;
+- acesso a logs técnicos;
+- suporte a aulas ao vivo, WhatsApp, KPIs e configurações.
 
-Observação: este papel pode corresponder a administradores técnicos do Frappe, mas deve ser usado com parcimônia.
+Limites:
 
-## Professor
+- não deve ser usado para operação diária do professor;
+- não deve substituir papéis operacionais em fluxos normais;
+- não deve expor credenciais em telas, mensagens ou documentação funcional.
 
-Responsável pela operação acadêmica das aulas.
+### Professor
 
-Pode:
+Papel humano responsável pela operação acadêmica das aulas.
 
-- acessar seu painel;
-- ver cursos e turmas sob sua responsabilidade;
-- ver próximas aulas;
-- agendar ou preparar aula quando autorizado;
-- iniciar aula ao vivo;
-- ver status básico de envio de avisos relacionados às suas aulas;
-- solicitar reenvio de aviso quando permitido;
-- acessar links e materiais de suas turmas.
+Responsabilidades:
 
-Não deve:
+- acompanhar cursos e turmas sob sua responsabilidade;
+- preparar ou agendar aulas ao vivo quando autorizado;
+- iniciar aulas ao vivo;
+- acompanhar status simples de avisos relacionados às suas aulas;
+- solicitar ou executar reenvio de avisos quando permitido;
+- acessar materiais e informações acadêmicas necessárias para sua turma.
 
-- acessar API keys;
-- editar configurações globais de integração;
-- consultar logs técnicos completos;
-- operar como `Administrator`;
-- acessar turmas fora de sua responsabilidade sem permissão explícita;
-- alterar dados financeiros.
+Permissões esperadas:
 
-Permissões críticas:
+- visualizar seu painel;
+- visualizar aulas, cursos e turmas vinculados a ele;
+- criar ou preparar aula ao vivo quando a política do LMS permitir;
+- iniciar aula ao vivo se for o professor responsável;
+- visualizar status resumido de WhatsApp das suas aulas;
+- reenviar aviso de WhatsApp apenas dentro do seu escopo, se autorizado;
+- visualizar KPIs simples ligados à sua rotina, como próximas aulas e falhas
+  operacionais relevantes.
 
-- iniciar aula somente se for professor responsável ou usuário autorizado;
-- reenviar aviso somente para aulas/turmas permitidas;
-- visualizar dados de alunos apenas no contexto acadêmico necessário.
+Limites:
 
-## Aluno
+- não acessa API keys, tokens ou endpoints sensíveis;
+- não altera configurações globais de integração;
+- não consulta logs técnicos completos;
+- não opera com o usuário `Administrator`;
+- não acessa turmas fora de sua responsabilidade sem permissão explícita;
+- não altera dados financeiros nem administra o sistema como um todo.
 
-Responsável por acessar conteúdo e aulas do curso.
+### Aluno
 
-Pode:
+Papel humano responsável por consumir conteúdos, aulas e avisos do curso.
 
-- acessar cursos nos quais está matriculado;
-- ver aulas e materiais liberados;
+Responsabilidades:
+
+- acessar cursos em que está matriculado;
+- acompanhar aulas e materiais liberados;
 - entrar na aula ao vivo quando disponível;
-- ver data, horário e status da aula;
-- receber avisos por WhatsApp conforme cadastro e consentimento operacional aplicável.
+- receber avisos operacionais por WhatsApp conforme cadastro e consentimento
+  aplicável.
 
-Não deve:
+Permissões esperadas:
 
-- iniciar ou cancelar aula;
-- gerar link Jitsi;
-- acessar sala de aula de turma sem matrícula válida;
-- ver logs de WhatsApp;
-- ver dados de outros alunos;
-- acessar configurações administrativas.
+- visualizar cursos e aulas em que possui matrícula válida;
+- visualizar data, horário e status de aulas ao vivo disponíveis;
+- entrar na aula ao vivo quando a aula estiver liberada;
+- visualizar mensagens simples de erro ou orientação.
 
-Permissões críticas:
+Limites:
 
-- entrada na aula deve validar matrícula e disponibilidade;
-- materiais devem respeitar regras do LMS;
-- mensagens de erro devem orientar contato com suporte sem expor detalhes internos.
+- não inicia, agenda, cancela ou encerra aula;
+- não gera link ou `roomName` do Jitsi;
+- não acessa aulas de turmas sem matrícula válida;
+- não acessa logs de WhatsApp;
+- não vê dados de outros alunos;
+- não acessa KPIs administrativos;
+- não acessa configurações.
 
-## Administrador LMS
+### Administrador LMS
 
-Responsável pela operação administrativa básica do LMS.
+Papel operacional responsável pela administração básica do LMS, sem assumir
+função técnica irrestrita.
 
-Pode:
+Responsabilidades:
 
-- acompanhar KPIs acadêmicos básicos;
-- consultar aulas agendadas e status;
+- acompanhar operação acadêmica;
+- apoiar professor e alunos em problemas de acesso;
+- consultar aulas agendadas, status e falhas;
+- acompanhar KPIs básicos do LMS;
 - consultar logs de WhatsApp;
 - reenviar mensagens com falha;
-- configurar opções operacionais não sensíveis;
-- acompanhar falhas recentes de integração;
-- apoiar professor e alunos em problemas de acesso.
+- ajustar configurações operacionais não sensíveis quando permitido.
 
-Não deve:
+Permissões esperadas:
 
-- acessar segredos diretamente se não tiver função técnica;
-- transformar o LMS em secretaria financeira completa;
-- usar conta de Root Técnico para operação cotidiana;
-- alterar core do Frappe ou LMS.
+- criar, editar e acompanhar aulas ao vivo;
+- consultar status de aulas e mensagens;
+- reenviar WhatsApp com falha;
+- visualizar KPIs administrativos básicos;
+- visualizar logs operacionais com dados sensíveis ocultos;
+- alterar configurações não sensíveis, como provedor ativo, templates
+  operacionais ou preferências permitidas.
 
-Permissões críticas:
+Limites:
 
-- reenvio manual deve ser auditado;
-- alterações de configuração devem registrar responsável quando possível;
-- logs devem ocultar tokens e payloads sensíveis.
+- não acessa segredos diretamente, salvo quando também possuir atribuição técnica
+  formal;
+- não usa conta de Root Técnico para rotina administrativa;
+- não transforma o LMS em secretaria financeira completa;
+- não altera core do Frappe, Frappe LMS, Frappe UI ou Jitsi Meet.
 
-## Integração/Bot
+### Integração/Bot
 
-Usuário técnico usado por automações, webhooks ou integrações.
+Papel técnico de escopo limitado para automações, webhooks, callbacks e jobs.
 
-Pode:
+Responsabilidades:
 
-- executar ações específicas de integração;
-- registrar logs de envio;
+- registrar tentativas de envio de WhatsApp;
 - atualizar status de mensagens;
-- receber callbacks de n8n ou provedor quando configurado;
-- executar jobs em background com escopo limitado.
+- receber callbacks de n8n, Evolution API ou provedor equivalente;
+- executar jobs em background com escopo controlado;
+- registrar origem e resultado das ações automatizadas.
 
-Não deve:
+Permissões esperadas:
 
-- ter permissão ampla de administrador;
-- acessar telas humanas sem necessidade;
-- carregar credenciais no frontend;
-- modificar cursos, turmas ou usuários fora do escopo da integração.
+- criar ou atualizar logs de WhatsApp dentro do escopo da integração;
+- atualizar status de mensagens e callbacks;
+- executar ações automatizadas autorizadas pelo backend;
+- acessar apenas dados mínimos necessários para a automação.
 
-Permissões críticas:
+Limites:
 
-- usar token ou credencial rotacionável;
-- ter escopo mínimo;
-- registrar origem da ação;
-- permitir revogação sem afetar usuários humanos.
+- não possui permissão ampla de administrador;
+- não acessa telas humanas sem necessidade;
+- não carrega credenciais no frontend;
+- não modifica cursos, turmas, usuários ou configurações globais fora do escopo;
+- deve usar credencial rotacionável e revogável.
 
-## Matriz inicial de permissões
+## Permissões por domínio funcional
+
+### Aulas ao vivo
+
+As aulas ao vivo serão representadas futuramente por DocType customizado, como
+`Bruce Live Class`, mas este documento não cria esse DocType.
+
+Permissões esperadas:
 
 | Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
 | --- | --- | --- | --- | --- | --- |
-| Configurar segredos | Sim | Não | Não | Não, salvo exceção controlada | Não |
-| Ver painel do professor | Suporte | Sim | Não | Suporte | Não |
-| Ver cursos matriculados | Suporte | Conforme vínculo | Sim | Suporte | Não |
+| Criar aula ao vivo | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Editar dados da aula | Suporte técnico | Somente suas aulas, se autorizado | Não | Sim | Não |
+| Gerar `roomName` seguro | Backend | Backend | Não | Backend | Não |
+| Ver link da aula | Suporte técnico | Sim, se responsável | Sim, se matriculado e liberado | Sim | Não |
+| Iniciar aula | Suporte técnico | Sim, se responsável | Não | Sim, se necessário | Não |
+| Entrar como aluno | Não operacional | Não operacional | Sim, se matriculado | Suporte | Não |
+| Cancelar ou encerrar aula | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Ver status da aula | Sim | Sim, se vinculada | Sim, se matriculado | Sim | Não |
+
+Regras importantes:
+
+- o `roomName` deve ser gerado no backend, de forma única e não previsível;
+- o aluno só entra na aula se tiver matrícula válida e a aula estiver disponível;
+- o professor só inicia aula em turma ou curso sob sua responsabilidade;
+- ações de iniciar, cancelar ou encerrar aula devem ser auditáveis.
+
+### Logs de WhatsApp
+
+Os logs de WhatsApp serão representados futuramente por DocType customizado,
+como `Bruce WhatsApp Message Log`, mas este documento não cria esse DocType.
+
+Permissões esperadas:
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Criar log de envio | Suporte técnico | Não direto | Não | Sim, por ação administrativa | Sim |
+| Ver status resumido | Sim | Somente aulas vinculadas | Não | Sim | Próprios registros |
+| Ver log operacional | Sim | Limitado, sem detalhe técnico | Não | Sim | Próprios registros |
+| Ver payload técnico | Sim, quando necessário | Não | Não | Parcial, sem segredo | Não |
+| Reenviar mensagem falha | Suporte técnico | Sim, se autorizado e vinculada | Não | Sim | Sim, por job autorizado |
+| Atualizar status por callback | Suporte técnico | Não | Não | Não direto | Sim |
+
+Regras importantes:
+
+- o envio deve acontecer no backend ou via n8n;
+- tokens e endpoints sensíveis não devem aparecer no frontend;
+- cada tentativa deve registrar status, origem, data/hora e erro quando houver;
+- reenvio manual deve preservar histórico e registrar responsável;
+- professor deve ver apenas informação operacional suficiente, sem payload técnico.
+
+### KPIs
+
+Os KPIs administrativos básicos poderão ser consultados em tempo real ou
+armazenados futuramente em estrutura como `Bruce Admin KPI Snapshot`, mas este
+documento não cria esse DocType.
+
+Permissões esperadas:
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Ver alunos ativos | Suporte técnico | Limitado às suas turmas, se necessário | Não | Sim | Não |
+| Ver matrículas por curso/turma | Suporte técnico | Limitado ao seu escopo | Não | Sim | Não |
+| Ver próximas aulas | Sim | Sim, vinculadas | Sim, quando matriculado | Sim | Não |
+| Ver aulas realizadas | Sim | Sim, vinculadas | Limitado ao próprio curso | Sim | Não |
+| Ver envios por status | Sim | Resumo das suas aulas | Não | Sim | Não |
+| Ver falhas operacionais recentes | Sim | Somente relacionadas às suas aulas | Não | Sim | Não |
+
+Regras importantes:
+
+- KPIs devem apoiar operação acadêmica e suporte;
+- o LMS não deve virar secretaria financeira completa;
+- indicadores financeiros detalhados, cobrança e inadimplência ficam fora do
+  escopo inicial;
+- cada indicador deve ter origem rastreável e respeitar permissões.
+
+### Configurações
+
+As configurações operacionais poderão ser representadas futuramente por DocType
+customizado, como `Bruce Integration Settings`, mas este documento não cria esse
+DocType.
+
+Permissões esperadas:
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Configurar segredos | Sim | Não | Não | Não, salvo atribuição técnica formal | Não |
+| Ver referência de configuração | Sim | Não | Não | Sim, se não sensível | Não |
+| Alterar provedor operacional | Sim | Não | Não | Sim, se permitido | Não |
+| Alterar templates de mensagem | Sim | Não | Não | Sim, se permitido | Não |
+| Ver status da integração | Sim | Resumo operacional, se relacionado | Não | Sim | Próprio status |
+| Rotacionar credenciais | Sim | Não | Não | Não, salvo atribuição técnica formal | Não |
+
+Regras importantes:
+
+- segredos devem ficar em variável de ambiente ou `site_config.json`, nunca em
+  código versionado;
+- configurações sensíveis não devem ser expostas para professor, aluno ou
+  frontend;
+- alterações de configuração devem registrar responsável quando possível;
+- o bot não deve alterar configuração global.
+
+## Matriz geral resumida
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Usar o painel do professor | Suporte | Sim | Não | Suporte | Não |
+| Usar painel administrativo | Suporte | Não | Não | Sim | Não |
+| Acessar cursos matriculados | Suporte | Conforme vínculo | Sim | Suporte | Não |
 | Agendar aula ao vivo | Suporte | Sim, se autorizado | Não | Sim | Não |
-| Iniciar aula ao vivo | Suporte | Sim, se responsável | Não | Suporte | Não |
-| Entrar em aula como aluno | Não operacional | Não operacional | Sim, se matriculado | Suporte | Não |
-| Enviar aviso WhatsApp | Suporte | Solicitar, se autorizado | Não | Sim | Sim, por job |
-| Reenviar aviso com falha | Suporte | Sim, se permitido | Não | Sim | Sim, por job |
-| Ver logs resumidos | Sim | Apenas relacionados | Não | Sim | Apenas próprios |
-| Ver logs técnicos completos | Sim | Não | Não | Parcial | Não |
+| Iniciar aula ao vivo | Suporte | Sim, se responsável | Não | Sim, se necessário | Não |
+| Entrar em aula ao vivo | Não operacional | Não operacional | Sim, se matriculado | Suporte | Não |
+| Consultar logs de WhatsApp | Sim | Resumo vinculado | Não | Sim | Próprios registros |
+| Reenviar WhatsApp | Suporte | Sim, se autorizado | Não | Sim | Sim, por job |
 | Ver KPIs básicos | Sim | Limitado | Não | Sim | Não |
+| Alterar configurações não sensíveis | Sim | Não | Não | Sim, se permitido | Não |
+| Alterar configurações sensíveis | Sim | Não | Não | Não, salvo atribuição técnica | Não |
 
-## DocTypes customizados previstos
+## Validações obrigatórias no backend
 
-### Bruce Live Class
-
-Representa uma aula ao vivo.
-
-Permissões esperadas:
-
-- Professor responsável pode visualizar e iniciar.
-- Administrador LMS pode criar, editar e acompanhar.
-- Aluno pode visualizar apenas aulas disponíveis de turmas em que está matriculado.
-- Root Técnico pode dar suporte.
-
-### Bruce WhatsApp Message Log
-
-Registra tentativas de envio.
-
-Permissões esperadas:
-
-- Administrador LMS pode consultar e reenviar.
-- Professor pode ver resumo relacionado às suas aulas quando necessário.
-- Aluno não acessa.
-- Integração/Bot pode criar ou atualizar entradas conforme escopo.
-
-### Bruce Integration Settings
-
-Guarda configurações operacionais e referências para segredos externos.
-
-Permissões esperadas:
-
-- Root Técnico gerencia segredos e configuração sensível.
-- Administrador LMS pode alterar opções não sensíveis se permitido.
-- Professor e aluno não acessam.
-- Integração/Bot não altera configuração global.
-
-### Bruce Admin KPI Snapshot
-
-Armazena métricas administrativas básicas quando necessário.
-
-Permissões esperadas:
-
-- Administrador LMS visualiza.
-- Root Técnico dá suporte.
-- Professor vê apenas indicadores ligados à sua rotina, se houver necessidade.
-- Aluno e Integração/Bot não acessam.
-
-## Regras de validação no backend
-
-Toda ação crítica deve validar:
+Toda implementação futura deve validar:
 
 - usuário autenticado;
 - papel adequado;
-- vínculo com curso, turma ou aula;
-- status atual da aula ou mensagem;
-- escopo da integração;
-- ausência de exposição de segredos na resposta.
+- vínculo com curso, turma, aula ou matrícula;
+- responsabilidade do professor pela aula;
+- status atual da aula;
+- status atual da mensagem de WhatsApp;
+- escopo da integração ou bot;
+- ausência de segredos na resposta;
+- permissão específica para ações críticas, como iniciar aula, gerar link,
+  reenviar WhatsApp e alterar configuração.
 
-Validações de frontend ajudam a experiência, mas não substituem permissão no backend.
+Validações no frontend ajudam a experiência, mas não substituem permissões e
+checagens no backend.
