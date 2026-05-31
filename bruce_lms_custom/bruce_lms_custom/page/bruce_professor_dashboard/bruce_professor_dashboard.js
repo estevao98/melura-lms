@@ -66,6 +66,9 @@ class BruceProfessorDashboard {
 		const copyButton = meetingUrl
 			? `<button class="btn btn-default bruce-professor-dashboard__copy">${__("Copiar link")}</button>`
 			: "";
+		const whatsappButton = meetingUrl
+			? `<button class="btn btn-default bruce-professor-dashboard__whatsapp">${__("Enviar link por WhatsApp")}</button>`
+			: "";
 		const meetingLink = meetingUrl
 			? `<a href="${frappe.utils.escape_html(meetingUrl)}" target="_blank" rel="noopener">${frappe.utils.escape_html(meetingUrl)}</a>`
 			: `<span class="text-muted">${__("Link indisponível")}</span>`;
@@ -95,6 +98,7 @@ class BruceProfessorDashboard {
 				<div class="bruce-professor-dashboard__actions">
 					${openButton}
 					${copyButton}
+					${whatsappButton}
 					${startButton}
 				</div>
 			</div>
@@ -107,6 +111,10 @@ class BruceProfessorDashboard {
 
 			this.container.find(".bruce-professor-dashboard__copy").on("click", () => {
 				this.copy_meeting_url(meetingUrl);
+			});
+
+			this.container.find(".bruce-professor-dashboard__whatsapp").on("click", () => {
+				this.send_whatsapp_link(liveClass.name);
 			});
 		}
 
@@ -149,6 +157,25 @@ class BruceProfessorDashboard {
 				if (result.meeting_url) {
 					window.open(result.meeting_url, "_blank", "noopener");
 				}
+
+				this.load();
+			},
+		});
+	}
+
+	send_whatsapp_link(name) {
+		frappe.call({
+			method: "bruce_lms_custom.services.whatsapp.send_live_class_link",
+			args: { live_class: name },
+			freeze: true,
+			freeze_message: __("Enviando link por WhatsApp..."),
+			callback: (response) => {
+				const result = response.message || {};
+
+				frappe.show_alert({
+					message: result.message || __("Solicitação de envio registrada."),
+					indicator: result.status === "sent" ? "green" : "orange",
+				});
 
 				this.load();
 			},

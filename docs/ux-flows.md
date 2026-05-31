@@ -91,7 +91,20 @@ Estados de tela:
 - encerrada: mostrar status e, se existir, material ou gravação futura;
 - sem permissão: mostrar mensagem simples orientando contato com suporte.
 
-## Fluxo: envio de link por WhatsApp
+## Fluxo: envio manual de link por WhatsApp
+
+1. Professor ou administrador abre uma aula ao vivo.
+2. Clica em `Enviar link por WhatsApp`.
+3. Backend valida permissão e configuração.
+4. Backend monta a mensagem em português brasileiro.
+5. Backend chama Evolution API ou webhook n8n conforme configuração.
+6. Sistema registra cada tentativa no log.
+7. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
+
+Nesta etapa o envio é somente manual. Ainda não há automações 24h/1h antes da
+aula.
+
+## Fluxo futuro: envio automático de link por WhatsApp
 
 1. Aula é agendada ou marcada para envio.
 2. Backend monta a mensagem em português brasileiro.
@@ -129,9 +142,8 @@ Regras de UX:
 
 ### Base atual para WhatsApp
 
-Nesta etapa, o sistema prepara apenas os cadastros e logs necessários para o
-fluxo futuro. Ainda não existe envio real, automação, scheduler ou botão de
-reenvio no painel.
+Nesta etapa, o sistema possui cadastros, logs e envio manual backend do link de
+aula. Ainda não existe automação, scheduler ou botão de reenvio a partir do log.
 
 O administrador configura o provedor em `Bruce Evolution Settings`, escolhendo
 `Evolution API` ou `n8n`. A API key da Evolution deve ficar em variável de
@@ -139,9 +151,19 @@ ambiente ou `site_config.json`, nunca em campo aberto nem no frontend.
 
 O administrador também pode cadastrar mensagens em `Bruce WhatsApp Message
 Template`, em português brasileiro, e consultar registros em `Bruce WhatsApp
-Notification Log` quando a etapa de envio for implementada.
+Notification Log`.
 
-Fluxo manual futuro previsto:
+O template ativo para o tipo `Link de aula disponível` pode usar:
+
+- `{nome}`;
+- `{aula}`;
+- `{curso}`;
+- `{turma}`;
+- `{inicio}`;
+- `{link}`;
+- `{meeting_url}`.
+
+Fluxo manual de reenvio futuro previsto:
 
 1. Administrador ou professor autorizado visualiza avisos de WhatsApp com
    status `Falhou`.
@@ -195,12 +217,15 @@ Ações disponíveis:
 - `Iniciar aula`, para aula `Agendada`, chamando a validação backend já existente
   de `Bruce Live Class`.
 - `Copiar link`, quando a aula tiver link e o navegador permitir cópia simples.
+- `Enviar link por WhatsApp`, quando a aula tiver link, chamando o backend de
+  envio manual e registrando `Bruce WhatsApp Notification Log`.
 
 Se não houver aula agendada ou ao vivo visível para o usuário, o painel mostra:
 `Nenhuma aula ao vivo encontrada.`
 
-Nesta versão, o painel não envia WhatsApp, não reenviará avisos e não substitui
-os fluxos administrativos do Desk.
+Nesta versão, o painel envia o link manualmente quando solicitado. Ele ainda não
+reenviará avisos a partir dos logs e não substitui os fluxos administrativos do
+Desk.
 
 ## Fluxo: painel administrativo básico
 

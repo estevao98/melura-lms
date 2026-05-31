@@ -52,6 +52,28 @@ frappe.ui.form.on("Bruce Live Class", {
 				});
 			}, __("Jitsi")).addClass("btn-primary");
 		}
+
+		frm.add_custom_button(__("Enviar link por WhatsApp"), () => {
+			frappe.call({
+				method: "bruce_lms_custom.services.whatsapp.send_live_class_link",
+				args: {
+					live_class: frm.doc.name,
+				},
+				freeze: true,
+				freeze_message: __("Enviando link por WhatsApp..."),
+				callback(response) {
+					const result = response.message || {};
+					const indicator = result.status === "sent" ? "green" : "orange";
+
+					frappe.show_alert({
+						message: result.message || __("Solicitação de envio registrada."),
+						indicator,
+					});
+
+					frm.reload_doc();
+				},
+			});
+		}, __("WhatsApp"));
 	},
 });
 
