@@ -292,15 +292,16 @@ Ações principais:
 
 O painel deve evitar métricas excessivas, tabelas densas e termos administrativos que não ajudem a rotina do professor.
 
-### Primeira versão no Desk
+### Versão atual no Desk
 
-A primeira versão do painel é uma Page Desk simples chamada `Painel do Professor`.
-Ela usa dados reais do DocType `Bruce Live Class` e mostra apenas uma aula:
+A versão atual do painel é uma Page Desk simples chamada `Painel do Professor`.
+Ela usa dados reais do DocType `Bruce Live Class` e mantém a próxima aula em
+destaque:
 
 - aula com status `Ao vivo`, quando existir;
 - caso contrário, a próxima aula `Agendada` com início futuro.
 
-Campos exibidos:
+Campos exibidos no card de `Próxima aula`:
 
 - título da aula;
 - curso, com título legível quando disponível e fallback para o identificador;
@@ -309,6 +310,18 @@ Campos exibidos:
 - status da aula;
 - status do WhatsApp;
 - link da aula, quando existir.
+
+Abaixo do card principal, o painel mostra a seção `Aulas da semana`, com aulas
+`Agendada` ou `Ao vivo` dos próximos 7 dias, ordenadas por data de início.
+
+Campos exibidos na lista semanal:
+
+- título da aula;
+- curso;
+- turma;
+- data e horário;
+- status da aula;
+- status do WhatsApp.
 
 Ações disponíveis:
 
@@ -321,6 +334,7 @@ Ações disponíveis:
 - `Ir para a aula no Desk`, abrindo o formulário da `Bruce Live Class`.
 - `Histórico recente`, mostrando os últimos avisos e ações registrados para a
   aula.
+- `Ver detalhes`, na lista semanal, abrindo o formulário da `Bruce Live Class`.
 
 Status visuais exibidos:
 

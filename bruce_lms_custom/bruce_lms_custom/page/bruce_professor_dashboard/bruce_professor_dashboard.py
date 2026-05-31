@@ -2,7 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.utils import now_datetime
+from frappe.utils import add_to_date, now_datetime
 
 
 WHATSAPP_INTEGRATION_DISABLED_LABEL = "Integração desativada"
@@ -32,6 +32,15 @@ def get_next_live_class():
 	return _get_next_live_class()
 
 
+@frappe.whitelist()
+def get_dashboard_data():
+	"""Return the data shown in the professor dashboard."""
+	return {
+		"next_live_class": _get_next_live_class(),
+		"week_classes": _get_week_live_classes(),
+	}
+
+
 def _get_next_live_class():
 	live_class = _get_first_live_class(filters={"status": "Ao vivo"})
 	if live_class:
@@ -43,6 +52,23 @@ def _get_next_live_class():
 			"starts_at": [">=", now_datetime()],
 		}
 	)
+
+
+def _get_week_live_classes():
+	start = now_datetime()
+	end = add_to_date(start, days=7)
+	classes = frappe.get_list(
+		"Bruce Live Class",
+		filters={
+			"status": ["in", ["Agendada", "Ao vivo"]],
+			"starts_at": ["between", [start, end]],
+		},
+		fields=LIVE_CLASS_FIELDS,
+		order_by="starts_at asc",
+		limit_page_length=20,
+	)
+
+	return [_with_display_values(dict(live_class), include_notice_logs=False) for live_class in classes]
 
 
 def _get_first_live_class(filters):
@@ -60,12 +86,12 @@ def _get_first_live_class(filters):
 	return _with_display_values(dict(classes[0]))
 
 
-def _with_display_values(live_class):
+def _with_display_values(live_class, include_notice_logs=True):
 	live_class["course_title"] = _get_link_title("LMS Course", live_class.get("course"))
 	live_class["batch_title"] = _get_link_title("LMS Batch", live_class.get("batch"))
 	live_class["class_status_label"] = _get_class_status_label(live_class.get("status"))
 	live_class["whatsapp_status_label"] = _get_whatsapp_status_label(live_class.get("whatsapp_status"))
-	live_class["notice_logs"] = _get_notice_logs(live_class.get("name"))
+	live_class["notice_logs"] = _get_notice_logs(live_class.get("name")) if include_notice_logs else []
 	return live_class
 
 

@@ -4,12 +4,16 @@
 import unittest
 from unittest.mock import Mock, patch
 
+import frappe
+
 from bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard import (
 	WHATSAPP_INTEGRATION_DISABLED_LABEL,
 	_get_class_status_label,
 	_get_link_title,
 	_get_next_live_class,
+	_get_week_live_classes,
 	_get_whatsapp_status_label,
+	get_dashboard_data,
 )
 
 
@@ -27,7 +31,10 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		) as get_list, patch(
 			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_all",
 			return_value=[],
-		) as get_all:
+		) as get_all, patch(
+			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
+			Mock(get_value=Mock(return_value=None), get_single_value=Mock(return_value=1)),
+		):
 			result = _get_next_live_class()
 
 		self.assertEqual(result["name"], live_class["name"])
@@ -77,6 +84,10 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_all",
 				return_value=[],
 			) as get_all,
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
+				Mock(get_value=Mock(return_value=None), get_single_value=Mock(return_value=1)),
+			),
 			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.now_datetime",
 				return_value="2026-05-30 12:00:00",
@@ -131,6 +142,90 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 
 		self.assertIsNone(result)
 		get_all.assert_not_called()
+
+	def test_get_dashboard_data_returns_next_class_and_week_classes(self):
+		frappe.local.flags = frappe._dict(in_test=True)
+
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard._get_next_live_class",
+				return_value={"name": "BLC-2026-00001"},
+			) as get_next_live_class,
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard._get_week_live_classes",
+				return_value=[{"name": "BLC-2026-00002"}],
+			) as get_week_live_classes,
+		):
+			result = get_dashboard_data()
+
+		self.assertEqual(result["next_live_class"], {"name": "BLC-2026-00001"})
+		self.assertEqual(result["week_classes"], [{"name": "BLC-2026-00002"}])
+		self.assertNotIn("week_live_classes", result)
+		get_next_live_class.assert_called_once_with()
+		get_week_live_classes.assert_called_once_with()
+
+	def test_get_week_live_classes_returns_scheduled_and_live_classes_for_next_7_days(self):
+		classes = [
+			{
+				"name": "BLC-2026-00002",
+				"title": "Aula de Geografia",
+				"course": "humanas-enem",
+				"batch": "turma-maio",
+				"status": "Agendada",
+				"whatsapp_status": "Pendente",
+			}
+		]
+
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_list",
+				return_value=classes,
+			) as get_list,
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
+				Mock(
+					get_value=Mock(side_effect=["Humanas ENEM", "Turma Maio"]),
+					get_single_value=Mock(return_value=1),
+				),
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.now_datetime",
+				return_value="2026-05-30 12:00:00",
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.add_to_date",
+				return_value="2026-06-06 12:00:00",
+			) as add_to_date,
+		):
+			result = _get_week_live_classes()
+
+		self.assertEqual(len(result), 1)
+		self.assertEqual(result[0]["name"], "BLC-2026-00002")
+		self.assertEqual(result[0]["course_title"], "Humanas ENEM")
+		self.assertEqual(result[0]["batch_title"], "Turma Maio")
+		self.assertEqual(result[0]["class_status_label"], "Aula agendada")
+		self.assertEqual(result[0]["whatsapp_status_label"], "WhatsApp pendente")
+		self.assertEqual(result[0]["notice_logs"], [])
+		add_to_date.assert_called_once_with("2026-05-30 12:00:00", days=7)
+		get_list.assert_called_once_with(
+			"Bruce Live Class",
+			filters={
+				"status": ["in", ["Agendada", "Ao vivo"]],
+				"starts_at": ["between", ["2026-05-30 12:00:00", "2026-06-06 12:00:00"]],
+			},
+			fields=[
+				"name",
+				"title",
+				"course",
+				"batch",
+				"starts_at",
+				"status",
+				"whatsapp_status",
+				"meeting_url",
+			],
+			order_by="starts_at asc",
+			limit_page_length=20,
+		)
 
 	def test_get_next_live_class_adds_course_and_batch_titles(self):
 		scheduled_class = {

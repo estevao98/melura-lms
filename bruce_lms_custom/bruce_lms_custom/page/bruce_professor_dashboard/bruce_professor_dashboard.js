@@ -23,16 +23,13 @@ class BruceProfessorDashboard {
 		this.render_loading();
 
 		frappe.call({
-			method: "bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.get_next_live_class",
+			method: "bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.get_dashboard_data",
 			callback: (response) => {
-				const liveClass = response.message;
+				const dashboardData = response.message || {};
+				const liveClass = dashboardData.next_live_class;
+				const weekClasses = dashboardData.week_classes || [];
 
-				if (!liveClass) {
-					this.render_empty();
-					return;
-				}
-
-				this.render_live_class(liveClass);
+				this.render_dashboard(liveClass, weekClasses);
 			},
 		});
 	}
@@ -54,7 +51,29 @@ class BruceProfessorDashboard {
 		`);
 	}
 
-	render_live_class(liveClass) {
+	render_dashboard(liveClass, weekClasses) {
+		this.container.html(`
+			${liveClass ? this.render_next_live_class(liveClass) : this.render_empty_next_live_class()}
+			${this.render_week_live_classes(weekClasses)}
+		`);
+
+		if (liveClass) {
+			this.bind_next_live_class_actions(liveClass);
+		}
+		this.bind_week_live_class_actions(weekClasses);
+	}
+
+	render_empty_next_live_class() {
+		return `
+			<div class="bruce-professor-dashboard__panel">
+				<div class="text-muted">${__("Próxima aula")}</div>
+				<h3>${__("Nenhuma aula ao vivo encontrada.")}</h3>
+				<p class="text-muted">${__("Quando houver uma aula agendada ou ao vivo, ela aparecerá aqui.")}</p>
+			</div>
+		`;
+	}
+
+	render_next_live_class(liveClass) {
 		const meetingUrl = this.clean(liveClass.meeting_url);
 		const canStart = liveClass.status === "Agendada";
 		const startButton = canStart
@@ -76,7 +95,7 @@ class BruceProfessorDashboard {
 		const classStatusLabel = this.clean(liveClass.class_status_label) || this.clean(liveClass.status);
 		const whatsappStatusLabel = this.clean(liveClass.whatsapp_status_label) || this.clean(liveClass.whatsapp_status);
 
-		this.container.html(`
+		return `
 			<div class="bruce-professor-dashboard__panel">
 				<div class="bruce-professor-dashboard__header">
 					<div>
@@ -112,8 +131,12 @@ class BruceProfessorDashboard {
 
 				${this.render_notice_history(liveClass.notice_logs || [])}
 			</div>
-		`);
+		`;
+	}
 
+	bind_next_live_class_actions(liveClass) {
+		const meetingUrl = this.clean(liveClass.meeting_url);
+		const canStart = liveClass.status === "Agendada";
 		if (meetingUrl) {
 			this.container.find(".bruce-professor-dashboard__open").on("click", () => {
 				this.record_notice_event(liveClass.name, "Aula aberta", __("Aula aberta"), __("O link da aula foi aberto pelo usuário."), "Sucesso", () => {
@@ -140,6 +163,113 @@ class BruceProfessorDashboard {
 				this.start_live_class(liveClass.name);
 			});
 		}
+	}
+
+	render_week_live_classes(liveClasses) {
+		const rows = liveClasses.length
+			? liveClasses.map((liveClass) => this.render_week_live_class_row(liveClass)).join("")
+			: `<tr><td colspan="7" class="text-muted">${this.escape_html(__("Nenhuma aula agendada para os próximos 7 dias."))}</td></tr>`;
+
+		return `
+			<div class="bruce-professor-dashboard__panel bruce-professor-dashboard__week">
+				<div class="bruce-professor-dashboard__section-header">
+					<h4>${this.escape_html(__("Aulas da semana"))}</h4>
+					<div class="text-muted">${this.escape_html(__("Próximos 7 dias"))}</div>
+				</div>
+				<div class="bruce-professor-dashboard__table-wrap">
+					<table class="table table-bordered bruce-professor-dashboard__week-table">
+						<thead>
+							<tr>
+								<th>${this.escape_html(__("Aula"))}</th>
+								<th>${this.escape_html(__("Curso"))}</th>
+								<th>${this.escape_html(__("Turma"))}</th>
+								<th>${this.escape_html(__("Data e horário"))}</th>
+								<th>${this.escape_html(__("Status"))}</th>
+								<th>${this.escape_html(__("WhatsApp"))}</th>
+								<th>${this.escape_html(__("Ações"))}</th>
+							</tr>
+						</thead>
+						<tbody>${rows}</tbody>
+					</table>
+				</div>
+			</div>
+		`;
+	}
+
+	render_week_live_class_row(liveClass) {
+		const meetingUrl = this.clean(liveClass.meeting_url);
+		const courseDisplay = this.clean(liveClass.course_title) || this.clean(liveClass.course);
+		const batchDisplay = this.clean(liveClass.batch_title) || this.clean(liveClass.batch);
+		const classStatusLabel = this.clean(liveClass.class_status_label) || this.clean(liveClass.status);
+		const whatsappStatusLabel = this.clean(liveClass.whatsapp_status_label) || this.clean(liveClass.whatsapp_status);
+		const openButton = meetingUrl
+			? `<button class="btn btn-xs btn-default bruce-professor-dashboard__week-open" data-name="${this.escape_attr(liveClass.name)}">${this.escape_html(__("Abrir aula"))}</button>`
+			: `<button class="btn btn-xs btn-default" disabled>${this.escape_html(__("Abrir aula"))}</button>`;
+		const copyButton = meetingUrl
+			? `<button class="btn btn-xs btn-default bruce-professor-dashboard__week-copy" data-name="${this.escape_attr(liveClass.name)}">${this.escape_html(__("Copiar link"))}</button>`
+			: `<button class="btn btn-xs btn-default" disabled>${this.escape_html(__("Copiar link"))}</button>`;
+
+		return `
+			<tr>
+				<td>
+					<div class="bruce-professor-dashboard__week-title">${this.escape_html(this.clean(liveClass.title) || __("Sem título"))}</div>
+				</td>
+				<td>${this.escape_html(courseDisplay || __("Não informado"))}</td>
+				<td>${this.escape_html(batchDisplay || __("Não informado"))}</td>
+				<td>${this.escape_html(this.format_datetime(liveClass.starts_at) || __("Não informado"))}</td>
+				<td>
+					<span class="indicator-pill ${this.get_class_status_indicator(liveClass.status)}">
+						${this.escape_html(classStatusLabel || __("Sem status"))}
+					</span>
+				</td>
+				<td>
+					<span class="indicator-pill ${this.get_whatsapp_status_indicator(whatsappStatusLabel)}">
+						${this.escape_html(whatsappStatusLabel || __("WhatsApp pendente"))}
+					</span>
+				</td>
+				<td>
+					<div class="bruce-professor-dashboard__row-actions">
+						${openButton}
+						${copyButton}
+						<button class="btn btn-xs btn-default bruce-professor-dashboard__week-details" data-name="${this.escape_attr(liveClass.name)}">${this.escape_html(__("Ver detalhes"))}</button>
+					</div>
+				</td>
+			</tr>
+		`;
+	}
+
+	bind_week_live_class_actions(liveClasses) {
+		const liveClassesByName = {};
+		(liveClasses || []).forEach((liveClass) => {
+			liveClassesByName[liveClass.name] = liveClass;
+		});
+
+		this.container.find(".bruce-professor-dashboard__week-open").on("click", (event) => {
+			const liveClass = liveClassesByName[$(event.currentTarget).data("name")];
+			const meetingUrl = this.clean(liveClass && liveClass.meeting_url);
+
+			if (!liveClass || !meetingUrl) {
+				return;
+			}
+
+			this.record_notice_event(liveClass.name, "Aula aberta", __("Aula aberta"), __("O link da aula foi aberto pelo usuário."), "Sucesso", () => {
+				this.load();
+			});
+			window.open(meetingUrl, "_blank", "noopener");
+		});
+
+		this.container.find(".bruce-professor-dashboard__week-copy").on("click", (event) => {
+			const liveClass = liveClassesByName[$(event.currentTarget).data("name")];
+			const meetingUrl = this.clean(liveClass && liveClass.meeting_url);
+
+			if (liveClass && meetingUrl) {
+				this.copy_meeting_url(liveClass.name, meetingUrl);
+			}
+		});
+
+		this.container.find(".bruce-professor-dashboard__week-details").on("click", (event) => {
+			frappe.set_route("Form", "Bruce Live Class", $(event.currentTarget).data("name"));
+		});
 	}
 
 	render_field(label, value, isHtml = false) {
@@ -398,6 +528,10 @@ class BruceProfessorDashboard {
 			.replace(/'/g, "&#039;");
 	}
 
+	escape_attr(value) {
+		return this.escape_html(value);
+	}
+
 	inject_styles() {
 		if ($("#bruce-professor-dashboard-styles").length) {
 			return;
@@ -413,6 +547,10 @@ class BruceProfessorDashboard {
 				border: 1px solid var(--border-color);
 				border-radius: 8px;
 				padding: 24px;
+			}
+
+			.bruce-professor-dashboard__panel + .bruce-professor-dashboard__panel {
+				margin-top: 16px;
 			}
 
 			.bruce-professor-dashboard__header {
@@ -469,6 +607,60 @@ class BruceProfessorDashboard {
 				margin: 0 0 12px;
 			}
 
+			.bruce-professor-dashboard__section-header {
+				display: flex;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 12px;
+				margin-bottom: 12px;
+			}
+
+			.bruce-professor-dashboard__section-header h4 {
+				margin: 0;
+			}
+
+			.bruce-professor-dashboard__table-wrap {
+				overflow-x: auto;
+			}
+
+			.bruce-professor-dashboard__week-table {
+				margin-bottom: 0;
+				min-width: 860px;
+			}
+
+			.bruce-professor-dashboard__week-table th,
+			.bruce-professor-dashboard__week-table td {
+				vertical-align: middle;
+			}
+
+			.bruce-professor-dashboard__week-table th:nth-child(5),
+			.bruce-professor-dashboard__week-table td:nth-child(5) {
+				min-width: 132px;
+			}
+
+			.bruce-professor-dashboard__week-table th:nth-child(6),
+			.bruce-professor-dashboard__week-table td:nth-child(6) {
+				min-width: 180px;
+			}
+
+			.bruce-professor-dashboard__week-table .indicator-pill {
+				display: inline-flex;
+				align-items: center;
+				white-space: nowrap;
+			}
+
+			.bruce-professor-dashboard__week-title {
+				font-weight: 600;
+				overflow-wrap: anywhere;
+			}
+
+			.bruce-professor-dashboard__row-actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+				min-width: 210px;
+			}
+
 			@media (max-width: 640px) {
 				.bruce-professor-dashboard__panel {
 					padding: 16px;
@@ -488,6 +680,10 @@ class BruceProfessorDashboard {
 
 				.bruce-professor-dashboard__grid {
 					grid-template-columns: 1fr;
+				}
+
+				.bruce-professor-dashboard__section-header {
+					display: block;
 				}
 			}
 		</style>`).appendTo("head");
