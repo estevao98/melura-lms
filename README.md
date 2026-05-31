@@ -2,7 +2,7 @@
 
 Customizações do Frappe LMS para o curso online de Ciências Humanas/ENEM do professor Bruce.
 
-O objetivo desta app é manter o Frappe LMS limpo e atualizável, concentrando as regras específicas do curso, integrações e telas operacionais dentro de `bruce_lms_custom`.
+O objetivo deste app é manter o Frappe LMS limpo e atualizável, concentrando as regras específicas do curso, integrações e telas operacionais dentro de `bruce_lms_custom`.
 
 ## Escopo do projeto
 
