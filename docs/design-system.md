@@ -138,6 +138,18 @@ Evitar:
 - configurações técnicas;
 - excesso de filtros.
 
+Primeira versão no Desk:
+
+- usar uma única área principal com a próxima aula;
+- manter título, curso, turma, início, status, status do WhatsApp e link em blocos
+  curtos de leitura;
+- usar badge textual para o status da aula;
+- destacar `Iniciar aula` como ação primária somente quando a aula estiver
+  `Agendada`;
+- manter `Abrir aula` como ação secundária quando o link já existir;
+- mostrar `Nenhuma aula ao vivo encontrada.` quando não houver aula disponível;
+- não mostrar `roomName`, payloads, tokens, endpoints ou detalhes técnicos.
+
 ### Área do aluno
 
 Conteúdo recomendado:

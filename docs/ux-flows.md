@@ -146,6 +146,36 @@ Ações principais:
 
 O painel deve evitar métricas excessivas, tabelas densas e termos administrativos que não ajudem a rotina do professor.
 
+### Primeira versão no Desk
+
+A primeira versão do painel é uma Page Desk simples chamada `Painel do Professor`.
+Ela usa dados reais do DocType `Bruce Live Class` e mostra apenas uma aula:
+
+- aula com status `Ao vivo`, quando existir;
+- caso contrário, a próxima aula `Agendada` com início futuro.
+
+Campos exibidos:
+
+- título da aula;
+- curso;
+- turma;
+- horário de início;
+- status da aula;
+- status do WhatsApp;
+- link da aula, quando existir.
+
+Ações disponíveis:
+
+- `Abrir aula`, quando a aula tiver link;
+- `Iniciar aula`, para aula `Agendada`, chamando a validação backend já existente
+  de `Bruce Live Class`.
+
+Se não houver aula agendada ou ao vivo visível para o usuário, o painel mostra:
+`Nenhuma aula ao vivo encontrada.`
+
+Nesta versão, o painel não envia WhatsApp, não reenviará avisos e não substitui
+os fluxos administrativos do Desk.
+
 ## Fluxo: painel administrativo básico
 
 Conteúdo sugerido:
