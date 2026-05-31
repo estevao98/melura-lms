@@ -127,6 +127,31 @@ Regras de UX:
 - Confirmar antes de reenviar muitos destinatários.
 - Preservar histórico da falha original.
 
+### Base atual para WhatsApp
+
+Nesta etapa, o sistema prepara apenas os cadastros e logs necessários para o
+fluxo futuro. Ainda não existe envio real, automação, scheduler ou botão de
+reenvio no painel.
+
+O administrador configura o provedor em `Bruce Evolution Settings`, escolhendo
+`Evolution API` ou `n8n`. A API key da Evolution deve ficar em variável de
+ambiente ou `site_config.json`, nunca em campo aberto nem no frontend.
+
+O administrador também pode cadastrar mensagens em `Bruce WhatsApp Message
+Template`, em português brasileiro, e consultar registros em `Bruce WhatsApp
+Notification Log` quando a etapa de envio for implementada.
+
+Fluxo manual futuro previsto:
+
+1. Administrador ou professor autorizado visualiza avisos de WhatsApp com
+   status `Falhou`.
+2. A tela mostra destinatário, aula relacionada, telefone, mensagem resumida e
+   erro legível.
+3. Usuário escolhe `Reenviar aviso`.
+4. Backend valida permissão, busca credenciais fora do frontend e cria nova
+   tentativa.
+5. O resultado fica registrado em `Bruce WhatsApp Notification Log`.
+
 ## Fluxo: painel do professor
 
 Conteúdo sugerido:
