@@ -143,10 +143,14 @@ Primeira versão no Desk:
 - usar uma única área principal com a próxima aula;
 - manter título, curso, turma, início, status, status do WhatsApp e link em blocos
   curtos de leitura;
+- exibir título de curso e nome de turma quando disponíveis, usando o identificador
+  original apenas como fallback;
 - usar badge textual para o status da aula;
 - destacar `Iniciar aula` como ação primária somente quando a aula estiver
   `Agendada`;
 - manter `Abrir aula` como ação secundária quando o link já existir;
+- oferecer `Copiar link` como ação secundária quando houver link e a cópia for
+  simples no navegador;
 - mostrar `Nenhuma aula ao vivo encontrada.` quando não houver aula disponível;
 - não mostrar `roomName`, payloads, tokens, endpoints ou detalhes técnicos.
 

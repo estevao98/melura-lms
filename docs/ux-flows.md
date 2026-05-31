@@ -157,8 +157,8 @@ Ela usa dados reais do DocType `Bruce Live Class` e mostra apenas uma aula:
 Campos exibidos:
 
 - título da aula;
-- curso;
-- turma;
+- curso, com título legível quando disponível e fallback para o identificador;
+- turma, com nome legível quando disponível e fallback para o identificador;
 - horário de início;
 - status da aula;
 - status do WhatsApp;
@@ -169,6 +169,7 @@ Ações disponíveis:
 - `Abrir aula`, quando a aula tiver link;
 - `Iniciar aula`, para aula `Agendada`, chamando a validação backend já existente
   de `Bruce Live Class`.
+- `Copiar link`, quando a aula tiver link e o navegador permitir cópia simples.
 
 Se não houver aula agendada ou ao vivo visível para o usuário, o painel mostra:
 `Nenhuma aula ao vivo encontrada.`

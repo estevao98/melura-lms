@@ -63,9 +63,14 @@ class BruceProfessorDashboard {
 		const openButton = meetingUrl
 			? `<button class="btn btn-default bruce-professor-dashboard__open">${__("Abrir aula")}</button>`
 			: `<button class="btn btn-default" disabled>${__("Abrir aula")}</button>`;
+		const copyButton = meetingUrl
+			? `<button class="btn btn-default bruce-professor-dashboard__copy">${__("Copiar link")}</button>`
+			: "";
 		const meetingLink = meetingUrl
 			? `<a href="${frappe.utils.escape_html(meetingUrl)}" target="_blank" rel="noopener">${frappe.utils.escape_html(meetingUrl)}</a>`
 			: `<span class="text-muted">${__("Link indisponível")}</span>`;
+		const courseDisplay = this.clean(liveClass.course_title) || this.clean(liveClass.course);
+		const batchDisplay = this.clean(liveClass.batch_title) || this.clean(liveClass.batch);
 
 		this.container.html(`
 			<div class="bruce-professor-dashboard__panel">
@@ -80,8 +85,8 @@ class BruceProfessorDashboard {
 				</div>
 
 				<div class="bruce-professor-dashboard__grid">
-					${this.render_field(__("Curso"), liveClass.course)}
-					${this.render_field(__("Turma"), liveClass.batch)}
+					${this.render_field(__("Curso"), courseDisplay)}
+					${this.render_field(__("Turma"), batchDisplay)}
 					${this.render_field(__("Início"), this.format_datetime(liveClass.starts_at))}
 					${this.render_field(__("Status do WhatsApp"), liveClass.whatsapp_status)}
 					${this.render_field(__("Link da aula"), meetingLink, true)}
@@ -89,6 +94,7 @@ class BruceProfessorDashboard {
 
 				<div class="bruce-professor-dashboard__actions">
 					${openButton}
+					${copyButton}
 					${startButton}
 				</div>
 			</div>
@@ -97,6 +103,10 @@ class BruceProfessorDashboard {
 		if (meetingUrl) {
 			this.container.find(".bruce-professor-dashboard__open").on("click", () => {
 				window.open(meetingUrl, "_blank", "noopener");
+			});
+
+			this.container.find(".bruce-professor-dashboard__copy").on("click", () => {
+				this.copy_meeting_url(meetingUrl);
 			});
 		}
 
@@ -142,6 +152,39 @@ class BruceProfessorDashboard {
 
 				this.load();
 			},
+		});
+	}
+
+	copy_meeting_url(meetingUrl) {
+		if (frappe.utils && frappe.utils.copy_to_clipboard) {
+			frappe.utils.copy_to_clipboard(meetingUrl);
+			frappe.show_alert({
+				message: __("Link da aula copiado."),
+				indicator: "green",
+			});
+			return;
+		}
+
+		if (navigator.clipboard && window.isSecureContext) {
+			navigator.clipboard.writeText(meetingUrl).then(() => {
+				frappe.show_alert({
+					message: __("Link da aula copiado."),
+					indicator: "green",
+				});
+			}).catch(() => {
+				this.show_manual_copy_dialog(meetingUrl);
+			});
+			return;
+		}
+
+		this.show_manual_copy_dialog(meetingUrl);
+	}
+
+	show_manual_copy_dialog(meetingUrl) {
+		frappe.msgprint({
+			title: __("Copiar link da aula"),
+			message: __("Não foi possível copiar automaticamente. Copie o link abaixo:") + `<br><br><code>${frappe.utils.escape_html(meetingUrl)}</code>`,
+			indicator: "orange",
 		});
 	}
 

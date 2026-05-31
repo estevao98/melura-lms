@@ -48,4 +48,20 @@ def _get_first_live_class(filters):
 	if not classes:
 		return None
 
-	return dict(classes[0])
+	return _with_display_values(dict(classes[0]))
+
+
+def _with_display_values(live_class):
+	live_class["course_title"] = _get_link_title("LMS Course", live_class.get("course"))
+	live_class["batch_title"] = _get_link_title("LMS Batch", live_class.get("batch"))
+	return live_class
+
+
+def _get_link_title(doctype, name):
+	if not name:
+		return None
+
+	try:
+		return frappe.db.get_value(doctype, name, "title") or name
+	except Exception:
+		return name
