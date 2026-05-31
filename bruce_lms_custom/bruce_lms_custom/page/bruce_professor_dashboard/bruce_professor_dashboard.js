@@ -66,14 +66,15 @@ class BruceProfessorDashboard {
 		const copyButton = meetingUrl
 			? `<button class="btn btn-default bruce-professor-dashboard__copy">${__("Copiar link")}</button>`
 			: "";
-		const whatsappButton = meetingUrl
-			? `<button class="btn btn-default bruce-professor-dashboard__whatsapp">${__("Enviar link por WhatsApp")}</button>`
-			: "";
+		const whatsappButton = `<button class="btn btn-default bruce-professor-dashboard__whatsapp">${__("Pré-visualizar WhatsApp")}</button>`;
+		const deskButton = `<button class="btn btn-default bruce-professor-dashboard__desk">${__("Ir para a aula no Desk")}</button>`;
 		const meetingLink = meetingUrl
 			? `<a href="${frappe.utils.escape_html(meetingUrl)}" target="_blank" rel="noopener">${frappe.utils.escape_html(meetingUrl)}</a>`
 			: `<span class="text-muted">${__("Link indisponível")}</span>`;
 		const courseDisplay = this.clean(liveClass.course_title) || this.clean(liveClass.course);
 		const batchDisplay = this.clean(liveClass.batch_title) || this.clean(liveClass.batch);
+		const classStatusLabel = this.clean(liveClass.class_status_label) || this.clean(liveClass.status);
+		const whatsappStatusLabel = this.clean(liveClass.whatsapp_status_label) || this.clean(liveClass.whatsapp_status);
 
 		this.container.html(`
 			<div class="bruce-professor-dashboard__panel">
@@ -82,16 +83,22 @@ class BruceProfessorDashboard {
 						<div class="text-muted">${__("Próxima aula")}</div>
 						<h3>${frappe.utils.escape_html(this.clean(liveClass.title) || __("Sem título"))}</h3>
 					</div>
-					<span class="indicator-pill ${this.get_status_indicator(liveClass.status)}">
-						${frappe.utils.escape_html(this.clean(liveClass.status) || __("Sem status"))}
-					</span>
+					<div class="bruce-professor-dashboard__status-stack">
+						<span class="indicator-pill ${this.get_class_status_indicator(liveClass.status)}">
+							${frappe.utils.escape_html(classStatusLabel || __("Sem status"))}
+						</span>
+						<span class="indicator-pill ${this.get_whatsapp_status_indicator(whatsappStatusLabel)}">
+							${frappe.utils.escape_html(whatsappStatusLabel || __("WhatsApp pendente"))}
+						</span>
+					</div>
 				</div>
 
 				<div class="bruce-professor-dashboard__grid">
 					${this.render_field(__("Curso"), courseDisplay)}
 					${this.render_field(__("Turma"), batchDisplay)}
-					${this.render_field(__("Início"), this.format_datetime(liveClass.starts_at))}
-					${this.render_field(__("Status do WhatsApp"), liveClass.whatsapp_status)}
+					${this.render_field(__("Horário"), this.format_datetime(liveClass.starts_at))}
+					${this.render_field(__("Status da aula"), classStatusLabel)}
+					${this.render_field(__("Status do WhatsApp"), whatsappStatusLabel)}
 					${this.render_field(__("Link da aula"), meetingLink, true)}
 				</div>
 
@@ -99,6 +106,7 @@ class BruceProfessorDashboard {
 					${openButton}
 					${copyButton}
 					${whatsappButton}
+					${deskButton}
 					${startButton}
 				</div>
 			</div>
@@ -112,11 +120,15 @@ class BruceProfessorDashboard {
 			this.container.find(".bruce-professor-dashboard__copy").on("click", () => {
 				this.copy_meeting_url(meetingUrl);
 			});
-
-			this.container.find(".bruce-professor-dashboard__whatsapp").on("click", () => {
-				this.send_whatsapp_link(liveClass.name);
-			});
 		}
+
+		this.container.find(".bruce-professor-dashboard__whatsapp").on("click", () => {
+			this.preview_whatsapp_link(liveClass.name);
+		});
+
+		this.container.find(".bruce-professor-dashboard__desk").on("click", () => {
+			frappe.set_route("Form", "Bruce Live Class", liveClass.name);
+		});
 
 		if (canStart) {
 			this.container.find(".bruce-professor-dashboard__start").on("click", () => {
@@ -163,48 +175,108 @@ class BruceProfessorDashboard {
 		});
 	}
 
-	send_whatsapp_link(name) {
+	preview_whatsapp_link(name) {
 		frappe.call({
-			method: "bruce_lms_custom.services.whatsapp.send_live_class_link",
+			method: "bruce_lms_custom.services.whatsapp.preview_live_class_link",
 			args: { live_class: name },
 			freeze: true,
-			freeze_message: __("Enviando link por WhatsApp..."),
+			freeze_message: __("Montando pré-visualização..."),
 			callback: (response) => {
-				const result = response.message || {};
-
-				frappe.show_alert({
-					message: result.message || __("Solicitação de envio registrada."),
-					indicator: result.status === "sent" ? "green" : "orange",
-				});
-
-				this.load();
+				this.show_whatsapp_preview_dialog(response.message || {});
 			},
 		});
 	}
 
-	copy_meeting_url(meetingUrl) {
-		if (frappe.utils && frappe.utils.copy_to_clipboard) {
-			frappe.utils.copy_to_clipboard(meetingUrl);
-			frappe.show_alert({
-				message: __("Link da aula copiado."),
-				indicator: "green",
-			});
-			return;
-		}
+	show_whatsapp_preview_dialog(result) {
+		const recipients = result.recipients || [];
+		const recipientRows = recipients.length
+			? recipients.map((recipient) => `
+				<tr>
+					<td>${this.escape_html(recipient.recipient_name || __("Destinatário não informado"))}</td>
+					<td>${this.escape_html(recipient.phone || __("Não informado"))}</td>
+				</tr>
+			`).join("")
+			: `<tr><td colspan="2">${this.escape_html(__("Nenhum destinatário encontrado para esta aula."))}</td></tr>`;
+		const warning = result.integration_warning
+			? `<div class="alert alert-warning" style="margin-bottom: 12px;">${this.escape_html(result.integration_warning)}</div>`
+			: "";
+		const message = this.escape_html(result.message || "");
 
+		const dialog = new frappe.ui.Dialog({
+			title: __("Pré-visualizar WhatsApp"),
+			size: "large",
+			fields: [
+				{
+					fieldtype: "HTML",
+					fieldname: "preview",
+					options: `
+						${warning}
+						<p><strong>${this.escape_html(__("Quantidade de destinatários"))}:</strong> ${Number(result.recipient_count || 0)}</p>
+						<div style="max-height: 220px; overflow: auto; margin-bottom: 16px;">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>${this.escape_html(__("Nome"))}</th>
+										<th>${this.escape_html(__("Telefone"))}</th>
+									</tr>
+								</thead>
+								<tbody>${recipientRows}</tbody>
+							</table>
+						</div>
+						<p><strong>${this.escape_html(__("Texto final da mensagem"))}</strong></p>
+						<textarea class="form-control" readonly rows="8" style="resize: vertical;">${message}</textarea>
+					`,
+				},
+			],
+			primary_action_label: __("Fechar"),
+			primary_action() {
+				dialog.hide();
+			},
+		});
+
+		dialog.show();
+	}
+
+	copy_meeting_url(meetingUrl) {
 		if (navigator.clipboard && window.isSecureContext) {
 			navigator.clipboard.writeText(meetingUrl).then(() => {
-				frappe.show_alert({
-					message: __("Link da aula copiado."),
-					indicator: "green",
-				});
+				this.show_copy_success();
 			}).catch(() => {
-				this.show_manual_copy_dialog(meetingUrl);
+				this.copy_meeting_url_fallback(meetingUrl);
 			});
 			return;
 		}
 
-		this.show_manual_copy_dialog(meetingUrl);
+		this.copy_meeting_url_fallback(meetingUrl);
+	}
+
+	copy_meeting_url_fallback(meetingUrl) {
+		const textarea = document.createElement("textarea");
+		textarea.value = meetingUrl;
+		textarea.setAttribute("readonly", "");
+		textarea.style.position = "fixed";
+		textarea.style.opacity = "0";
+		document.body.appendChild(textarea);
+		textarea.select();
+
+		try {
+			if (document.execCommand("copy")) {
+				this.show_copy_success();
+			} else {
+				this.show_manual_copy_dialog(meetingUrl);
+			}
+		} catch (error) {
+			this.show_manual_copy_dialog(meetingUrl);
+		} finally {
+			document.body.removeChild(textarea);
+		}
+	}
+
+	show_copy_success() {
+		frappe.show_alert({
+			message: __("Link da aula copiado."),
+			indicator: "green",
+		});
 	}
 
 	show_manual_copy_dialog(meetingUrl) {
@@ -227,7 +299,7 @@ class BruceProfessorDashboard {
 		return String(value || "").trim();
 	}
 
-	get_status_indicator(status) {
+	get_class_status_indicator(status) {
 		if (status === "Ao vivo") {
 			return "green";
 		}
@@ -237,6 +309,35 @@ class BruceProfessorDashboard {
 		}
 
 		return "gray";
+	}
+
+	get_whatsapp_status_indicator(status) {
+		if (status === "WhatsApp enviado") {
+			return "green";
+		}
+
+		if (status === "WhatsApp falhou") {
+			return "red";
+		}
+
+		if (status === "Integração desativada") {
+			return "gray";
+		}
+
+		return "orange";
+	}
+
+	escape_html(value) {
+		if (frappe.utils && frappe.utils.escape_html) {
+			return frappe.utils.escape_html(String(value || ""));
+		}
+
+		return String(value || "")
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
 	}
 
 	inject_styles() {
@@ -266,6 +367,13 @@ class BruceProfessorDashboard {
 
 			.bruce-professor-dashboard__header h3 {
 				margin: 4px 0 0;
+			}
+
+			.bruce-professor-dashboard__status-stack {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: flex-end;
+				gap: 8px;
 			}
 
 			.bruce-professor-dashboard__grid {
@@ -306,6 +414,10 @@ class BruceProfessorDashboard {
 
 				.bruce-professor-dashboard__header .indicator-pill {
 					margin-top: 12px;
+				}
+
+				.bruce-professor-dashboard__status-stack {
+					justify-content: flex-start;
 				}
 
 				.bruce-professor-dashboard__grid {

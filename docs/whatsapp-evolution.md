@@ -23,7 +23,8 @@ Implementado:
   os mesmos destinatários resolvidos do envio manual;
 - ação no formulário `Bruce Live Class`: `Enviar link por WhatsApp`;
 - ação no formulário `Bruce Live Class`: `Pré-visualizar WhatsApp`;
-- botão simples no `Painel do Professor`: `Enviar link por WhatsApp`;
+- status visual de WhatsApp no `Painel do Professor`;
+- ação no `Painel do Professor`: `Pré-visualizar WhatsApp`, sem envio real;
 - verificação administrativa segura no `Bruce Evolution Settings` com a ação
   `Testar configuração`;
 - envio real, manual e controlado de uma única mensagem de teste pela
@@ -224,6 +225,20 @@ mensagem de erro amigável.
 
 Esse fluxo não chama Evolution API, não chama webhook n8n, não envia mensagem
 real e não cria `Bruce WhatsApp Notification Log`.
+
+## Status no Painel do Professor
+
+O `Painel do Professor` mostra a próxima aula ao vivo ou agendada com um status
+simples de WhatsApp:
+
+- `WhatsApp pendente`: aula sem envio registrado ou com status `Pendente`;
+- `WhatsApp enviado`: aula com status `Enviado` ou `Reenviado`;
+- `WhatsApp falhou`: aula com status `Falhou`;
+- `Integração desativada`: `Bruce Evolution Settings` desativado ou indisponível.
+
+A ação `Pré-visualizar WhatsApp` no painel usa o mesmo backend de prévia da
+`Bruce Live Class`. Ela não chama Evolution API, não chama n8n, não envia
+mensagem real e não cria log.
 
 ## Fluxo de teste de configuração
 

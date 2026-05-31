@@ -2,11 +2,14 @@
 # For license information, please see license.txt
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard import (
+	WHATSAPP_INTEGRATION_DISABLED_LABEL,
+	_get_class_status_label,
 	_get_link_title,
 	_get_next_live_class,
+	_get_whatsapp_status_label,
 )
 
 
@@ -28,6 +31,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertEqual(result["status"], live_class["status"])
 		self.assertIsNone(result["course_title"])
 		self.assertIsNone(result["batch_title"])
+		self.assertEqual(result["class_status_label"], "Aula ao vivo")
 		get_list.assert_called_once()
 
 	def test_get_next_live_class_returns_next_scheduled_when_no_live_class_exists(self):
@@ -83,8 +87,11 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 				side_effect=[[], [scheduled_class]],
 			),
 			patch(
-				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db.get_value",
-				side_effect=["Guia do Frappe Learning", "Turma Teste Jitsi"],
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
+				Mock(
+					get_value=Mock(side_effect=["Guia do Frappe Learning", "Turma Teste Jitsi"]),
+					get_single_value=Mock(return_value=1),
+				),
 			),
 			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.now_datetime",
@@ -98,9 +105,33 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 
 	def test_get_link_title_falls_back_to_original_value(self):
 		with patch(
-			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db.get_value",
-			return_value=None,
+			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
+			Mock(get_value=Mock(return_value=None)),
 		):
 			result = _get_link_title("LMS Course", "a-guide-to-frappe-learning")
 
 		self.assertEqual(result, "a-guide-to-frappe-learning")
+
+	def test_get_class_status_label_adds_teacher_friendly_copy(self):
+		self.assertEqual(_get_class_status_label("Agendada"), "Aula agendada")
+		self.assertEqual(_get_class_status_label("Ao vivo"), "Aula ao vivo")
+		self.assertEqual(_get_class_status_label("Encerrada"), "Encerrada")
+
+	def test_get_whatsapp_status_label_uses_integration_disabled_when_settings_are_off(self):
+		with patch(
+			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
+			Mock(get_single_value=Mock(return_value=0)),
+		):
+			result = _get_whatsapp_status_label("Enviado")
+
+		self.assertEqual(result, WHATSAPP_INTEGRATION_DISABLED_LABEL)
+
+	def test_get_whatsapp_status_label_maps_stored_status_when_integration_is_on(self):
+		with patch(
+			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
+			Mock(get_single_value=Mock(return_value=1)),
+		):
+			self.assertEqual(_get_whatsapp_status_label("Não enviado"), "WhatsApp pendente")
+			self.assertEqual(_get_whatsapp_status_label("Pendente"), "WhatsApp pendente")
+			self.assertEqual(_get_whatsapp_status_label("Enviado"), "WhatsApp enviado")
+			self.assertEqual(_get_whatsapp_status_label("Falhou"), "WhatsApp falhou")

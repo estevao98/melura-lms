@@ -280,15 +280,27 @@ Ações disponíveis:
 - `Iniciar aula`, para aula `Agendada`, chamando a validação backend já existente
   de `Bruce Live Class`.
 - `Copiar link`, quando a aula tiver link e o navegador permitir cópia simples.
-- `Enviar link por WhatsApp`, quando a aula tiver link, chamando o backend de
-  envio manual e registrando `Bruce WhatsApp Notification Log`.
+- `Pré-visualizar WhatsApp`, chamando o backend de prévia já existente, sem
+  enviar mensagem real, sem chamar Evolution API/n8n e sem criar log.
+- `Ir para a aula no Desk`, abrindo o formulário da `Bruce Live Class`.
+
+Status visuais exibidos:
+
+- `Aula agendada`;
+- `Aula ao vivo`;
+- `WhatsApp pendente`;
+- `WhatsApp enviado`;
+- `WhatsApp falhou`;
+- `Integração desativada`.
 
 Se não houver aula agendada ou ao vivo visível para o usuário, o painel mostra:
 `Nenhuma aula ao vivo encontrada.`
 
-Nesta versão, o painel envia o link manualmente quando solicitado. Ele ainda não
-reenviará avisos a partir dos logs e não substitui os fluxos administrativos do
-Desk.
+Nesta versão, o painel não envia link por WhatsApp. O envio manual continua no
+formulário `Bruce Live Class`, enquanto o painel mostra o status operacional e
+permite revisar destinatários e mensagem antes de qualquer envio real. Ele ainda
+não reenviará avisos a partir dos logs e não substitui os fluxos administrativos
+do Desk.
 
 ## Fluxo: painel administrativo básico
 

@@ -5,6 +5,15 @@ import frappe
 from frappe.utils import now_datetime
 
 
+WHATSAPP_INTEGRATION_DISABLED_LABEL = "Integração desativada"
+WHATSAPP_STATUS_LABELS = {
+	"Não enviado": "WhatsApp pendente",
+	"Pendente": "WhatsApp pendente",
+	"Enviado": "WhatsApp enviado",
+	"Falhou": "WhatsApp falhou",
+	"Reenviado": "WhatsApp enviado",
+}
+
 LIVE_CLASS_FIELDS = [
 	"name",
 	"title",
@@ -54,6 +63,8 @@ def _get_first_live_class(filters):
 def _with_display_values(live_class):
 	live_class["course_title"] = _get_link_title("LMS Course", live_class.get("course"))
 	live_class["batch_title"] = _get_link_title("LMS Batch", live_class.get("batch"))
+	live_class["class_status_label"] = _get_class_status_label(live_class.get("status"))
+	live_class["whatsapp_status_label"] = _get_whatsapp_status_label(live_class.get("whatsapp_status"))
 	return live_class
 
 
@@ -65,3 +76,27 @@ def _get_link_title(doctype, name):
 		return frappe.db.get_value(doctype, name, "title") or name
 	except Exception:
 		return name
+
+
+def _get_class_status_label(status):
+	if status == "Ao vivo":
+		return "Aula ao vivo"
+
+	if status == "Agendada":
+		return "Aula agendada"
+
+	return status or "Sem status"
+
+
+def _get_whatsapp_status_label(status):
+	if not _is_whatsapp_integration_enabled():
+		return WHATSAPP_INTEGRATION_DISABLED_LABEL
+
+	return WHATSAPP_STATUS_LABELS.get(status or "Não enviado", status or "WhatsApp pendente")
+
+
+def _is_whatsapp_integration_enabled():
+	try:
+		return bool(frappe.db.get_single_value("Bruce Evolution Settings", "enabled"))
+	except Exception:
+		return False
