@@ -9,6 +9,7 @@ from bruce_lms_custom.services.whatsapp import (
 	LOG_STATUS_FAILED,
 	LOG_STATUS_SENT,
 	build_live_class_message,
+	get_live_class_batch_recipient_candidates,
 	get_live_class_recipients,
 	normalize_phone,
 	send_live_class_link_for_doc,
@@ -69,18 +70,66 @@ class TestWhatsAppService(unittest.TestCase):
 		with patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message):
 			recipients = get_live_class_recipients(live_class)
 
-		self.assertEqual(recipients, [
-			{
-				"user": None,
-				"recipient_name": "Contato Teste",
-				"phone": "5511999999999",
-			}
-		])
+		self.assertEqual(
+			recipients,
+			[
+				{
+					"user": None,
+					"recipient_name": "Contato Teste",
+					"phone": "5511999999999",
+				}
+			],
+		)
 
 	def test_get_live_class_recipients_returns_empty_without_manual_phone(self):
 		live_class = self.make_live_class()
 
-		self.assertEqual(get_live_class_recipients(live_class), [])
+		with patch("bruce_lms_custom.services.whatsapp.get_live_class_batch_recipient_candidates", return_value=[]):
+			self.assertEqual(get_live_class_recipients(live_class), [])
+
+	def test_get_live_class_recipients_falls_back_to_batch_students(self):
+		live_class = self.make_live_class()
+
+		with patch(
+			"bruce_lms_custom.services.whatsapp.get_live_class_batch_recipient_candidates",
+			return_value=[{"user": "ana@example.com", "recipient_name": "Ana", "phone": "5511999999999"}],
+		):
+			recipients = get_live_class_recipients(live_class)
+
+		self.assertEqual(
+			recipients,
+			[{"user": "ana@example.com", "recipient_name": "Ana", "phone": "5511999999999"}],
+		)
+
+	def test_get_live_class_batch_recipient_candidates_uses_user_phones_without_duplicates(self):
+		live_class = self.make_live_class()
+		members = [
+			SimpleNamespace(member="ana@example.com", member_name="Ana"),
+			SimpleNamespace(member="ana.duplicada@example.com", member_name="Ana Duplicada"),
+			SimpleNamespace(member="bia@example.com", member_name=""),
+			SimpleNamespace(member="semtelefone@example.com", member_name="Sem Telefone"),
+		]
+		contacts = {
+			"ana@example.com": {"full_name": "Ana Silva", "mobile_no": "(11) 99999-9999", "phone": ""},
+			"ana.duplicada@example.com": {"full_name": "Ana Outra", "mobile_no": "+55 11 99999-9999", "phone": ""},
+			"bia@example.com": {"full_name": "Bia Souza", "mobile_no": "", "phone": "21 3333-4444"},
+			"semtelefone@example.com": {"full_name": "Sem Telefone", "mobile_no": "", "phone": ""},
+		}
+
+		with (
+			patch("bruce_lms_custom.services.whatsapp.get_batch_members", return_value=members) as get_batch_members,
+			patch("bruce_lms_custom.services.whatsapp.get_user_contact", side_effect=lambda user: contacts[user]),
+		):
+			recipients = get_live_class_batch_recipient_candidates(live_class)
+
+		get_batch_members.assert_called_once_with("turma-2026")
+		self.assertEqual(
+			recipients,
+			[
+				{"user": "ana@example.com", "recipient_name": "Ana", "phone": "5511999999999"},
+				{"user": "bia@example.com", "recipient_name": "Bia Souza", "phone": "552133334444"},
+			],
+		)
 
 	def test_build_live_class_message_uses_active_template(self):
 		live_class = self.make_live_class()

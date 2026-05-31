@@ -101,16 +101,20 @@ Estados de tela:
 5. Se houver telefone manual, backend usa esse destinatário. Espaços,
    parênteses, traços e símbolos são removidos; números brasileiros com 10 ou
    11 dígitos recebem o prefixo `55` quando ainda não tiverem DDI.
-6. Se não houver telefone manual, a tela mantém erro amigável informando que
+6. Se não houver telefone manual, backend busca os alunos da turma vinculada à
+   aula e tenta usar `User.mobile_no` ou `User.phone`.
+7. Telefones repetidos são ignorados após normalização, evitando mensagens
+   duplicadas para o mesmo número.
+8. Se nenhum telefone for encontrado, a tela mantém erro amigável informando que
    nenhum telefone foi encontrado para a aula.
-7. Backend monta a mensagem em português brasileiro.
-8. Backend chama Evolution API ou webhook n8n conforme configuração.
-9. Sistema registra cada tentativa no log.
-10. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
+9. Backend monta a mensagem em português brasileiro.
+10. Backend chama Evolution API ou webhook n8n conforme configuração.
+11. Sistema registra cada tentativa no log, com uma entrada por destinatário.
+12. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
 
 Nesta etapa o envio é somente manual. Ainda não há automações 24h/1h antes da
-aula. O campo de telefone na aula é um fallback manual/teste e não substitui a
-busca automática definitiva de alunos da turma, que fica para etapa futura.
+aula. O campo de telefone na aula continua sendo o fallback manual/teste e tem
+prioridade sobre os telefones dos alunos da turma.
 
 ## Fluxo futuro: envio automático de link por WhatsApp
 
@@ -151,7 +155,9 @@ Regras de UX:
 ### Base atual para WhatsApp
 
 Nesta etapa, o sistema possui cadastros, logs e envio manual backend do link de
-aula. Ainda não existe automação, scheduler ou botão de reenvio a partir do log.
+aula. Quando o telefone manual da aula está vazio, o backend resolve
+destinatários a partir da turma da aula. Ainda não existe automação, scheduler
+ou botão de reenvio a partir do log.
 
 O administrador configura o provedor em `Bruce Evolution Settings`, escolhendo
 `Evolution API` ou `n8n`. A API key da Evolution deve ficar em variável de

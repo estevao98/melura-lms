@@ -169,7 +169,41 @@ def get_live_class_recipients(live_class):
 	if manual_recipient:
 		return [manual_recipient]
 
-	return []
+	return get_live_class_batch_recipient_candidates(live_class)
+
+
+def get_live_class_batch_recipient_candidates(live_class):
+	recipients = []
+	seen_phones = set()
+
+	for member in get_batch_members(getattr(live_class, "batch", "")):
+		user = get_member_value(member, "member")
+		if not user:
+			continue
+
+		contact = get_user_contact(user)
+		phone = normalize_phone(contact.get("mobile_no") or contact.get("phone"))
+
+		if not phone or phone in seen_phones:
+			continue
+
+		seen_phones.add(phone)
+		recipients.append(
+			{
+				"user": user,
+				"recipient_name": get_member_value(member, "member_name") or contact.get("full_name") or user,
+				"phone": phone,
+			}
+		)
+
+	return recipients
+
+
+def get_member_value(member, fieldname):
+	if isinstance(member, dict):
+		return member.get(fieldname)
+
+	return getattr(member, fieldname, None)
 
 
 def get_manual_recipient(live_class):

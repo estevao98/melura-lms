@@ -16,6 +16,9 @@ Implementado:
 - atualização do `Status do WhatsApp` da aula;
 - fallback manual/teste na `Bruce Live Class` com nome e telefone do
   destinatário;
+- resolução automática de destinatários da turma da `Bruce Live Class` quando o
+  telefone manual não estiver preenchido;
+- deduplicação por telefone normalizado antes do envio;
 - ação no formulário `Bruce Live Class`: `Enviar link por WhatsApp`;
 - botão simples no `Painel do Professor`: `Enviar link por WhatsApp`;
 - teste unitário com mock, sem chamada externa real.
@@ -23,7 +26,6 @@ Implementado:
 Ainda não foram implementados nesta etapa:
 
 - automações, scheduler ou jobs;
-- busca automática definitiva de alunos da turma;
 - frontend Vue complexo;
 - alteração em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`.
 
@@ -135,13 +137,16 @@ devem ser persistidos no campo `provider_response`.
 5. Se `Telefone WhatsApp` estiver preenchido, backend usa esse destinatário
    manual/teste. O telefone é normalizado removendo espaços, parênteses, traços
    e símbolos; quando tiver 10 ou 11 dígitos sem DDI, recebe o prefixo `55`.
-6. Se não houver telefone manual, o fluxo mantém a
-   mensagem amigável: `Nenhum telefone de WhatsApp foi encontrado para esta aula.`
-7. Backend monta a mensagem com template ativo ou mensagem padrão em português.
-8. Backend cria log com status `Pendente`.
-9. Backend chama Evolution API ou webhook n8n, conforme `provider_mode`.
-10. Backend marca o log como `Enviado` ou `Falhou`.
-11. A tela mostra uma mensagem curta em português e não quebra se o provedor
+6. Se não houver telefone manual, backend busca alunos vinculados à turma em
+   `LMS Batch Enrollment`, usa `User.mobile_no` ou `User.phone` e remove
+   telefones duplicados após normalização.
+7. Se nenhum telefone for encontrado, o fluxo mantém a mensagem amigável:
+   `Nenhum telefone de WhatsApp foi encontrado para esta aula.`
+8. Backend monta a mensagem com template ativo ou mensagem padrão em português.
+9. Backend cria um log com status `Pendente` para cada destinatário resolvido.
+10. Backend chama Evolution API ou webhook n8n, conforme `provider_mode`.
+11. Backend marca cada log como `Enviado` ou `Falhou`.
+12. A tela mostra uma mensagem curta em português e não quebra se o provedor
    estiver indisponível.
 
 Quando a configuração estiver desativada, incompleta ou sem API key obrigatória,
