@@ -182,6 +182,19 @@ Mensagens esperadas do teste:
 - instância ausente;
 - API key ausente.
 
+Para validar a integração com envio real, o administrador pode clicar em
+`Enviar mensagem de teste` no mesmo formulário. Esse fluxo pede um telefone
+digitado manualmente e confirmação antes do envio. O backend envia somente uma
+mensagem simples pela Evolution API, sem resolver alunos da turma e sem disparo
+em massa. O resultado fica registrado em `Bruce WhatsApp Notification Log` com
+`related_live_class` vazio, pois não está vinculado a uma aula.
+
+Mensagem enviada no teste real:
+
+```text
+Teste de integração do WhatsApp do Bruce LMS. Se você recebeu esta mensagem, a conexão está funcionando.
+```
+
 O template ativo para o tipo `Link de aula disponível` pode usar:
 
 - `{nome}`;

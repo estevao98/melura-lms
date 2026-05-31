@@ -23,6 +23,8 @@ Implementado:
 - botão simples no `Painel do Professor`: `Enviar link por WhatsApp`;
 - verificação administrativa segura no `Bruce Evolution Settings` com a ação
   `Testar configuração`;
+- envio real, manual e controlado de uma única mensagem de teste pela
+  `Evolution API`, acionado em `Bruce Evolution Settings`;
 - teste unitário com mock, sem chamada externa real.
 
 Ainda não foram implementados nesta etapa:
@@ -107,6 +109,28 @@ Mensagens possíveis para o administrador:
 O resultado do teste é mostrado no Desk e registrado no logger
 `bruce_lms_custom.whatsapp` apenas com o status técnico, sem credenciais.
 
+A ação `Enviar mensagem de teste` envia uma mensagem real e única pela Evolution
+API para um telefone informado manualmente. Antes do envio, o Desk solicita o
+telefone e pede confirmação. O backend:
+
+- valida permissão de escrita em `Bruce Evolution Settings`;
+- normaliza o telefone brasileiro com a mesma regra usada no envio manual;
+- reutiliza a validação de configuração da Evolution API;
+- não expõe API key, endpoint sensível ou payload técnico no frontend;
+- não usa turma, não resolve destinatários automaticamente e não envia em massa;
+- cria um `Bruce WhatsApp Notification Log` com status `Pendente`;
+- marca o log como `Enviado` ou `Falhou` conforme o resultado do provedor.
+
+Mensagem enviada:
+
+```text
+Teste de integração do WhatsApp do Bruce LMS. Se você recebeu esta mensagem, a conexão está funcionando.
+```
+
+Quando a integração estiver desativada, a configuração estiver incompleta ou a
+API key não existir em ambiente/site config, a mensagem real não é enviada e o
+log é marcado como `Falhou` com uma mensagem amigável.
+
 ### Bruce WhatsApp Message Template
 
 DocType para armazenar modelos de mensagem em português brasileiro.
@@ -186,6 +210,18 @@ mensagem de erro amigável.
 4. Backend valida somente os campos básicos e a presença de `EVOLUTION_API_KEY`.
 5. Backend não envia WhatsApp e não chama a Evolution API.
 6. Tela mostra mensagem curta em português, sem token, payload ou API key.
+
+## Fluxo de mensagem real de teste
+
+1. Administrador abre `Bruce Evolution Settings`.
+2. Clica em `Enviar mensagem de teste`.
+3. Se houver alteração não salva, a tela pede para salvar antes de continuar.
+4. A tela solicita um único telefone WhatsApp.
+5. A tela pede confirmação explícita antes do envio.
+6. Backend normaliza o telefone e valida a configuração da Evolution API.
+7. Backend envia uma única mensagem simples de teste pela Evolution API.
+8. Backend registra o resultado em `Bruce WhatsApp Notification Log`.
+9. Tela mostra resultado curto em português, sem API key ou dados sensíveis.
 
 ## Próximas etapas
 

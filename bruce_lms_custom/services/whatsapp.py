@@ -13,6 +13,10 @@ from frappe.utils import now_datetime
 
 
 TEMPLATE_EVENT_TYPE = "Link de aula disponível"
+TEST_MESSAGE = (
+	"Teste de integração do WhatsApp do Bruce LMS. "
+	"Se você recebeu esta mensagem, a conexão está funcionando."
+)
 LOG_STATUS_PENDING = "Pendente"
 LOG_STATUS_SENT = "Enviado"
 LOG_STATUS_FAILED = "Falhou"
@@ -47,6 +51,51 @@ def test_evolution_configuration():
 	result = validate_evolution_configuration()
 	log_configuration_test_result(result)
 	return result
+
+
+@frappe.whitelist()
+def send_evolution_test_message(phone):
+	"""Send one controlled test message through Evolution API to a manually provided phone."""
+	if not frappe.has_permission("Bruce Evolution Settings", "write"):
+		frappe.throw(_("Você não tem permissão para enviar mensagem de teste pela Evolution API."))
+
+	recipient = {
+		"user": None,
+		"recipient_name": _("Destinatário de teste"),
+		"phone": normalize_phone(phone),
+	}
+	log = create_notification_log(None, recipient, TEST_MESSAGE)
+
+	if not recipient["phone"]:
+		return summarize_single_test_result(
+			mark_log_failed(log, _("Informe um telefone para enviar a mensagem de teste."))
+		)
+
+	settings = get_settings()
+	if settings and settings.provider_mode != "Evolution API":
+		return summarize_single_test_result(
+			mark_log_failed(
+				log,
+				_("Selecione o modo Evolution API em Bruce Evolution Settings para enviar a mensagem de teste."),
+			)
+		)
+
+	configuration = validate_evolution_configuration(settings)
+	if not configuration["valid"]:
+		return summarize_single_test_result(mark_log_failed(log, configuration["message"]))
+
+	try:
+		provider_response = call_evolution_api(settings, recipient["phone"], TEST_MESSAGE)
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), _("Falha ao enviar mensagem de teste pela Evolution API"))
+		return summarize_single_test_result(
+			mark_log_failed(
+				log,
+				_("Não foi possível falar com a Evolution API. Tente novamente mais tarde."),
+			)
+		)
+
+	return summarize_single_test_result(mark_log_sent(log, provider_response))
 
 
 def validate_evolution_configuration(settings=USE_STORED_SETTINGS):
@@ -370,16 +419,18 @@ def strip_html(value):
 
 
 def create_notification_log(live_class, recipient, message):
-	log = frappe.get_doc(
-		{
-			"doctype": "Bruce WhatsApp Notification Log",
-			"recipient_name": recipient.get("recipient_name") or _("Destinatário não informado"),
-			"phone": recipient.get("phone") or _("Não informado"),
-			"message": message,
-			"status": LOG_STATUS_PENDING,
-			"related_live_class": live_class.name,
-		}
-	)
+	values = {
+		"doctype": "Bruce WhatsApp Notification Log",
+		"recipient_name": recipient.get("recipient_name") or _("Destinatário não informado"),
+		"phone": recipient.get("phone") or _("Não informado"),
+		"message": message,
+		"status": LOG_STATUS_PENDING,
+	}
+
+	if live_class:
+		values["related_live_class"] = live_class.name
+
+	log = frappe.get_doc(values)
 	log.insert(ignore_permissions=True)
 	return log
 
@@ -423,6 +474,20 @@ def summarize_results(results):
 		"sent_count": sent_count,
 		"failed_count": failed_count,
 		"logs": [result["log"] for result in results],
+		"message": message,
+	}
+
+
+def summarize_single_test_result(result):
+	if result["status"] == "sent":
+		message = _("Mensagem de teste enviada pela Evolution API.")
+	else:
+		message = result.get("error_message") or _("Não foi possível enviar a mensagem de teste.")
+
+	return {
+		"status": result["status"],
+		"sent": result["status"] == "sent",
+		"log": result["log"],
 		"message": message,
 	}
 

@@ -18,6 +18,7 @@ from bruce_lms_custom.services.whatsapp import (
 	get_live_class_batch_recipient_candidates,
 	get_live_class_recipients,
 	normalize_phone,
+	send_evolution_test_message,
 	send_live_class_link_for_doc,
 	validate_evolution_configuration,
 )
@@ -292,6 +293,61 @@ class TestWhatsAppService(unittest.TestCase):
 		post.assert_called_once()
 		self.assertEqual(post.call_args.kwargs["json"]["phone"], "5511999999999")
 		self.assertNotIn("apikey", post.call_args.kwargs["headers"])
+
+	def test_send_evolution_test_message_sends_single_real_test_and_marks_log_as_sent(self):
+		settings = self.make_settings()
+		logs = []
+
+		def fake_get_doc(values):
+			log = FakeLog(values)
+			logs.append(log)
+			return log
+
+		with (
+			patch("bruce_lms_custom.services.whatsapp.frappe.has_permission", return_value=True),
+			patch("bruce_lms_custom.services.whatsapp.get_settings", return_value=settings),
+			patch("bruce_lms_custom.services.whatsapp.get_evolution_api_key", return_value="secret-value"),
+			patch("bruce_lms_custom.services.whatsapp.frappe.get_doc", side_effect=fake_get_doc),
+			patch("bruce_lms_custom.services.whatsapp.now_datetime", return_value="2026-05-30 12:00:00"),
+			patch("bruce_lms_custom.services.whatsapp.requests.post", return_value=FakeResponse()) as post,
+			patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = send_evolution_test_message.__wrapped__("(11) 99999-9999")
+
+		self.assertTrue(result["sent"])
+		self.assertEqual(logs[0].status, LOG_STATUS_SENT)
+		self.assertEqual(logs[0].phone, "5511999999999")
+		self.assertFalse(hasattr(logs[0], "related_live_class"))
+		post.assert_called_once()
+		self.assertEqual(post.call_args.args[0], "https://evolution.example/message/sendText/bruce")
+		self.assertEqual(post.call_args.kwargs["json"]["number"], "5511999999999")
+		self.assertIn("Teste de integração", post.call_args.kwargs["json"]["text"])
+		self.assertEqual(post.call_args.kwargs["headers"]["apikey"], "secret-value")
+
+	def test_send_evolution_test_message_uses_configuration_validation_before_external_call(self):
+		settings = self.make_settings(api_url="")
+		logs = []
+
+		def fake_get_doc(values):
+			log = FakeLog(values)
+			logs.append(log)
+			return log
+
+		with (
+			patch("bruce_lms_custom.services.whatsapp.frappe.has_permission", return_value=True),
+			patch("bruce_lms_custom.services.whatsapp.get_settings", return_value=settings),
+			patch("bruce_lms_custom.services.whatsapp.get_evolution_api_key", return_value="secret-value"),
+			patch("bruce_lms_custom.services.whatsapp.frappe.get_doc", side_effect=fake_get_doc),
+			patch("bruce_lms_custom.services.whatsapp.now_datetime", return_value="2026-05-30 12:00:00"),
+			patch("bruce_lms_custom.services.whatsapp.requests.post") as post,
+			patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = send_evolution_test_message.__wrapped__("(11) 99999-9999")
+
+		post.assert_not_called()
+		self.assertFalse(result["sent"])
+		self.assertEqual(logs[0].status, LOG_STATUS_FAILED)
+		self.assertIn("URL da API", logs[0].error_message)
 
 
 if __name__ == "__main__":
