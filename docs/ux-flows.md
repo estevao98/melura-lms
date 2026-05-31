@@ -167,6 +167,21 @@ O administrador também pode cadastrar mensagens em `Bruce WhatsApp Message
 Template`, em português brasileiro, e consultar registros em `Bruce WhatsApp
 Notification Log`.
 
+Antes de automatizar envios, o administrador pode abrir `Bruce Evolution
+Settings` e clicar em `Testar configuração`. O teste roda no backend, não envia
+mensagem real, não chama endpoint externo e confirma apenas se a integração está
+ativa, se `api_url` e `instance_name` estão preenchidos e se
+`EVOLUTION_API_KEY` existe em ambiente ou `site_config.json`. A API key nunca é
+mostrada na tela.
+
+Mensagens esperadas do teste:
+
+- configuração válida;
+- integração desativada;
+- URL ausente;
+- instância ausente;
+- API key ausente.
+
 O template ativo para o tipo `Link de aula disponível` pode usar:
 
 - `{nome}`;

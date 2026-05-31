@@ -21,6 +21,8 @@ Implementado:
 - deduplicação por telefone normalizado antes do envio;
 - ação no formulário `Bruce Live Class`: `Enviar link por WhatsApp`;
 - botão simples no `Painel do Professor`: `Enviar link por WhatsApp`;
+- verificação administrativa segura no `Bruce Evolution Settings` com a ação
+  `Testar configuração`;
 - teste unitário com mock, sem chamada externa real.
 
 Ainda não foram implementados nesta etapa:
@@ -28,6 +30,7 @@ Ainda não foram implementados nesta etapa:
 - automações, scheduler ou jobs;
 - frontend Vue complexo;
 - alteração em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`.
+- automação de lembretes de WhatsApp.
 
 ## Arquitetura prevista
 
@@ -81,6 +84,28 @@ Quando a integração estiver ativa, a validação exige:
 
 - `api_url` e `instance_name` para modo `Evolution API`;
 - `n8n_webhook_url` para modo `n8n`.
+
+A ação `Testar configuração` valida a configuração básica da Evolution API sem
+enviar mensagem e sem chamar endpoint externo. Ela verifica:
+
+- se `Bruce Evolution Settings` está disponível;
+- se a integração está ativa;
+- se `api_url` está preenchida;
+- se `instance_name` está preenchido;
+- se `EVOLUTION_API_KEY` existe em variável de ambiente ou `site_config.json`,
+  sem mostrar o valor.
+
+Mensagens possíveis para o administrador:
+
+- `Configuração da Evolution API válida. A integração está ativa e a API key foi encontrada.`
+- `A integração de WhatsApp está desativada em Bruce Evolution Settings.`
+- `Informe a URL da API em Bruce Evolution Settings.`
+- `Informe o nome da instância em Bruce Evolution Settings.`
+- `Configure EVOLUTION_API_KEY em variável de ambiente ou site_config.json.`
+- `Bruce Evolution Settings não foi encontrado. Revise a instalação da app.`
+
+O resultado do teste é mostrado no Desk e registrado no logger
+`bruce_lms_custom.whatsapp` apenas com o status técnico, sem credenciais.
 
 ### Bruce WhatsApp Message Template
 
@@ -152,6 +177,15 @@ devem ser persistidos no campo `provider_response`.
 Quando a configuração estiver desativada, incompleta ou sem API key obrigatória,
 o sistema não envia a mensagem, registra log com status `Falhou` e preenche uma
 mensagem de erro amigável.
+
+## Fluxo de teste de configuração
+
+1. Administrador abre `Bruce Evolution Settings`.
+2. Clica em `Testar configuração`.
+3. Se houver alteração não salva, a tela pede para salvar antes de testar.
+4. Backend valida somente os campos básicos e a presença de `EVOLUTION_API_KEY`.
+5. Backend não envia WhatsApp e não chama a Evolution API.
+6. Tela mostra mensagem curta em português, sem token, payload ou API key.
 
 ## Próximas etapas
 

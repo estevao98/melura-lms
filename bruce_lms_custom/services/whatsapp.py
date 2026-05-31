@@ -16,6 +16,13 @@ TEMPLATE_EVENT_TYPE = "Link de aula disponível"
 LOG_STATUS_PENDING = "Pendente"
 LOG_STATUS_SENT = "Enviado"
 LOG_STATUS_FAILED = "Falhou"
+CONFIG_STATUS_VALID = "valid"
+CONFIG_STATUS_MISSING_SETTINGS = "missing_settings"
+CONFIG_STATUS_DISABLED = "disabled"
+CONFIG_STATUS_MISSING_API_URL = "missing_api_url"
+CONFIG_STATUS_MISSING_INSTANCE = "missing_instance"
+CONFIG_STATUS_MISSING_API_KEY = "missing_api_key"
+USE_STORED_SETTINGS = object()
 
 
 class SafeFormatDict(dict):
@@ -29,6 +36,70 @@ def send_live_class_link(live_class):
 	doc = frappe.get_doc("Bruce Live Class", live_class)
 	doc.check_permission("write")
 	return send_live_class_link_for_doc(doc)
+
+
+@frappe.whitelist()
+def test_evolution_configuration():
+	"""Validate the stored Evolution API configuration without sending messages."""
+	if not frappe.has_permission("Bruce Evolution Settings", "read"):
+		frappe.throw(_("Você não tem permissão para testar a configuração da Evolution API."))
+
+	result = validate_evolution_configuration()
+	log_configuration_test_result(result)
+	return result
+
+
+def validate_evolution_configuration(settings=USE_STORED_SETTINGS):
+	settings = get_settings() if settings is USE_STORED_SETTINGS else settings
+
+	if not settings:
+		return configuration_result(
+			CONFIG_STATUS_MISSING_SETTINGS,
+			_("Bruce Evolution Settings não foi encontrado. Revise a instalação da app."),
+		)
+
+	if not settings.enabled:
+		return configuration_result(
+			CONFIG_STATUS_DISABLED,
+			_("A integração de WhatsApp está desativada em Bruce Evolution Settings."),
+		)
+
+	if not settings.api_url:
+		return configuration_result(
+			CONFIG_STATUS_MISSING_API_URL,
+			_("Informe a URL da API em Bruce Evolution Settings."),
+		)
+
+	if not settings.instance_name:
+		return configuration_result(
+			CONFIG_STATUS_MISSING_INSTANCE,
+			_("Informe o nome da instância em Bruce Evolution Settings."),
+		)
+
+	if not get_evolution_api_key():
+		return configuration_result(
+			CONFIG_STATUS_MISSING_API_KEY,
+			_("Configure EVOLUTION_API_KEY em variável de ambiente ou site_config.json."),
+		)
+
+	return configuration_result(
+		CONFIG_STATUS_VALID,
+		_("Configuração da Evolution API válida. A integração está ativa e a API key foi encontrada."),
+	)
+
+
+def configuration_result(status, message):
+	return {
+		"status": status,
+		"valid": status == CONFIG_STATUS_VALID,
+		"message": message,
+	}
+
+
+def log_configuration_test_result(result):
+	frappe.logger("bruce_lms_custom.whatsapp").info(
+		"Teste de configuração da Evolution API: %(status)s", {"status": result.get("status")}
+	)
 
 
 def send_live_class_link_for_doc(live_class):

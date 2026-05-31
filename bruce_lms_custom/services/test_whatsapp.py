@@ -6,6 +6,12 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from bruce_lms_custom.services.whatsapp import (
+	CONFIG_STATUS_DISABLED,
+	CONFIG_STATUS_MISSING_API_KEY,
+	CONFIG_STATUS_MISSING_API_URL,
+	CONFIG_STATUS_MISSING_INSTANCE,
+	CONFIG_STATUS_MISSING_SETTINGS,
+	CONFIG_STATUS_VALID,
 	LOG_STATUS_FAILED,
 	LOG_STATUS_SENT,
 	build_live_class_message,
@@ -13,6 +19,7 @@ from bruce_lms_custom.services.whatsapp import (
 	get_live_class_recipients,
 	normalize_phone,
 	send_live_class_link_for_doc,
+	validate_evolution_configuration,
 )
 
 
@@ -57,6 +64,19 @@ class TestWhatsAppService(unittest.TestCase):
 			whatsapp_recipient_name="",
 			whatsapp_phone="",
 		)
+
+	def make_settings(self, **values):
+		settings = SimpleNamespace(
+			enabled=1,
+			api_url="https://evolution.example",
+			instance_name="bruce",
+			provider_mode="Evolution API",
+		)
+
+		for fieldname, value in values.items():
+			setattr(settings, fieldname, value)
+
+		return settings
 
 	def test_normalize_phone_removes_symbols_and_adds_brazil_code(self):
 		self.assertEqual(normalize_phone("(11) 99999-9999"), "5511999999999")
@@ -143,6 +163,74 @@ class TestWhatsAppService(unittest.TestCase):
 			message = build_live_class_message(live_class, recipient)
 
 		self.assertEqual(message, "Olá Ana, entre na aula Aula de História: https://meet.jit.si/bruce-token")
+
+	def test_validate_evolution_configuration_requires_settings(self):
+		with patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message):
+			result = validate_evolution_configuration(settings=None)
+
+		self.assertFalse(result["valid"])
+		self.assertEqual(result["status"], CONFIG_STATUS_MISSING_SETTINGS)
+		self.assertIn("Bruce Evolution Settings", result["message"])
+
+	def test_validate_evolution_configuration_requires_enabled_integration(self):
+		settings = self.make_settings(enabled=0)
+
+		with patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message):
+			result = validate_evolution_configuration(settings=settings)
+
+		self.assertFalse(result["valid"])
+		self.assertEqual(result["status"], CONFIG_STATUS_DISABLED)
+		self.assertIn("desativada", result["message"])
+
+	def test_validate_evolution_configuration_requires_api_url(self):
+		settings = self.make_settings(api_url="")
+
+		with patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message):
+			result = validate_evolution_configuration(settings=settings)
+
+		self.assertFalse(result["valid"])
+		self.assertEqual(result["status"], CONFIG_STATUS_MISSING_API_URL)
+		self.assertIn("URL da API", result["message"])
+
+	def test_validate_evolution_configuration_requires_instance_name(self):
+		settings = self.make_settings(instance_name="")
+
+		with patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message):
+			result = validate_evolution_configuration(settings=settings)
+
+		self.assertFalse(result["valid"])
+		self.assertEqual(result["status"], CONFIG_STATUS_MISSING_INSTANCE)
+		self.assertIn("instância", result["message"])
+
+	def test_validate_evolution_configuration_requires_api_key_without_exposing_value(self):
+		settings = self.make_settings()
+
+		with (
+			patch("bruce_lms_custom.services.whatsapp.get_evolution_api_key", return_value=""),
+			patch("bruce_lms_custom.services.whatsapp.requests.post") as post,
+			patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = validate_evolution_configuration(settings=settings)
+
+		post.assert_not_called()
+		self.assertFalse(result["valid"])
+		self.assertEqual(result["status"], CONFIG_STATUS_MISSING_API_KEY)
+		self.assertIn("EVOLUTION_API_KEY", result["message"])
+
+	def test_validate_evolution_configuration_returns_valid_without_external_call(self):
+		settings = self.make_settings()
+
+		with (
+			patch("bruce_lms_custom.services.whatsapp.get_evolution_api_key", return_value="secret-value"),
+			patch("bruce_lms_custom.services.whatsapp.requests.post") as post,
+			patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = validate_evolution_configuration(settings=settings)
+
+		post.assert_not_called()
+		self.assertTrue(result["valid"])
+		self.assertEqual(result["status"], CONFIG_STATUS_VALID)
+		self.assertNotIn("secret-value", result["message"])
 
 	def test_disabled_settings_registers_failed_log_without_external_call(self):
 		live_class = self.make_live_class()
