@@ -116,6 +116,25 @@ Nesta etapa o envio é somente manual. Ainda não há automações 24h/1h antes 
 aula. O campo de telefone na aula continua sendo o fallback manual/teste e tem
 prioridade sobre os telefones dos alunos da turma.
 
+## Fluxo: pré-visualização de WhatsApp
+
+1. Professor ou administrador abre uma aula ao vivo.
+2. Clica em `Pré-visualizar WhatsApp`.
+3. Backend valida permissão na aula.
+4. Backend resolve os destinatários com a mesma regra do envio manual:
+   destinatário manual/teste quando preenchido ou alunos da turma quando o
+   telefone manual estiver vazio.
+5. Backend monta a mensagem final em português brasileiro, usando template ativo
+   quando existir.
+6. A tela mostra um diálogo com:
+   - quantidade de destinatários;
+   - nome e telefone dos destinatários;
+   - texto final da mensagem;
+   - aviso se a integração de WhatsApp estiver desativada.
+
+Esse fluxo é somente leitura: não envia WhatsApp, não chama Evolution API, não
+chama n8n e não cria log de notificação.
+
 ## Fluxo futuro: envio automático de link por WhatsApp
 
 1. Aula é agendada ou marcada para envio.
@@ -157,7 +176,9 @@ Regras de UX:
 Nesta etapa, o sistema possui cadastros, logs e envio manual backend do link de
 aula. Quando o telefone manual da aula está vazio, o backend resolve
 destinatários a partir da turma da aula. Ainda não existe automação, scheduler
-ou botão de reenvio a partir do log.
+ou botão de reenvio a partir do log. A aula também possui a ação
+`Pré-visualizar WhatsApp`, que mostra destinatários e mensagem final antes de
+qualquer envio real.
 
 O administrador configura o provedor em `Bruce Evolution Settings`, escolhendo
 `Evolution API` ou `n8n`. A API key da Evolution deve ficar em variável de

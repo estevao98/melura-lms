@@ -19,7 +19,10 @@ Implementado:
 - resolução automática de destinatários da turma da `Bruce Live Class` quando o
   telefone manual não estiver preenchido;
 - deduplicação por telefone normalizado antes do envio;
+- pré-visualização da mensagem final de WhatsApp na `Bruce Live Class`, usando
+  os mesmos destinatários resolvidos do envio manual;
 - ação no formulário `Bruce Live Class`: `Enviar link por WhatsApp`;
+- ação no formulário `Bruce Live Class`: `Pré-visualizar WhatsApp`;
 - botão simples no `Painel do Professor`: `Enviar link por WhatsApp`;
 - verificação administrativa segura no `Bruce Evolution Settings` com a ação
   `Testar configuração`;
@@ -201,6 +204,26 @@ devem ser persistidos no campo `provider_response`.
 Quando a configuração estiver desativada, incompleta ou sem API key obrigatória,
 o sistema não envia a mensagem, registra log com status `Falhou` e preenche uma
 mensagem de erro amigável.
+
+## Fluxo de pré-visualização de WhatsApp
+
+1. Usuário autorizado abre uma `Bruce Live Class`.
+2. Clica em `Pré-visualizar WhatsApp`.
+3. Backend valida permissão na aula.
+4. Backend resolve destinatários usando a mesma regra do envio manual:
+   destinatário manual/teste quando preenchido ou alunos da turma quando o
+   telefone manual estiver vazio.
+5. Backend monta a mensagem final usando o template ativo de
+   `Bruce WhatsApp Message Template` ou a mensagem padrão em português.
+6. Backend retorna somente dados de prévia:
+   - quantidade de destinatários;
+   - nome e telefone dos destinatários;
+   - texto final da mensagem;
+   - aviso quando a integração estiver desativada em `Bruce Evolution Settings`.
+7. A tela mostra a prévia em um diálogo de leitura.
+
+Esse fluxo não chama Evolution API, não chama webhook n8n, não envia mensagem
+real e não cria `Bruce WhatsApp Notification Log`.
 
 ## Fluxo de teste de configuração
 

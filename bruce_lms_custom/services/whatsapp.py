@@ -43,6 +43,14 @@ def send_live_class_link(live_class):
 
 
 @frappe.whitelist()
+def preview_live_class_link(live_class):
+	"""Preview the WhatsApp message for a Bruce Live Class without sending it."""
+	doc = frappe.get_doc("Bruce Live Class", live_class)
+	doc.check_permission("write")
+	return build_live_class_link_preview(doc)
+
+
+@frappe.whitelist()
 def test_evolution_configuration():
 	"""Validate the stored Evolution API configuration without sending messages."""
 	if not frappe.has_permission("Bruce Evolution Settings", "read"):
@@ -172,6 +180,38 @@ def send_live_class_link_for_doc(live_class):
 	update_live_class_whatsapp_status(live_class, results)
 
 	return summarize_results(results)
+
+
+def build_live_class_link_preview(live_class):
+	recipients = get_live_class_recipients(live_class)
+	recipient_messages = [
+		{
+			"recipient_name": recipient.get("recipient_name") or _("Destinatário não informado"),
+			"phone": recipient.get("phone") or _("Não informado"),
+			"message": build_live_class_message(live_class, recipient),
+		}
+		for recipient in recipients
+	]
+	settings = get_settings()
+	integration_enabled = bool(settings and settings.enabled)
+
+	return {
+		"status": "preview",
+		"recipient_count": len(recipients),
+		"recipients": [
+			{
+				"recipient_name": item["recipient_name"],
+				"phone": item["phone"],
+			}
+			for item in recipient_messages
+		],
+		"message": recipient_messages[0]["message"] if recipient_messages else build_live_class_message(live_class, {}),
+		"recipient_messages": recipient_messages,
+		"integration_enabled": integration_enabled,
+		"integration_warning": ""
+		if integration_enabled
+		else _("A integração de WhatsApp está desativada em Bruce Evolution Settings."),
+	}
 
 
 def send_logged_message(live_class, recipient, message, log):

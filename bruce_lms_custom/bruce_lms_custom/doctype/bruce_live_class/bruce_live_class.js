@@ -74,6 +74,20 @@ frappe.ui.form.on("Bruce Live Class", {
 				},
 			});
 		}, __("WhatsApp"));
+
+		frm.add_custom_button(__("Pré-visualizar WhatsApp"), () => {
+			frappe.call({
+				method: "bruce_lms_custom.services.whatsapp.preview_live_class_link",
+				args: {
+					live_class: frm.doc.name,
+				},
+				freeze: true,
+				freeze_message: __("Montando pré-visualização..."),
+				callback(response) {
+					show_whatsapp_preview_dialog(response.message || {});
+				},
+			});
+		}, __("WhatsApp"));
 	},
 });
 
@@ -120,4 +134,67 @@ function show_manual_copy_dialog(meetingUrl) {
 		message: __("Não foi possível copiar automaticamente. Copie o link abaixo:") + `<br><br><code>${frappe.utils.escape_html(meetingUrl)}</code>`,
 		indicator: "orange",
 	});
+}
+
+function show_whatsapp_preview_dialog(result) {
+	const recipients = result.recipients || [];
+	const recipientRows = recipients.length
+		? recipients.map((recipient) => `
+			<tr>
+				<td>${escape_html(recipient.recipient_name || __("Destinatário não informado"))}</td>
+				<td>${escape_html(recipient.phone || __("Não informado"))}</td>
+			</tr>
+		`).join("")
+		: `<tr><td colspan="2">${escape_html(__("Nenhum destinatário encontrado para esta aula."))}</td></tr>`;
+	const warning = result.integration_warning
+		? `<div class="alert alert-warning" style="margin-bottom: 12px;">${escape_html(result.integration_warning)}</div>`
+		: "";
+	const message = escape_html(result.message || "");
+
+	const dialog = new frappe.ui.Dialog({
+		title: __("Pré-visualizar WhatsApp"),
+		size: "large",
+		fields: [
+			{
+				fieldtype: "HTML",
+				fieldname: "preview",
+				options: `
+					${warning}
+					<p><strong>${escape_html(__("Quantidade de destinatários"))}:</strong> ${Number(result.recipient_count || 0)}</p>
+					<div style="max-height: 220px; overflow: auto; margin-bottom: 16px;">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>${escape_html(__("Nome"))}</th>
+									<th>${escape_html(__("Telefone"))}</th>
+								</tr>
+							</thead>
+							<tbody>${recipientRows}</tbody>
+						</table>
+					</div>
+					<p><strong>${escape_html(__("Texto final da mensagem"))}</strong></p>
+					<textarea class="form-control" readonly rows="8" style="resize: vertical;">${message}</textarea>
+				`,
+			},
+		],
+		primary_action_label: __("Fechar"),
+		primary_action() {
+			dialog.hide();
+		},
+	});
+
+	dialog.show();
+}
+
+function escape_html(value) {
+	if (frappe.utils && frappe.utils.escape_html) {
+		return frappe.utils.escape_html(String(value || ""));
+	}
+
+	return String(value || "")
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;");
 }

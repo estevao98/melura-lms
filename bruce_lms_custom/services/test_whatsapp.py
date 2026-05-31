@@ -14,6 +14,7 @@ from bruce_lms_custom.services.whatsapp import (
 	CONFIG_STATUS_VALID,
 	LOG_STATUS_FAILED,
 	LOG_STATUS_SENT,
+	build_live_class_link_preview,
 	build_live_class_message,
 	get_live_class_batch_recipient_candidates,
 	get_live_class_recipients,
@@ -164,6 +165,37 @@ class TestWhatsAppService(unittest.TestCase):
 			message = build_live_class_message(live_class, recipient)
 
 		self.assertEqual(message, "Olá Ana, entre na aula Aula de História: https://meet.jit.si/bruce-token")
+
+	def test_build_live_class_link_preview_resolves_recipients_and_message_without_external_call(self):
+		live_class = self.make_live_class()
+		settings = Mock(enabled=0)
+		template = Mock(
+			message_body=(
+				"Olá {nome}, a aula {aula} do curso {curso} para a turma {turma} "
+				"começa em {inicio}. Link: {link}"
+			)
+		)
+
+		with (
+			patch("bruce_lms_custom.services.whatsapp.get_live_class_recipients", return_value=[
+				{"recipient_name": "Ana", "phone": "5511999999999", "user": "ana@example.com"}
+			]),
+			patch("bruce_lms_custom.services.whatsapp.get_active_template", return_value=template),
+			patch("bruce_lms_custom.services.whatsapp.get_settings", return_value=settings),
+			patch("bruce_lms_custom.services.whatsapp.requests.post") as post,
+			patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = build_live_class_link_preview(live_class)
+
+		post.assert_not_called()
+		self.assertEqual(result["recipient_count"], 1)
+		self.assertEqual(result["recipients"], [{"recipient_name": "Ana", "phone": "5511999999999"}])
+		self.assertIn("Aula de História", result["message"])
+		self.assertIn("historia-enem", result["message"])
+		self.assertIn("turma-2026", result["message"])
+		self.assertIn("https://meet.jit.si/bruce-token", result["message"])
+		self.assertFalse(result["integration_enabled"])
+		self.assertIn("desativada", result["integration_warning"])
 
 	def test_validate_evolution_configuration_requires_settings(self):
 		with patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message):
