@@ -94,15 +94,23 @@ Estados de tela:
 ## Fluxo: envio manual de link por WhatsApp
 
 1. Professor ou administrador abre uma aula ao vivo.
-2. Clica em `Enviar link por WhatsApp`.
-3. Backend valida permissão e configuração.
-4. Backend monta a mensagem em português brasileiro.
-5. Backend chama Evolution API ou webhook n8n conforme configuração.
-6. Sistema registra cada tentativa no log.
-7. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
+2. Para teste ou validação inicial, pode preencher `Nome do destinatário
+   WhatsApp` e `Telefone WhatsApp` na própria aula.
+3. Clica em `Enviar link por WhatsApp`.
+4. Backend valida permissão e configuração.
+5. Se houver telefone manual, backend usa esse destinatário. Espaços,
+   parênteses, traços e símbolos são removidos; números brasileiros com 10 ou
+   11 dígitos recebem o prefixo `55` quando ainda não tiverem DDI.
+6. Se não houver telefone manual, a tela mantém erro amigável informando que
+   nenhum telefone foi encontrado para a aula.
+7. Backend monta a mensagem em português brasileiro.
+8. Backend chama Evolution API ou webhook n8n conforme configuração.
+9. Sistema registra cada tentativa no log.
+10. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
 
 Nesta etapa o envio é somente manual. Ainda não há automações 24h/1h antes da
-aula.
+aula. O campo de telefone na aula é um fallback manual/teste e não substitui a
+busca automática definitiva de alunos da turma, que fica para etapa futura.
 
 ## Fluxo futuro: envio automático de link por WhatsApp
 

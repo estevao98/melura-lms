@@ -165,34 +165,23 @@ def safe_response_json(response):
 
 
 def get_live_class_recipients(live_class):
-	members = get_batch_members(live_class.batch)
-	if not members:
-		members = get_course_members(live_class.course)
+	manual_recipient = get_manual_recipient(live_class)
+	if manual_recipient:
+		return [manual_recipient]
 
-	recipients = []
-	seen = set()
+	return []
 
-	for member in members:
-		user = member.get("member")
-		if not user or user in seen:
-			continue
 
-		seen.add(user)
-		user_data = get_user_contact(user)
-		phone = user_data.get("mobile_no") or user_data.get("phone")
+def get_manual_recipient(live_class):
+	phone = normalize_phone(getattr(live_class, "whatsapp_phone", ""))
+	if not phone:
+		return None
 
-		if not phone:
-			continue
-
-		recipients.append(
-			{
-				"user": user,
-				"recipient_name": member.get("member_name") or user_data.get("full_name") or user,
-				"phone": phone,
-			}
-		)
-
-	return recipients
+	return {
+		"user": None,
+		"recipient_name": getattr(live_class, "whatsapp_recipient_name", "") or _("Destinatário de teste"),
+		"phone": phone,
+	}
 
 
 def get_batch_members(batch):
@@ -334,7 +323,12 @@ def summarize_results(results):
 
 
 def normalize_phone(phone):
-	return re.sub(r"\D+", "", phone or "")
+	phone = re.sub(r"\D+", "", phone or "")
+
+	if len(phone) in (10, 11) and not phone.startswith("55"):
+		return f"55{phone}"
+
+	return phone
 
 
 def redact_sensitive_values(value):

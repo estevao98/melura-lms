@@ -9,6 +9,8 @@ from bruce_lms_custom.services.whatsapp import (
 	LOG_STATUS_FAILED,
 	LOG_STATUS_SENT,
 	build_live_class_message,
+	get_live_class_recipients,
+	normalize_phone,
 	send_live_class_link_for_doc,
 )
 
@@ -51,7 +53,34 @@ class TestWhatsAppService(unittest.TestCase):
 			batch="turma-2026",
 			starts_at=None,
 			meeting_url="https://meet.jit.si/bruce-token",
+			whatsapp_recipient_name="",
+			whatsapp_phone="",
 		)
+
+	def test_normalize_phone_removes_symbols_and_adds_brazil_code(self):
+		self.assertEqual(normalize_phone("(11) 99999-9999"), "5511999999999")
+		self.assertEqual(normalize_phone("+55 (11) 99999-9999"), "5511999999999")
+
+	def test_get_live_class_recipients_uses_manual_whatsapp_recipient_first(self):
+		live_class = self.make_live_class()
+		live_class.whatsapp_recipient_name = "Contato Teste"
+		live_class.whatsapp_phone = "(11) 99999-9999"
+
+		with patch("bruce_lms_custom.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message):
+			recipients = get_live_class_recipients(live_class)
+
+		self.assertEqual(recipients, [
+			{
+				"user": None,
+				"recipient_name": "Contato Teste",
+				"phone": "5511999999999",
+			}
+		])
+
+	def test_get_live_class_recipients_returns_empty_without_manual_phone(self):
+		live_class = self.make_live_class()
+
+		self.assertEqual(get_live_class_recipients(live_class), [])
 
 	def test_build_live_class_message_uses_active_template(self):
 		live_class = self.make_live_class()

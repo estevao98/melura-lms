@@ -21,6 +21,7 @@ class TestBruceLiveClass(unittest.TestCase):
 		doc.ends_at = None
 		doc.room_name = ""
 		doc.meeting_url = ""
+		doc.whatsapp_phone = ""
 
 		for fieldname, value in values.items():
 			setattr(doc, fieldname, value)
@@ -70,6 +71,17 @@ class TestBruceLiveClass(unittest.TestCase):
 
 		self.assertEqual(doc.room_name, "sala-existente")
 		self.assertEqual(doc.meeting_url, "https://meet.jit.si/sala-existente")
+
+	def test_validate_normalizes_manual_whatsapp_phone(self):
+		doc = self.make_doc(
+			room_name="sala-existente",
+			meeting_url="https://meet.jit.si/sala-existente",
+			whatsapp_phone="(11) 99999-9999",
+		)
+
+		doc.validate()
+
+		self.assertEqual(doc.whatsapp_phone, "5511999999999")
 
 	def test_start_live_class_marks_scheduled_class_as_live(self):
 		doc = Mock(status="Agendada", meeting_url="https://meet.jit.si/sala-existente")

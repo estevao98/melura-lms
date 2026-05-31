@@ -27,11 +27,22 @@ class BruceLiveClass(Document):
 		if self.starts_at and self.ends_at and get_datetime(self.ends_at) <= get_datetime(self.starts_at):
 			frappe.throw(_("A data de término deve ser posterior ao início da aula."))
 
+		if getattr(self, "whatsapp_phone", None):
+			self.whatsapp_phone = self.normalize_whatsapp_phone(self.whatsapp_phone)
+
 		if not self.room_name:
 			self.room_name = self.generate_room_name()
 
 		if not self.meeting_url:
 			self.meeting_url = self.build_meeting_url()
+
+	def normalize_whatsapp_phone(self, phone):
+		phone = re.sub(r"\D+", "", phone or "")
+
+		if len(phone) in (10, 11) and not phone.startswith("55"):
+			return f"55{phone}"
+
+		return phone
 
 	def generate_room_name(self):
 		settings = self.get_jitsi_settings()

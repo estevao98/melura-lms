@@ -12,6 +12,9 @@
   "title",
   "status",
   "whatsapp_status",
+  "section_break_whatsapp",
+  "whatsapp_recipient_name",
+  "whatsapp_phone",
   "section_break_schedule",
   "course",
   "batch",
@@ -51,6 +54,23 @@
    "label": "Status do WhatsApp",
    "options": "Não enviado\nPendente\nEnviado\nFalhou\nReenviado",
    "reqd": 1
+  },
+  {
+   "description": "Fallback manual para validar o envio antes da busca automática de alunos.",
+   "fieldname": "section_break_whatsapp",
+   "fieldtype": "Section Break",
+   "label": "WhatsApp"
+  },
+  {
+   "fieldname": "whatsapp_recipient_name",
+   "fieldtype": "Data",
+   "label": "Nome do destinatário WhatsApp"
+  },
+  {
+   "description": "Informe um número brasileiro simples. Espaços, parênteses, traços e símbolos serão removidos.",
+   "fieldname": "whatsapp_phone",
+   "fieldtype": "Data",
+   "label": "Telefone WhatsApp"
   },
   {
    "fieldname": "section_break_schedule",
