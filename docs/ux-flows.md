@@ -92,6 +92,24 @@ Estados de tela:
 - encerrada: mostrar status e, se existir, material ou gravação futura;
 - sem permissão: mostrar mensagem simples orientando contato com suporte.
 
+### Base atual para aluno
+
+Nesta etapa, o aluno possui a página Desk `Minha Aula`, disponível pela rota
+`/app/minha-aula`.
+
+A tela mostra a primeira `Bruce Live Class` visível para o usuário, priorizando
+aula `Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro.
+Ela exibe título, curso, turma, data e horário, status da aula e ações
+`Entrar na aula` e `Copiar link`.
+
+Quando não houver aula ao vivo ou agendada, a tela mostra um aviso simples em
+português brasileiro.
+
+Esta é uma versão inicial segura: ela não envia WhatsApp, não chama automações,
+não expõe API key no frontend e não altera o core do LMS. O filtro refinado por
+matrícula/turma do aluno ainda será implementado depois, quando a relação real
+entre `LMS Student`, `LMS Batch` e matrícula estiver consolidada para o produto.
+
 ## Fluxo: envio manual de link por WhatsApp
 
 1. Professor ou administrador abre uma aula ao vivo.

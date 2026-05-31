@@ -135,6 +135,19 @@ Limites:
 - não acessa KPIs administrativos;
 - não acessa configurações.
 
+Implementação atual:
+
+- a página Desk `Minha Aula` (`/app/minha-aula`) está liberada para o papel
+  `LMS Student`;
+- a tela consulta somente a próxima `Bruce Live Class` ativa ou agendada visível
+  pelas permissões do usuário;
+- a ação do aluno é restrita a abrir o link da aula já salvo ou copiar esse
+  link;
+- a tela não inicia aula, não agenda aula, não envia WhatsApp, não consulta logs
+  e não expõe configurações sensíveis;
+- o filtro por vínculo real de matrícula/turma ainda será refinado em etapa
+  posterior.
+
 ### Administrador LMS
 
 Papel operacional responsável pela administração básica do LMS, sem assumir
