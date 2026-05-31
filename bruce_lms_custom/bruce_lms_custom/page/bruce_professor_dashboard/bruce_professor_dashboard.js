@@ -109,16 +109,21 @@ class BruceProfessorDashboard {
 					${deskButton}
 					${startButton}
 				</div>
+
+				${this.render_notice_history(liveClass.notice_logs || [])}
 			</div>
 		`);
 
 		if (meetingUrl) {
 			this.container.find(".bruce-professor-dashboard__open").on("click", () => {
+				this.record_notice_event(liveClass.name, "Aula aberta", __("Aula aberta"), __("O link da aula foi aberto pelo usuário."), "Sucesso", () => {
+					this.load();
+				});
 				window.open(meetingUrl, "_blank", "noopener");
 			});
 
 			this.container.find(".bruce-professor-dashboard__copy").on("click", () => {
-				this.copy_meeting_url(meetingUrl);
+				this.copy_meeting_url(liveClass.name, meetingUrl);
 			});
 		}
 
@@ -183,6 +188,7 @@ class BruceProfessorDashboard {
 			freeze_message: __("Montando pré-visualização..."),
 			callback: (response) => {
 				this.show_whatsapp_preview_dialog(response.message || {});
+				this.load();
 			},
 		});
 	}
@@ -237,20 +243,23 @@ class BruceProfessorDashboard {
 		dialog.show();
 	}
 
-	copy_meeting_url(meetingUrl) {
+	copy_meeting_url(liveClass, meetingUrl) {
 		if (navigator.clipboard && window.isSecureContext) {
 			navigator.clipboard.writeText(meetingUrl).then(() => {
 				this.show_copy_success();
+				this.record_notice_event(liveClass, "Link copiado", __("Link da aula copiado"), __("O link da aula foi copiado pelo usuário."), "Sucesso", () => {
+					this.load();
+				});
 			}).catch(() => {
-				this.copy_meeting_url_fallback(meetingUrl);
+				this.copy_meeting_url_fallback(liveClass, meetingUrl);
 			});
 			return;
 		}
 
-		this.copy_meeting_url_fallback(meetingUrl);
+		this.copy_meeting_url_fallback(liveClass, meetingUrl);
 	}
 
-	copy_meeting_url_fallback(meetingUrl) {
+	copy_meeting_url_fallback(liveClass, meetingUrl) {
 		const textarea = document.createElement("textarea");
 		textarea.value = meetingUrl;
 		textarea.setAttribute("readonly", "");
@@ -262,6 +271,9 @@ class BruceProfessorDashboard {
 		try {
 			if (document.execCommand("copy")) {
 				this.show_copy_success();
+				this.record_notice_event(liveClass, "Link copiado", __("Link da aula copiado"), __("O link da aula foi copiado pelo usuário."), "Sucesso", () => {
+					this.load();
+				});
 			} else {
 				this.show_manual_copy_dialog(meetingUrl);
 			}
@@ -277,6 +289,52 @@ class BruceProfessorDashboard {
 			message: __("Link da aula copiado."),
 			indicator: "green",
 		});
+	}
+
+	record_notice_event(liveClass, eventType, title, message, status, callback) {
+		frappe.call({
+			method: "bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event",
+			args: {
+				live_class: liveClass,
+				event_type: eventType,
+				title,
+				message,
+				status,
+			},
+			callback: () => {
+				if (callback) {
+					callback();
+				}
+			},
+		});
+	}
+
+	render_notice_history(logs) {
+		const rows = logs.length
+			? logs.map((log) => `
+				<tr>
+					<td>${this.escape_html(this.format_datetime(log.created_at))}</td>
+					<td>${this.escape_html(log.title || log.event_type || "")}</td>
+					<td>${this.escape_html(log.status || "")}</td>
+				</tr>
+			`).join("")
+			: `<tr><td colspan="3" class="text-muted">${this.escape_html(__("Nenhum aviso ou ação registrado para esta aula."))}</td></tr>`;
+
+		return `
+			<div class="bruce-professor-dashboard__history">
+				<h4>${this.escape_html(__("Histórico recente"))}</h4>
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th>${this.escape_html(__("Data"))}</th>
+							<th>${this.escape_html(__("Ação"))}</th>
+							<th>${this.escape_html(__("Status"))}</th>
+						</tr>
+					</thead>
+					<tbody>${rows}</tbody>
+				</table>
+			</div>
+		`;
 	}
 
 	show_manual_copy_dialog(meetingUrl) {
@@ -401,6 +459,14 @@ class BruceProfessorDashboard {
 				flex-wrap: wrap;
 				gap: 8px;
 				margin-top: 24px;
+			}
+
+			.bruce-professor-dashboard__history {
+				margin-top: 24px;
+			}
+
+			.bruce-professor-dashboard__history h4 {
+				margin: 0 0 12px;
 			}
 
 			@media (max-width: 640px) {

@@ -11,6 +11,12 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import get_datetime
 
+from bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log import (
+	EVENT_CLASS_STARTED,
+	STATUS_SUCCESS,
+	create_notice_log,
+)
+
 
 @dataclass(frozen=True)
 class JitsiSettings:
@@ -100,6 +106,13 @@ def start_live_class(name):
 
 	doc.status = "Ao vivo"
 	doc.save()
+	create_notice_log(
+		doc,
+		EVENT_CLASS_STARTED,
+		_("Aula iniciada"),
+		_("A aula foi marcada como ao vivo pelo usuário."),
+		STATUS_SUCCESS,
+	)
 
 	return {
 		"status": doc.status,

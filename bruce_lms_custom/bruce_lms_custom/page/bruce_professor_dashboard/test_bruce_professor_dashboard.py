@@ -24,7 +24,10 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		with patch(
 			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_list",
 			return_value=[live_class],
-		) as get_list:
+		) as get_list, patch(
+			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_all",
+			return_value=[],
+		) as get_all:
 			result = _get_next_live_class()
 
 		self.assertEqual(result["name"], live_class["name"])
@@ -32,7 +35,31 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertIsNone(result["course_title"])
 		self.assertIsNone(result["batch_title"])
 		self.assertEqual(result["class_status_label"], "Aula ao vivo")
+		self.assertEqual(result["notice_logs"], [])
 		get_list.assert_called_once()
+		get_list.assert_called_with(
+			"Bruce Live Class",
+			filters={"status": "Ao vivo"},
+			fields=[
+				"name",
+				"title",
+				"course",
+				"batch",
+				"starts_at",
+				"status",
+				"whatsapp_status",
+				"meeting_url",
+			],
+			order_by="starts_at asc",
+			limit_page_length=1,
+		)
+		get_all.assert_called_once_with(
+			"Bruce Live Class Notice Log",
+			filters={"related_live_class": live_class["name"]},
+			fields=["event_type", "title", "message", "status", "created_by", "created_at"],
+			order_by="created_at desc, creation desc",
+			limit_page_length=4,
+		)
 
 	def test_get_next_live_class_returns_next_scheduled_when_no_live_class_exists(self):
 		scheduled_class = {
@@ -47,6 +74,10 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 				side_effect=[[], [scheduled_class]],
 			) as get_list,
 			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_all",
+				return_value=[],
+			) as get_all,
+			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.now_datetime",
 				return_value="2026-05-30 12:00:00",
 			),
@@ -55,7 +86,31 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 
 		self.assertEqual(result["name"], scheduled_class["name"])
 		self.assertEqual(result["status"], scheduled_class["status"])
+		self.assertEqual(result["notice_logs"], [])
 		self.assertEqual(get_list.call_count, 2)
+		get_list.assert_any_call(
+			"Bruce Live Class",
+			filters={"status": "Ao vivo"},
+			fields=[
+				"name",
+				"title",
+				"course",
+				"batch",
+				"starts_at",
+				"status",
+				"whatsapp_status",
+				"meeting_url",
+			],
+			order_by="starts_at asc",
+			limit_page_length=1,
+		)
+		get_all.assert_called_once_with(
+			"Bruce Live Class Notice Log",
+			filters={"related_live_class": scheduled_class["name"]},
+			fields=["event_type", "title", "message", "status", "created_by", "created_at"],
+			order_by="created_at desc, creation desc",
+			limit_page_length=4,
+		)
 
 	def test_get_next_live_class_returns_none_when_no_class_exists(self):
 		with (
@@ -64,6 +119,10 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 				side_effect=[[], []],
 			),
 			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_all",
+				return_value=[],
+			) as get_all,
+			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.now_datetime",
 				return_value="2026-05-30 12:00:00",
 			),
@@ -71,6 +130,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 			result = _get_next_live_class()
 
 		self.assertIsNone(result)
+		get_all.assert_not_called()
 
 	def test_get_next_live_class_adds_course_and_batch_titles(self):
 		scheduled_class = {
@@ -85,6 +145,10 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_list",
 				side_effect=[[], [scheduled_class]],
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_all",
+				return_value=[],
 			),
 			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
@@ -102,6 +166,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 
 		self.assertEqual(result["course_title"], "Guia do Frappe Learning")
 		self.assertEqual(result["batch_title"], "Turma Teste Jitsi")
+		self.assertEqual(result["notice_logs"], [])
 
 	def test_get_link_title_falls_back_to_original_value(self):
 		with patch(

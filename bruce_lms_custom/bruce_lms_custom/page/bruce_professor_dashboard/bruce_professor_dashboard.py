@@ -65,7 +65,21 @@ def _with_display_values(live_class):
 	live_class["batch_title"] = _get_link_title("LMS Batch", live_class.get("batch"))
 	live_class["class_status_label"] = _get_class_status_label(live_class.get("status"))
 	live_class["whatsapp_status_label"] = _get_whatsapp_status_label(live_class.get("whatsapp_status"))
+	live_class["notice_logs"] = _get_notice_logs(live_class.get("name"))
 	return live_class
+
+
+def _get_notice_logs(live_class):
+	if not live_class:
+		return []
+
+	return frappe.get_all(
+		"Bruce Live Class Notice Log",
+		filters={"related_live_class": live_class},
+		fields=["event_type", "title", "message", "status", "created_by", "created_at"],
+		order_by="created_at desc, creation desc",
+		limit_page_length=4,
+	)
 
 
 def _get_link_title(doctype, name):

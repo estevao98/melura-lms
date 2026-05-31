@@ -95,11 +95,15 @@ class TestBruceLiveClass(unittest.TestCase):
 				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class._",
 				side_effect=lambda message, *args, **kwargs: message,
 			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class.bruce_live_class.create_notice_log"
+			) as create_notice_log,
 		):
 			result = start_live_class_without_frappe_wrapper("BLC-2026-00001")
 
 		doc.check_permission.assert_called_once_with("write")
 		doc.save.assert_called_once_with()
+		create_notice_log.assert_called_once()
 		self.assertEqual(doc.status, "Ao vivo")
 		self.assertEqual(result["meeting_url"], "https://meet.jit.si/sala-existente")
 

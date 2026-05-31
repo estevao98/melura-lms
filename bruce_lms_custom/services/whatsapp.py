@@ -11,6 +11,18 @@ import requests
 from frappe import _
 from frappe.utils import now_datetime
 
+from bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log import (
+	EVENT_INTEGRATION_DISABLED,
+	EVENT_MANUAL_SEND_ATTEMPT,
+	EVENT_SEND_FAILED,
+	EVENT_WHATSAPP_PREVIEW,
+	STATUS_FAILED,
+	STATUS_REGISTERED,
+	STATUS_SUCCESS,
+	STATUS_WARNING,
+	create_notice_log,
+)
+
 
 TEMPLATE_EVENT_TYPE = "Link de aula disponível"
 TEST_MESSAGE = (
@@ -39,6 +51,13 @@ def send_live_class_link(live_class):
 	"""Send the Jitsi link for a Bruce Live Class through the configured WhatsApp provider."""
 	doc = frappe.get_doc("Bruce Live Class", live_class)
 	doc.check_permission("write")
+	create_notice_log(
+		doc,
+		EVENT_MANUAL_SEND_ATTEMPT,
+		_("Tentativa de envio manual por WhatsApp"),
+		_("O usuário solicitou manualmente o envio do link da aula por WhatsApp."),
+		STATUS_REGISTERED,
+	)
 	return send_live_class_link_for_doc(doc)
 
 
@@ -47,7 +66,23 @@ def preview_live_class_link(live_class):
 	"""Preview the WhatsApp message for a Bruce Live Class without sending it."""
 	doc = frappe.get_doc("Bruce Live Class", live_class)
 	doc.check_permission("write")
-	return build_live_class_link_preview(doc)
+	result = build_live_class_link_preview(doc)
+	create_notice_log(
+		doc,
+		EVENT_WHATSAPP_PREVIEW,
+		_("Pré-visualização de WhatsApp gerada"),
+		_("Mensagem e destinatários foram pré-visualizados sem envio real."),
+		STATUS_SUCCESS,
+	)
+	if result.get("integration_warning"):
+		create_notice_log(
+			doc,
+			EVENT_INTEGRATION_DISABLED,
+			_("Integração de WhatsApp desativada"),
+			result.get("integration_warning"),
+			STATUS_WARNING,
+		)
+	return result
 
 
 @frappe.whitelist()
@@ -178,8 +213,33 @@ def send_live_class_link_for_doc(live_class):
 		results.append(result)
 
 	update_live_class_whatsapp_status(live_class, results)
+	create_send_result_notice_logs(live_class, results)
 
 	return summarize_results(results)
+
+
+def create_send_result_notice_logs(live_class, results):
+	failed_results = [result for result in results if result["status"] == "failed"]
+	if not failed_results:
+		return
+
+	first_error = failed_results[0].get("error_message") or _("Não foi possível enviar o link pelo WhatsApp.")
+	if "desativada" in first_error.lower():
+		create_notice_log(
+			live_class,
+			EVENT_INTEGRATION_DISABLED,
+			_("Integração de WhatsApp desativada"),
+			first_error,
+			STATUS_WARNING,
+		)
+
+	create_notice_log(
+		live_class,
+		EVENT_SEND_FAILED,
+		_("Falha no envio por WhatsApp"),
+		first_error,
+		STATUS_FAILED,
+	)
 
 
 def build_live_class_link_preview(live_class):

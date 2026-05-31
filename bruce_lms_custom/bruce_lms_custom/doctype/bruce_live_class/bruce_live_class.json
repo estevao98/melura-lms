@@ -25,7 +25,9 @@
   "section_break_jitsi",
   "room_name",
   "column_break_jitsi",
-  "meeting_url"
+  "meeting_url",
+  "section_break_notice_history",
+  "notice_history_html"
  ],
  "fields": [
   {
@@ -144,6 +146,16 @@
    "fieldtype": "Small Text",
    "label": "Link da aula",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_notice_history",
+   "fieldtype": "Section Break",
+   "label": "Histórico de avisos e ações"
+  },
+  {
+   "fieldname": "notice_history_html",
+   "fieldtype": "HTML",
+   "label": "Histórico"
   }
  ],
  "grid_page_length": 50,

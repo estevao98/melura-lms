@@ -11,6 +11,9 @@ frappe.ui.form.on("Bruce Live Class", {
 				return;
 			}
 
+			record_notice_event(frm.doc.name, "Aula aberta", __("Aula aberta"), __("O link da aula foi aberto pelo usuário."), "Sucesso", () => {
+				render_notice_history(frm);
+			});
 			window.open(meetingUrl, "_blank", "noopener");
 		}, __("Jitsi"));
 
@@ -21,7 +24,7 @@ frappe.ui.form.on("Bruce Live Class", {
 				return;
 			}
 
-			copy_meeting_url(meetingUrl);
+			copy_meeting_url(frm, meetingUrl);
 		}, __("Jitsi"));
 
 		if (frm.doc.status === "Agendada") {
@@ -85,9 +88,12 @@ frappe.ui.form.on("Bruce Live Class", {
 				freeze_message: __("Montando pré-visualização..."),
 				callback(response) {
 					show_whatsapp_preview_dialog(response.message || {});
+					render_notice_history(frm);
 				},
 			});
 		}, __("WhatsApp"));
+
+		render_notice_history(frm);
 	},
 });
 
@@ -103,12 +109,15 @@ function show_missing_meeting_url() {
 	});
 }
 
-function copy_meeting_url(meetingUrl) {
+function copy_meeting_url(frm, meetingUrl) {
 	if (frappe.utils && frappe.utils.copy_to_clipboard) {
 		frappe.utils.copy_to_clipboard(meetingUrl);
 		frappe.show_alert({
 			message: __("Link da aula copiado."),
 			indicator: "green",
+		});
+		record_notice_event(frm.doc.name, "Link copiado", __("Link da aula copiado"), __("O link da aula foi copiado pelo usuário."), "Sucesso", () => {
+			render_notice_history(frm);
 		});
 		return;
 	}
@@ -118,6 +127,9 @@ function copy_meeting_url(meetingUrl) {
 			frappe.show_alert({
 				message: __("Link da aula copiado."),
 				indicator: "green",
+			});
+			record_notice_event(frm.doc.name, "Link copiado", __("Link da aula copiado"), __("O link da aula foi copiado pelo usuário."), "Sucesso", () => {
+				render_notice_history(frm);
 			});
 		}).catch(() => {
 			show_manual_copy_dialog(meetingUrl);
@@ -184,6 +196,81 @@ function show_whatsapp_preview_dialog(result) {
 	});
 
 	dialog.show();
+}
+
+function render_notice_history(frm) {
+	if (!frm.fields_dict.notice_history_html) {
+		return;
+	}
+
+	frappe.call({
+		method: "bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.get_live_class_notice_logs",
+		args: {
+			live_class: frm.doc.name,
+			limit: 6,
+		},
+		callback(response) {
+			const logs = response.message || [];
+			frm.set_df_property("notice_history_html", "options", build_notice_history_html(logs));
+		},
+	});
+}
+
+function build_notice_history_html(logs) {
+	if (!logs.length) {
+		return `<p class="text-muted">${escape_html(__("Nenhum aviso ou ação registrado para esta aula."))}</p>`;
+	}
+
+	const rows = logs.map((log) => `
+		<tr>
+			<td>${escape_html(format_datetime(log.created_at))}</td>
+			<td>${escape_html(log.title || log.event_type || "")}</td>
+			<td>${escape_html(log.status || "")}</td>
+			<td>${escape_html(log.created_by || "")}</td>
+		</tr>
+	`).join("");
+
+	return `
+		<div style="max-height: 240px; overflow: auto;">
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th>${escape_html(__("Data"))}</th>
+						<th>${escape_html(__("Ação"))}</th>
+						<th>${escape_html(__("Status"))}</th>
+						<th>${escape_html(__("Usuário"))}</th>
+					</tr>
+				</thead>
+				<tbody>${rows}</tbody>
+			</table>
+		</div>
+	`;
+}
+
+function record_notice_event(liveClass, eventType, title, message, status, callback) {
+	frappe.call({
+		method: "bruce_lms_custom.bruce_lms_custom.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event",
+		args: {
+			live_class: liveClass,
+			event_type: eventType,
+			title,
+			message,
+			status,
+		},
+		callback() {
+			if (callback) {
+				callback();
+			}
+		},
+	});
+}
+
+function format_datetime(value) {
+	if (!value) {
+		return "";
+	}
+
+	return frappe.datetime.str_to_user(value);
 }
 
 function escape_html(value) {

@@ -21,6 +21,8 @@ Implementado:
 - deduplicação por telefone normalizado antes do envio;
 - pré-visualização da mensagem final de WhatsApp na `Bruce Live Class`, usando
   os mesmos destinatários resolvidos do envio manual;
+- registro de eventos operacionais em `Bruce Live Class Notice Log` quando há
+  pré-visualização, tentativa manual, falha de envio ou integração desativada;
 - ação no formulário `Bruce Live Class`: `Enviar link por WhatsApp`;
 - ação no formulário `Bruce Live Class`: `Pré-visualizar WhatsApp`;
 - status visual de WhatsApp no `Painel do Professor`;
@@ -180,6 +182,38 @@ Campos:
 O log deve ser usado para auditoria operacional e suporte. Dados sensíveis não
 devem ser persistidos no campo `provider_response`.
 
+### Bruce Live Class Notice Log
+
+DocType para registrar o histórico operacional de uma `Bruce Live Class`.
+
+Ele complementa o `Bruce WhatsApp Notification Log`: o log de notificação guarda
+uma entrada por destinatário/tentativa, enquanto o histórico da aula mostra uma
+linha curta sobre a ação ou aviso ocorrido naquela aula.
+
+Eventos de WhatsApp registrados nesta etapa:
+
+| Evento | Quando é registrado |
+| --- | --- |
+| `Pré-visualização de WhatsApp gerada` | Ao gerar a prévia, sem envio real. |
+| `Tentativa de envio manual` | Ao solicitar manualmente envio do link. |
+| `Falha de envio` | Quando uma tentativa manual falha. |
+| `Integração desativada` | Quando a prévia ou tentativa identifica a integração desligada. |
+
+Campos principais:
+
+| Campo | Label | Tipo | Observação |
+| --- | --- | --- | --- |
+| `related_live_class` | Aula ao vivo relacionada | Link | Referência a `Bruce Live Class`. |
+| `event_type` | Tipo de evento | Select | Evento operacional registrado. |
+| `title` | Título | Data | Resumo curto em português. |
+| `message` | Mensagem | Text | Detalhe amigável, sem segredo. |
+| `status` | Status | Select | `Registrado`, `Sucesso`, `Falhou` ou `Aviso`. |
+| `created_by` | Criado por | Link | Usuário que acionou o evento. |
+| `created_at` | Criado em | Datetime | Data/hora do evento. |
+
+Esse histórico não envia WhatsApp, não chama Evolution API/n8n e não substitui
+o log técnico por destinatário.
+
 ## Fluxo manual implementado
 
 1. Usuário autorizado abre uma `Bruce Live Class` ou o `Painel do Professor`.
@@ -224,7 +258,8 @@ mensagem de erro amigável.
 7. A tela mostra a prévia em um diálogo de leitura.
 
 Esse fluxo não chama Evolution API, não chama webhook n8n, não envia mensagem
-real e não cria `Bruce WhatsApp Notification Log`.
+real e não cria `Bruce WhatsApp Notification Log`. Ele cria apenas um registro
+operacional em `Bruce Live Class Notice Log`.
 
 ## Status no Painel do Professor
 

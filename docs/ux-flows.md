@@ -67,7 +67,8 @@ Estados esperados:
 4. Backend valida permissão e status.
 5. Sistema abre ou incorpora a sala Jitsi.
 6. Status muda para `Ao vivo`.
-7. Alunos autorizados passam a ver ação para entrar.
+7. Sistema registra `Aula iniciada` no histórico da aula ao vivo.
+8. Alunos autorizados passam a ver ação para entrar.
 
 Regras de UX:
 
@@ -107,10 +108,13 @@ Estados de tela:
    duplicadas para o mesmo número.
 8. Se nenhum telefone for encontrado, a tela mantém erro amigável informando que
    nenhum telefone foi encontrado para a aula.
-9. Backend monta a mensagem em português brasileiro.
-10. Backend chama Evolution API ou webhook n8n conforme configuração.
-11. Sistema registra cada tentativa no log, com uma entrada por destinatário.
-12. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
+9. Sistema registra `Tentativa de envio manual` no histórico da aula.
+10. Backend monta a mensagem em português brasileiro.
+11. Backend chama Evolution API ou webhook n8n conforme configuração.
+12. Sistema registra cada tentativa no log técnico, com uma entrada por destinatário.
+13. Em caso de falha, sistema registra `Falha de envio` no histórico da aula.
+14. Se a integração estiver desligada, sistema registra `Integração desativada`.
+15. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
 
 Nesta etapa o envio é somente manual. Ainda não há automações 24h/1h antes da
 aula. O campo de telefone na aula continua sendo o fallback manual/teste e tem
@@ -133,7 +137,38 @@ prioridade sobre os telefones dos alunos da turma.
    - aviso se a integração de WhatsApp estiver desativada.
 
 Esse fluxo é somente leitura: não envia WhatsApp, não chama Evolution API, não
-chama n8n e não cria log de notificação.
+chama n8n e não cria log de notificação. Ele registra apenas
+`Pré-visualização de WhatsApp gerada` no histórico operacional da aula.
+
+## Fluxo: histórico de avisos e ações por aula ao vivo
+
+Objetivo: permitir rastreabilidade simples sobre o que aconteceu em cada
+`Bruce Live Class`, sem depender apenas do log técnico de WhatsApp.
+
+Eventos registrados nesta etapa:
+
+- `Link copiado`;
+- `Pré-visualização de WhatsApp gerada`;
+- `Tentativa de envio manual`;
+- `Falha de envio`;
+- `Integração desativada`;
+- `Aula aberta`;
+- `Aula iniciada`.
+
+Campos principais:
+
+- aula ao vivo relacionada;
+- tipo de evento;
+- título;
+- mensagem;
+- status;
+- usuário;
+- data e hora.
+
+O formulário `Bruce Live Class` mostra um histórico recente em português
+brasileiro. O `Painel do Professor` também mostra um resumo curto da próxima
+aula. O histórico é operacional e não dispara WhatsApp real, automações ou
+chamadas externas por conta própria.
 
 ## Fluxo futuro: envio automático de link por WhatsApp
 
@@ -253,6 +288,7 @@ Ações principais:
 - `Ver turma`;
 - `Reenviar aviso`, quando aplicável;
 - `Copiar link`, somente se fizer sentido operacional e sem substituir o fluxo automático.
+- histórico recente de avisos e ações da aula.
 
 O painel deve evitar métricas excessivas, tabelas densas e termos administrativos que não ajudem a rotina do professor.
 
@@ -283,6 +319,8 @@ Ações disponíveis:
 - `Pré-visualizar WhatsApp`, chamando o backend de prévia já existente, sem
   enviar mensagem real, sem chamar Evolution API/n8n e sem criar log.
 - `Ir para a aula no Desk`, abrindo o formulário da `Bruce Live Class`.
+- `Histórico recente`, mostrando os últimos avisos e ações registrados para a
+  aula.
 
 Status visuais exibidos:
 
