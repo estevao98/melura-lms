@@ -72,6 +72,18 @@ Texto original,Texto traduzido,contexto
 
 O terceiro campo pode ficar vazio quando não houver contexto específico.
 
+## Tradução por CSV x dados salvos
+
+O CSV de tradução é aplicado quando o Frappe renderiza uma string por meio do mecanismo de tradução, como `_()` em Python, `__()` em JavaScript ou labels traduzíveis carregados pelo framework. Esse caminho é adequado para textos visíveis de menus, botões, mensagens, estados e títulos que passam pelo tradutor.
+
+Alguns textos do Desk podem estar salvos como dados no banco, especialmente em Workspaces, atalhos, cards, Dashboard Charts, Number Cards e fixtures de outros apps. Nesses casos, adicionar a entrada ao CSV pode não alterar o texto já persistido. Se labels como `Learning`, `Tools`, `New Signups`, `Course Enrollments`, `Certification`, `Course Data`, `Course Stats`, `Review` ou `Evaluation Request` continuarem aparecendo em inglês no Workspace Learning depois de limpar cache e atualizar traduções, uma etapa futura pode exigir override de Workspace/fixtures dentro de `bruce_lms_custom`, sem modificar o core do Frappe ou do LMS.
+
+## Interface, não nomes internos
+
+As traduções devem cobrir apenas textos visíveis para o usuário: rótulos, menus, botões, mensagens, estados e textos de ajuda.
+
+Não traduzir nomes internos usados pelo código ou pelo framework, como nomes de DocTypes, fieldnames, rotas, métodos Python, imports, chaves de configuração, IDs, nomes de arquivos ou nomes técnicos exigidos por integrações. Quando um texto em inglês aparecer na interface, adicionar a tradução em `bruce_lms_custom/translations/pt-BR.csv` ou envolver a nova string com `_()` em Python e `__()` em JavaScript.
+
 ## Diretrizes de linguagem
 
 - Usar frases curtas e diretas.
