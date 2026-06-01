@@ -43,8 +43,10 @@ class BruceStudentDashboard {
 		const liveClass = dashboardData.next_live_class;
 		const materials = Array.isArray(dashboardData.recent_materials) ? dashboardData.recent_materials : [];
 		const exerciseLists = Array.isArray(dashboardData.exercise_lists) ? dashboardData.exercise_lists : [];
+		const studentProgress = dashboardData.student_progress || {};
 		this.container.html(`
 			${liveClass ? this.render_next_live_class(liveClass) : this.render_empty_state(dashboardData)}
+			${this.render_student_progress(studentProgress)}
 			${this.render_exercise_lists_section(exerciseLists)}
 			${this.render_materials_section(materials)}
 		`);
@@ -110,6 +112,52 @@ class BruceStudentDashboard {
 					${enterButton}
 					${copyButton}
 				</div>
+			</div>
+		`;
+	}
+
+	render_student_progress(progress) {
+		const locked = Boolean(progress.locked);
+		const accessStatus = this.clean(progress.access_status);
+
+		if (locked) {
+			return `
+				<div class="bruce-student-dashboard__panel">
+					<div class="text-muted">${this.escape_html(__("Meu progresso"))}</div>
+					<h3>${this.escape_html(__("Progresso ainda não liberado"))}</h3>
+					${accessStatus ? `<p><span class="indicator-pill ${this.get_access_status_indicator(accessStatus)}">${this.escape_html(accessStatus)}</span></p>` : ""}
+					<p class="text-muted mb-0">${this.escape_html(__("Seu progresso aparece aqui quando seu acesso pedagógico estiver ativo."))}</p>
+				</div>
+			`;
+		}
+
+		return `
+			<div class="bruce-student-dashboard__panel">
+				<div class="bruce-student-dashboard__section-title">
+					<div>
+						<div class="text-muted">${this.escape_html(__("Meu progresso"))}</div>
+						<h3>${this.escape_html(__("Desempenho nas listas"))}</h3>
+					</div>
+					<span class="indicator-pill ${progress.is_recently_active ? "green" : "gray"}">
+						${this.escape_html(progress.is_recently_active ? __("Aluno ativo") : __("Sem atividade recente"))}
+					</span>
+				</div>
+				<div class="bruce-student-dashboard__progress-grid">
+					${this.render_metric(__("Questões respondidas"), progress.total_answered_questions)}
+					${this.render_metric(__("Acertos"), progress.total_correct)}
+					${this.render_metric(__("Erros"), progress.total_errors)}
+					${this.render_metric(__("Aproveitamento"), `${this.format_percentage(progress.accuracy_percentage)}%`)}
+					${this.render_metric(__("Última atividade"), this.format_datetime(progress.last_activity) || __("Sem atividade"))}
+				</div>
+			</div>
+		`;
+	}
+
+	render_metric(label, value) {
+		return `
+			<div class="bruce-student-dashboard__metric">
+				<div class="bruce-student-dashboard__label">${this.escape_html(label)}</div>
+				<div class="bruce-student-dashboard__metric-value">${this.escape_html(this.clean(value) || "0")}</div>
 			</div>
 		`;
 	}
@@ -443,6 +491,11 @@ class BruceStudentDashboard {
 		return frappe.datetime.str_to_user(value);
 	}
 
+	format_percentage(value) {
+		const number = Number(value || 0);
+		return Number.isInteger(number) ? String(number) : number.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+	}
+
 	clean(value) {
 		return String(value || "").trim();
 	}
@@ -534,10 +587,37 @@ class BruceStudentDashboard {
 				margin: 4px 0 0;
 			}
 
+			.bruce-student-dashboard__section-title {
+				align-items: flex-start;
+				display: flex;
+				gap: 16px;
+				justify-content: space-between;
+			}
+
 			.bruce-student-dashboard__grid {
 				display: grid;
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 				gap: 16px;
+			}
+
+			.bruce-student-dashboard__progress-grid {
+				display: grid;
+				gap: 12px;
+				grid-template-columns: repeat(5, minmax(0, 1fr));
+				margin-top: 16px;
+			}
+
+			.bruce-student-dashboard__metric {
+				border: 1px solid var(--border-color);
+				border-radius: 8px;
+				min-width: 0;
+				padding: 12px;
+			}
+
+			.bruce-student-dashboard__metric-value {
+				font-size: 18px;
+				font-weight: 600;
+				overflow-wrap: anywhere;
 			}
 
 			.bruce-student-dashboard__material-list {
@@ -668,6 +748,18 @@ class BruceStudentDashboard {
 
 				.bruce-student-dashboard__grid {
 					grid-template-columns: 1fr;
+				}
+
+				.bruce-student-dashboard__section-title {
+					display: block;
+				}
+
+				.bruce-student-dashboard__section-title .indicator-pill {
+					margin-top: 12px;
+				}
+
+				.bruce-student-dashboard__progress-grid {
+					grid-template-columns: 1fr 1fr;
 				}
 
 				.bruce-student-dashboard__material-item,

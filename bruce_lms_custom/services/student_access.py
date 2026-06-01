@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import getdate, now_datetime, today
+from frappe.utils import add_to_date, get_datetime, getdate, now_datetime, today
 
 
 ACCESS_PENDING = "Pendente"
@@ -84,6 +84,16 @@ EXERCISE_LIST_ITEM_FIELDS = [
 	"points",
 ]
 UNRESTRICTED_LIVE_CLASS_ROLES = {"System Manager", "Moderator", "Batch Evaluator", "Course Creator"}
+PROGRESS_MANAGER_ROLES = {
+	"System Manager",
+	"Moderator",
+	"Batch Evaluator",
+	"Course Creator",
+	"Professor",
+	"Administrador LMS",
+	"LMS Admin",
+}
+RECENT_ACTIVITY_DAYS = 14
 
 
 def is_current_student_active():
@@ -172,9 +182,89 @@ def get_permitted_educational_materials_for_current_student(limit=10):
 def get_permitted_exercise_lists_for_current_student(limit=10):
 	"""Return only published exercise lists allowed for the logged student."""
 	limit = _normalize_list_limit(limit, default=10, maximum=50)
+	return _get_permitted_exercise_lists(get_active_student_access_records(), limit=limit)
+
+
+@frappe.whitelist()
+def get_progress_for_current_student():
+	"""Return progress metrics for the logged student only."""
+	student = frappe.session.user
+	progress = _get_student_progress(student)
+
+	if progress.get("access_status") != ACCESS_ACTIVE:
+		return _locked_student_progress(progress.get("access_status"))
+
+	return progress
+
+
+@frappe.whitelist()
+def get_class_progress_summary(batch=None, course=None, limit=50):
+	"""Return a simple progress summary for a permitted class/course scope."""
+	_assert_can_manage_progress()
+
+	if not batch and not course:
+		frappe.throw(_("Informe uma turma ou curso para consultar o progresso."), frappe.ValidationError)
+
+	limit = _normalize_list_limit(limit, default=50, maximum=100)
+	access_filters = {}
+	if batch:
+		access_filters["batch"] = batch
+	elif course:
+		access_filters["course"] = course
+
+	access_records = frappe.get_all(
+		"Bruce Student Access",
+		filters=access_filters,
+		fields=STUDENT_ACCESS_FIELDS,
+		order_by="student asc, modified desc",
+		limit_page_length=limit * 4,
+	)
+	students = []
+	access_by_student = {}
+
+	for record in access_records:
+		student = _get_value(record, "student")
+		if not student:
+			continue
+
+		if student not in access_by_student:
+			students.append(student)
+			access_by_student[student] = []
+
+		access_by_student[student].append(dict(record))
+
+	rows = []
+	for student in students[:limit]:
+		progress = _get_student_progress(student, access_records=access_by_student.get(student))
+		progress["student"] = student
+		progress["student_name"] = _get_user_display_name(student)
+		rows.append(progress)
+
+	return {
+		"batch": batch,
+		"course": course,
+		"total_students": len(rows),
+		"students": rows,
+	}
+
+
+def get_progress_summary_for_scope(batch=None, course=None, limit=50):
+	"""Internal helper used by trusted backend pages after role validation."""
+	if not _can_manage_progress() or (not batch and not course):
+		return {
+			"batch": batch,
+			"course": course,
+			"total_students": 0,
+			"students": [],
+		}
+
+	return get_class_progress_summary(batch=batch, course=course, limit=limit)
+
+
+def _get_permitted_exercise_lists(access_records, limit=10):
 	exercise_lists_by_name = {}
 
-	for access in get_active_student_access_records():
+	for access in access_records:
 		scope_filters = _get_exercise_list_scope_filters(access)
 
 		if not scope_filters:
@@ -201,6 +291,59 @@ def get_permitted_exercise_lists_for_current_student(limit=10):
 
 	_add_exercise_list_question_counts(exercise_lists)
 	return exercise_lists
+
+
+def _get_student_progress(student, access_records=None):
+	access_status = _get_student_access_status(student)
+	active_access_records = (
+		_get_active_records_from_access_records(access_records)
+		if access_records is not None
+		else get_active_student_access_records(student)
+	)
+
+	if access_status != ACCESS_ACTIVE or not active_access_records:
+		return _locked_student_progress(access_status)
+
+	available_lists = _get_permitted_exercise_lists(active_access_records, limit=100)
+	available_list_names = [exercise_list.get("name") for exercise_list in available_lists if exercise_list.get("name")]
+	answers = _get_student_answers_for_lists(student, available_list_names)
+
+	total_answered = len(answers)
+	total_correct = sum(1 for answer in answers if bool(_get_value(answer, "is_correct")))
+	total_errors = total_answered - total_correct
+	accuracy_percentage = round((total_correct / total_answered) * 100, 2) if total_answered else 0
+	last_activity = _get_last_activity(answers)
+
+	return {
+		"student": student,
+		"access_status": access_status,
+		"total_available_lists": len(available_list_names),
+		"answered_lists": len({_get_value(answer, "exercise_list") for answer in answers if _get_value(answer, "exercise_list")}),
+		"total_answered_questions": total_answered,
+		"total_correct": total_correct,
+		"total_errors": total_errors,
+		"accuracy_percentage": accuracy_percentage,
+		"last_activity": last_activity,
+		"is_recently_active": _is_recently_active(last_activity),
+		"recent_activity_days": RECENT_ACTIVITY_DAYS,
+		"locked": False,
+	}
+
+
+def _locked_student_progress(access_status):
+	return {
+		"access_status": access_status or ACCESS_PENDING,
+		"total_available_lists": 0,
+		"answered_lists": 0,
+		"total_answered_questions": 0,
+		"total_correct": 0,
+		"total_errors": 0,
+		"accuracy_percentage": 0,
+		"last_activity": None,
+		"is_recently_active": False,
+		"recent_activity_days": RECENT_ACTIVITY_DAYS,
+		"locked": True,
+	}
 
 
 @frappe.whitelist()
@@ -510,6 +653,82 @@ def _get_student_access_status(user):
 		return ACCESS_EXPIRED
 
 	return ACCESS_PENDING
+
+
+def _get_active_records_from_access_records(records):
+	if not records:
+		return []
+
+	if any(_get_value(record, "access_status") == ACCESS_BLOCKED for record in records):
+		return []
+
+	return [
+		dict(record)
+		for record in records
+		if _get_value(record, "access_status") == ACCESS_ACTIVE and _is_access_record_current(record)
+	]
+
+
+def _get_student_answers_for_lists(student, exercise_lists):
+	if not student or not exercise_lists:
+		return []
+
+	return [
+		dict(answer)
+		for answer in frappe.get_all(
+			"Bruce Student Answer",
+			filters={
+				"student_user": student,
+				"exercise_list": ["in", exercise_lists],
+			},
+			fields=["exercise_list", "question", "is_correct", "answered_at"],
+			order_by="answered_at asc",
+			limit_page_length=5000,
+		)
+	]
+
+
+def _get_last_activity(answers):
+	answered_at_values = [_get_value(answer, "answered_at") for answer in answers if _get_value(answer, "answered_at")]
+
+	if not answered_at_values:
+		return None
+
+	return max(answered_at_values)
+
+
+def _is_recently_active(last_activity):
+	if not last_activity:
+		return False
+
+	try:
+		threshold = get_datetime(add_to_date(now_datetime(), days=-RECENT_ACTIVITY_DAYS))
+		return get_datetime(last_activity) >= threshold
+	except Exception:
+		return False
+
+
+def _get_user_display_name(user):
+	if not user:
+		return None
+
+	try:
+		return frappe.db.get_value("User", user, "full_name") or user
+	except Exception:
+		return user
+
+
+def _assert_can_manage_progress():
+	if not _can_manage_progress():
+		frappe.throw(_("Você não tem permissão para consultar progresso de turma."), frappe.PermissionError)
+
+
+def _can_manage_progress(user=None):
+	user = user or frappe.session.user
+	if not user or user == "Guest":
+		return False
+
+	return bool(set(frappe.get_roles(user)) & PROGRESS_MANAGER_ROLES)
 
 
 def _is_access_record_current(record):

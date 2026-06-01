@@ -28,8 +28,9 @@ class BruceProfessorDashboard {
 				const dashboardData = response.message || {};
 				const liveClass = dashboardData.next_live_class;
 				const weekClasses = dashboardData.week_classes || [];
+				const classProgress = dashboardData.class_progress || {};
 
-				this.render_dashboard(liveClass, weekClasses);
+				this.render_dashboard(liveClass, weekClasses, classProgress);
 			},
 		});
 	}
@@ -51,9 +52,10 @@ class BruceProfessorDashboard {
 		`);
 	}
 
-	render_dashboard(liveClass, weekClasses) {
+	render_dashboard(liveClass, weekClasses, classProgress) {
 		this.container.html(`
 			${liveClass ? this.render_next_live_class(liveClass) : this.render_empty_next_live_class()}
+			${this.render_class_progress(classProgress)}
 			${this.render_week_live_classes(weekClasses)}
 		`);
 
@@ -163,6 +165,58 @@ class BruceProfessorDashboard {
 				this.start_live_class(liveClass.name);
 			});
 		}
+	}
+
+	render_class_progress(classProgress) {
+		const students = Array.isArray(classProgress.students) ? classProgress.students : [];
+		const rows = students.length
+			? students.map((student) => this.render_class_progress_row(student)).join("")
+			: `<tr><td colspan="7" class="text-muted">${this.escape_html(__("Nenhum progresso disponível para esta turma."))}</td></tr>`;
+
+		return `
+			<div class="bruce-professor-dashboard__panel">
+				<div class="bruce-professor-dashboard__section-header">
+					<h4>${this.escape_html(__("Progresso da turma"))}</h4>
+					<div class="text-muted">${this.escape_html(__("Resumo inicial das listas de exercícios"))}</div>
+				</div>
+				<div class="bruce-professor-dashboard__table-wrap">
+					<table class="table table-bordered bruce-professor-dashboard__progress-table">
+						<thead>
+							<tr>
+								<th>${this.escape_html(__("Aluno"))}</th>
+								<th>${this.escape_html(__("Status"))}</th>
+								<th>${this.escape_html(__("Listas"))}</th>
+								<th>${this.escape_html(__("Respondidas"))}</th>
+								<th>${this.escape_html(__("Acertos"))}</th>
+								<th>${this.escape_html(__("Aproveitamento"))}</th>
+								<th>${this.escape_html(__("Última atividade"))}</th>
+							</tr>
+						</thead>
+						<tbody>${rows}</tbody>
+					</table>
+				</div>
+			</div>
+		`;
+	}
+
+	render_class_progress_row(student) {
+		const status = this.clean(student.access_status) || __("Pendente");
+		return `
+			<tr>
+				<td>
+					<div class="bruce-professor-dashboard__week-title">${this.escape_html(this.clean(student.student_name) || this.clean(student.student) || __("Aluno"))}</div>
+					<div class="text-muted">${this.escape_html(this.clean(student.student) || "")}</div>
+				</td>
+				<td>
+					<span class="indicator-pill ${this.get_access_status_indicator(status)}">${this.escape_html(status)}</span>
+				</td>
+				<td>${this.escape_html(String(student.total_available_lists || 0))}</td>
+				<td>${this.escape_html(String(student.total_answered_questions || 0))}</td>
+				<td>${this.escape_html(String(student.total_correct || 0))}</td>
+				<td>${this.escape_html(`${this.format_percentage(student.accuracy_percentage)}%`)}</td>
+				<td>${this.escape_html(this.format_datetime(student.last_activity) || __("Sem atividade"))}</td>
+			</tr>
+		`;
 	}
 
 	render_week_live_classes(liveClasses) {
@@ -483,6 +537,11 @@ class BruceProfessorDashboard {
 		return frappe.datetime.str_to_user(value);
 	}
 
+	format_percentage(value) {
+		const number = Number(value || 0);
+		return Number.isInteger(number) ? String(number) : number.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+	}
+
 	clean(value) {
 		return String(value || "").trim();
 	}
@@ -494,6 +553,22 @@ class BruceProfessorDashboard {
 
 		if (status === "Agendada") {
 			return "blue";
+		}
+
+		return "gray";
+	}
+
+	get_access_status_indicator(status) {
+		if (status === "Ativo") {
+			return "green";
+		}
+
+		if (status === "Pendente") {
+			return "orange";
+		}
+
+		if (status === "Bloqueado" || status === "Expirado") {
+			return "red";
 		}
 
 		return "gray";
@@ -623,14 +698,23 @@ class BruceProfessorDashboard {
 				overflow-x: auto;
 			}
 
-			.bruce-professor-dashboard__week-table {
+			.bruce-professor-dashboard__week-table,
+			.bruce-professor-dashboard__progress-table {
 				margin-bottom: 0;
 				min-width: 860px;
 			}
 
 			.bruce-professor-dashboard__week-table th,
-			.bruce-professor-dashboard__week-table td {
+			.bruce-professor-dashboard__week-table td,
+			.bruce-professor-dashboard__progress-table th,
+			.bruce-professor-dashboard__progress-table td {
 				vertical-align: middle;
+			}
+
+			.bruce-professor-dashboard__progress-table .indicator-pill {
+				display: inline-flex;
+				align-items: center;
+				white-space: nowrap;
 			}
 
 			.bruce-professor-dashboard__week-table th:nth-child(5),

@@ -121,6 +121,13 @@ turma, aula relacionada e a ação `Baixar PDF` quando houver arquivo anexado ou
 Se não houver material publicado e permitido para o aluno, a tela mostra
 `Nenhum material disponível no momento.`.
 
+A página também possui a seção `Meu progresso`, calculada no backend a partir
+das listas de exercícios e respostas do aluno logado. Quando o acesso
+pedagógico está `Ativo`, a seção mostra questões respondidas, acertos, erros,
+aproveitamento, última atividade e se o aluno teve atividade recente. Quando o
+status está `Pendente`, `Bloqueado` ou `Expirado`, a seção mostra apenas que o
+progresso ainda não está liberado, sem expor métricas pedagógicas.
+
 Esta é uma versão inicial segura: ela não envia WhatsApp, não chama automações,
 não expõe API key no frontend, não confia em parâmetros enviados pelo navegador
 e não altera o core do LMS. A relação com `LMS Batch Enrollment` e
@@ -221,6 +228,40 @@ Regras de UX:
 - a resposta pode ser salva novamente, atualizando a alternativa do aluno;
 - o retorno mostra se a resposta ficou correta ou incorreta;
 - a etapa não cria cobrança, ranking, newsletter, CRM ou simulado completo.
+
+## Fluxo: aluno consulta o próprio progresso
+
+1. Aluno acessa `/app/minha-aula`.
+2. Backend identifica o usuário logado e consulta `Bruce Student Access`.
+3. Se o status pedagógico for `Ativo`, backend calcula o progresso usando as
+   listas publicadas permitidas e as respostas em `Bruce Student Answer`.
+4. A tela mostra questões respondidas, acertos, erros, aproveitamento e última
+   atividade.
+5. Se o status for `Pendente`, `Bloqueado` ou `Expirado`, a tela informa que o
+   progresso ainda não está liberado.
+
+Regras de UX:
+
+- a tela não aceita aluno, curso ou turma como parâmetro para ampliar acesso;
+- o aluno só vê o próprio progresso;
+- o aproveitamento é uma métrica inicial, não um boletim completo;
+- a etapa não cria simulado completo, ranking, cobrança, blog, newsletter ou CRM.
+
+## Fluxo: professor acompanha progresso da turma
+
+1. Professor ou administrador autorizado acessa o Painel do Professor.
+2. Backend identifica a próxima aula e usa seu curso/turma como escopo.
+3. Backend valida papel autorizado antes de consultar resumo de progresso.
+4. A tela mostra uma tabela simples com aluno, status, listas disponíveis,
+   questões respondidas, acertos, aproveitamento e última atividade.
+
+Regras de UX:
+
+- a visão é funcional e enxuta, sem dashboard avançado;
+- professor não informa aluno pelo frontend para consultar progresso individual;
+- alunos pendentes, bloqueados ou expirados aparecem sem métricas pedagógicas
+  liberadas;
+- dados financeiros e cobrança continuam fora do LMS.
 
 ## Fluxo futuro: SaaS financeiro libera ou bloqueia acesso pedagógico
 

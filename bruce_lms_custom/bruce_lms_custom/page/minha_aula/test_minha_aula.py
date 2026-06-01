@@ -42,12 +42,17 @@ class TestMinhaAula(unittest.TestCase):
 					"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula._get_exercise_lists",
 					return_value=[{"name": "BEL-2026-00001"}],
 				),
+				patch(
+					"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.get_progress_for_current_student",
+					return_value={"total_answered_questions": 2},
+				),
 			):
 				result = get_student_dashboard_data()
 
 		self.assertEqual(result["next_live_class"], {"name": "BLC-2026-00001"})
 		self.assertEqual(result["recent_materials"], [{"name": "BEM-2026-00001"}])
 		self.assertEqual(result["exercise_lists"], [{"name": "BEL-2026-00001"}])
+		self.assertEqual(result["student_progress"], {"total_answered_questions": 2})
 		self.assertTrue(result["student_filter_enabled"])
 		self.assertTrue(result["student_is_active"])
 		self.assertEqual(result["access_status"], "Ativo")
@@ -75,6 +80,10 @@ class TestMinhaAula(unittest.TestCase):
 				return_value="Pendente",
 			),
 			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.get_progress_for_current_student",
+				return_value={"access_status": "Pendente", "locked": True},
+			),
+			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.is_current_student_active",
 				return_value=False,
 			),
@@ -84,6 +93,7 @@ class TestMinhaAula(unittest.TestCase):
 		self.assertIsNone(result["next_live_class"])
 		self.assertEqual(result["recent_materials"], [])
 		self.assertEqual(result["exercise_lists"], [])
+		self.assertEqual(result["student_progress"], {"access_status": "Pendente", "locked": True})
 		self.assertFalse(result["student_is_active"])
 		self.assertEqual(result["access_status"], "Pendente")
 		self.assertIn("pendente", result["student_filter_note"])

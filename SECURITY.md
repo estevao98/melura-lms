@@ -178,6 +178,25 @@ Regras de segurança:
 - `Pendente`, `Bloqueado` e `Expirado` não liberam listagem, leitura ou resposta
   de listas.
 
+## Progresso do aluno
+
+O progresso inicial do aluno é calculado no backend a partir de
+`Bruce Student Access`, `Bruce Exercise List` e `Bruce Student Answer`.
+
+Regras de segurança:
+
+- o aluno não pode informar outro `student_user` no frontend para consultar
+  progresso;
+- aluno só recebe o próprio progresso e somente quando o acesso pedagógico está
+  `Ativo`;
+- `Pendente`, `Bloqueado` e `Expirado` retornam apenas estado bloqueado, sem
+  métricas pedagógicas liberadas;
+- resumo por turma exige papel operacional autorizado no backend;
+- parâmetros de curso ou turma enviados pelo frontend não liberam acesso
+  pedagógico e servem apenas para consulta autorizada de resumo;
+- a etapa não expõe gabarito, resolução comentada, dados financeiros, cobrança
+  ou segredos.
+
 Integrações futuras com SaaS financeiro externo devem atualizar apenas o status
 pedagógico e referências opacas. Não salvar tokens, dados de cartão, payloads
 financeiros completos ou segredos em `Bruce Student Access`.

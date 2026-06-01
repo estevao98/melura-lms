@@ -9,6 +9,7 @@ import frappe
 from bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard import (
 	WHATSAPP_INTEGRATION_DISABLED_LABEL,
 	_get_class_status_label,
+	_get_class_progress_summary,
 	_get_link_title,
 	_get_next_live_class,
 	_get_week_live_classes,
@@ -155,14 +156,32 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard._get_week_live_classes",
 				return_value=[{"name": "BLC-2026-00002"}],
 			) as get_week_live_classes,
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard._get_class_progress_summary",
+				return_value={"total_students": 1, "students": [{"student": "aluno@example.com"}]},
+			) as get_class_progress_summary,
 		):
 			result = get_dashboard_data()
 
 		self.assertEqual(result["next_live_class"], {"name": "BLC-2026-00001"})
 		self.assertEqual(result["week_classes"], [{"name": "BLC-2026-00002"}])
+		self.assertEqual(result["class_progress"], {"total_students": 1, "students": [{"student": "aluno@example.com"}]})
 		self.assertNotIn("week_live_classes", result)
 		get_next_live_class.assert_called_once_with()
 		get_week_live_classes.assert_called_once_with()
+		get_class_progress_summary.assert_called_once_with({"name": "BLC-2026-00001"})
+
+	def test_get_class_progress_summary_uses_live_class_batch_and_course(self):
+		live_class = {"name": "BLC-2026-00001", "course": "COURSE-001", "batch": "BATCH-001"}
+
+		with patch(
+			"bruce_lms_custom.bruce_lms_custom.page.bruce_professor_dashboard.bruce_professor_dashboard.get_progress_summary_for_scope",
+			return_value={"batch": "BATCH-001", "total_students": 1},
+		) as get_progress_summary_for_scope:
+			result = _get_class_progress_summary(live_class)
+
+		self.assertEqual(result["total_students"], 1)
+		get_progress_summary_for_scope.assert_called_once_with(batch="BATCH-001", course="COURSE-001", limit=20)
 
 	def test_get_week_live_classes_returns_scheduled_and_live_classes_for_next_7_days(self):
 		classes = [

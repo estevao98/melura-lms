@@ -4,6 +4,8 @@
 import frappe
 from frappe.utils import add_to_date, now_datetime
 
+from bruce_lms_custom.services.student_access import get_progress_summary_for_scope
+
 
 WHATSAPP_INTEGRATION_DISABLED_LABEL = "Integração desativada"
 WHATSAPP_STATUS_LABELS = {
@@ -35,9 +37,11 @@ def get_next_live_class():
 @frappe.whitelist()
 def get_dashboard_data():
 	"""Return the data shown in the professor dashboard."""
+	next_live_class = _get_next_live_class()
 	return {
-		"next_live_class": _get_next_live_class(),
+		"next_live_class": next_live_class,
 		"week_classes": _get_week_live_classes(),
+		"class_progress": _get_class_progress_summary(next_live_class),
 	}
 
 
@@ -69,6 +73,22 @@ def _get_week_live_classes():
 	)
 
 	return [_with_display_values(dict(live_class), include_notice_logs=False) for live_class in classes]
+
+
+def _get_class_progress_summary(live_class):
+	if not live_class:
+		return {
+			"batch": None,
+			"course": None,
+			"total_students": 0,
+			"students": [],
+		}
+
+	return get_progress_summary_for_scope(
+		batch=live_class.get("batch"),
+		course=live_class.get("course"),
+		limit=20,
+	)
 
 
 def _get_first_live_class(filters):

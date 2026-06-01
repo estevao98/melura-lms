@@ -13,9 +13,11 @@ from bruce_lms_custom.services.student_access import (
 	can_current_student_access_live_class,
 	get_permitted_educational_materials_for_current_student,
 	get_current_student_access_status,
+	get_class_progress_summary,
 	get_permitted_enem_questions_for_current_student,
 	get_permitted_exercise_lists_for_current_student,
 	get_permitted_live_classes_for_current_student,
+	get_progress_for_current_student,
 	has_enem_question_permission,
 	has_educational_material_permission,
 	save_student_answer,
@@ -556,6 +558,137 @@ class TestStudentAccess(unittest.TestCase):
 
 		self.assertFalse(result["is_correct"])
 		answer_doc.insert.assert_called_once_with(ignore_permissions=True)
+
+	def test_active_student_progress_uses_only_current_student(self):
+		access_records = [
+			{
+				"name": "BSA-2026-00001",
+				"student": "aluno@example.com",
+				"access_status": ACCESS_ACTIVE,
+				"course": "COURSE-001",
+				"batch": "BATCH-001",
+			}
+		]
+		exercise_list = frappe._dict(
+			name="BEL-2026-00001",
+			title="Lista de Humanas",
+			course="COURSE-001",
+			batch="BATCH-001",
+			published_at="2026-06-01 19:00:00",
+		)
+		answers = [
+			frappe._dict(exercise_list="BEL-2026-00001", question="BEQ-001", is_correct=1, answered_at="2026-06-01 20:00:00"),
+			frappe._dict(exercise_list="BEL-2026-00001", question="BEQ-002", is_correct=0, answered_at="2026-06-01 20:05:00"),
+		]
+
+		def get_all_side_effect(doctype, filters=None, fields=None, order_by=None, limit_page_length=None):
+			if doctype == "Bruce Student Access":
+				return access_records
+			if doctype == "Bruce Exercise List":
+				return [exercise_list]
+			if doctype == "Bruce Exercise List Item":
+				return [frappe._dict(parent="BEL-2026-00001")]
+			if doctype == "Bruce Student Answer":
+				self.assertEqual(filters["student_user"], "aluno@example.com")
+				return answers
+			return []
+
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.session", Mock(user="aluno@example.com")),
+			patch("bruce_lms_custom.services.student_access.frappe.get_all", side_effect=get_all_side_effect),
+			patch("bruce_lms_custom.services.student_access.today", return_value="2026-06-01"),
+			patch("bruce_lms_custom.services.student_access.now_datetime", return_value="2026-06-02 10:00:00"),
+		):
+			result = get_progress_for_current_student()
+
+		self.assertFalse(result["locked"])
+		self.assertEqual(result["total_available_lists"], 1)
+		self.assertEqual(result["answered_lists"], 1)
+		self.assertEqual(result["total_answered_questions"], 2)
+		self.assertEqual(result["total_correct"], 1)
+		self.assertEqual(result["total_errors"], 1)
+		self.assertEqual(result["accuracy_percentage"], 50)
+		self.assertEqual(result["last_activity"], "2026-06-01 20:05:00")
+		self.assertTrue(result["is_recently_active"])
+
+	def test_pending_or_blocked_student_progress_is_locked(self):
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.session", Mock(user="aluno@example.com")),
+			patch(
+				"bruce_lms_custom.services.student_access.frappe.get_all",
+				return_value=[
+					frappe._dict(
+						student="aluno@example.com",
+						access_status=ACCESS_BLOCKED,
+						course="COURSE-001",
+						batch="BATCH-001",
+					)
+				],
+			) as get_all,
+		):
+			result = get_progress_for_current_student()
+
+		self.assertTrue(result["locked"])
+		self.assertEqual(result["access_status"], ACCESS_BLOCKED)
+		self.assertEqual(result["total_answered_questions"], 0)
+		self.assertEqual(result["accuracy_percentage"], 0)
+		self.assertEqual(get_all.call_count, 2)
+
+	def test_student_cannot_get_class_progress_summary(self):
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.session", Mock(user="aluno@example.com")),
+			patch("bruce_lms_custom.services.student_access.frappe.get_roles", return_value=["LMS Student"]),
+			patch("bruce_lms_custom.services.student_access._", side_effect=lambda value: value),
+			patch("bruce_lms_custom.services.student_access.frappe.throw", side_effect=frappe.PermissionError),
+		):
+			with self.assertRaises(frappe.PermissionError):
+				get_class_progress_summary(batch="BATCH-001")
+
+	def test_professor_can_get_batch_progress_summary(self):
+		access_records = [
+			frappe._dict(
+				name="BSA-2026-00001",
+				student="aluno@example.com",
+				access_status=ACCESS_ACTIVE,
+				course="COURSE-001",
+				batch="BATCH-001",
+			)
+		]
+		exercise_list = frappe._dict(name="BEL-2026-00001", course="COURSE-001", batch="BATCH-001", published_at="2026-06-01")
+		answers = [
+			frappe._dict(exercise_list="BEL-2026-00001", question="BEQ-001", is_correct=1, answered_at="2026-06-01 20:00:00"),
+			frappe._dict(exercise_list="BEL-2026-00001", question="BEQ-002", is_correct=1, answered_at="2026-06-01 20:05:00"),
+			frappe._dict(exercise_list="BEL-2026-00001", question="BEQ-003", is_correct=0, answered_at="2026-06-01 20:10:00"),
+		]
+
+		def get_all_side_effect(doctype, filters=None, fields=None, order_by=None, limit_page_length=None):
+			if doctype == "Bruce Student Access":
+				return access_records
+			if doctype == "Bruce Exercise List":
+				return [exercise_list]
+			if doctype == "Bruce Exercise List Item":
+				return [frappe._dict(parent="BEL-2026-00001")]
+			if doctype == "Bruce Student Answer":
+				return answers
+			return []
+
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.session", Mock(user="professor@example.com")),
+			patch("bruce_lms_custom.services.student_access.frappe.get_roles", return_value=["Batch Evaluator"]),
+			patch("bruce_lms_custom.services.student_access.frappe.get_all", side_effect=get_all_side_effect),
+			patch("bruce_lms_custom.services.student_access.frappe.db", Mock(get_value=Mock(return_value="Aluno Teste"))),
+			patch("bruce_lms_custom.services.student_access.today", return_value="2026-06-01"),
+			patch("bruce_lms_custom.services.student_access.now_datetime", return_value="2026-06-02 10:00:00"),
+		):
+			result = get_class_progress_summary(batch="BATCH-001")
+
+		self.assertEqual(result["total_students"], 1)
+		self.assertEqual(result["students"][0]["student"], "aluno@example.com")
+		self.assertEqual(result["students"][0]["student_name"], "Aluno Teste")
+		self.assertEqual(result["students"][0]["total_answered_questions"], 3)
+		self.assertEqual(result["students"][0]["total_correct"], 2)
+		self.assertEqual(result["students"][0]["total_errors"], 1)
+		self.assertEqual(result["students"][0]["accuracy_percentage"], 66.67)
 
 	def test_student_live_class_permission_rejects_class_outside_access_scope(self):
 		doc = Mock(course="COURSE-001", batch="BATCH-999")

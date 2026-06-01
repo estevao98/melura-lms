@@ -11,6 +11,7 @@ from bruce_lms_custom.services.student_access import (
 	get_permitted_educational_materials_for_current_student,
 	get_permitted_exercise_lists_for_current_student,
 	get_permitted_live_classes_for_current_student,
+	get_progress_for_current_student,
 	is_current_student_active,
 )
 
@@ -27,6 +28,7 @@ def get_student_dashboard_data():
 		"next_live_class": _get_next_visible_live_class() if student_is_active else None,
 		"recent_materials": _get_recent_materials() if student_is_active else [],
 		"exercise_lists": _get_exercise_lists() if student_is_active else [],
+		"student_progress": get_progress_for_current_student(),
 		"student_filter_enabled": True,
 		"student_filter_note": _get_student_filter_note(access_status),
 	}

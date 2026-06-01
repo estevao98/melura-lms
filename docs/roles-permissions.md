@@ -152,6 +152,10 @@ Implementação atual:
   link;
 - em materiais, o aluno só vê registros publicados, com visibilidade `Aluno` e
   compatíveis com seu curso ou turma;
+- a seção `Meu progresso` em `/app/minha-aula` é calculada no backend para o
+  usuário logado e mostra apenas as próprias respostas do aluno;
+- alunos com status `Pendente`, `Bloqueado` ou `Expirado` não recebem métricas
+  pedagógicas liberadas na seção de progresso;
 - a tela não inicia aula, não agenda aula, não envia WhatsApp, não consulta logs
   e não expõe configurações sensíveis;
 - `Bruce Live Class` e `Bruce Educational Material` possuem permissões scripted
@@ -399,6 +403,33 @@ Regras importantes:
 - indicadores financeiros detalhados, cobrança e inadimplência ficam fora do
   escopo inicial;
 - cada indicador deve ter origem rastreável e respeitar permissões.
+
+### Progresso do aluno
+
+O progresso inicial do aluno é calculado a partir de `Bruce Exercise List` e
+`Bruce Student Answer`, respeitando o escopo de `Bruce Student Access`.
+
+Permissões esperadas:
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Ver próprio progresso | Suporte | Não operacional | Sim, se ativo | Suporte | Não |
+| Ver progresso de turma | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Consultar progresso de outro aluno | Suporte técnico | Somente via turma permitida | Não | Sim | Não |
+
+Regras importantes:
+
+- aluno não informa `student_user` no frontend para consultar progresso;
+- aluno só vê o próprio progresso;
+- alunos `Pendente`, `Bloqueado` ou `Expirado` não recebem métricas pedagógicas
+  liberadas;
+- professor e administrador consultam resumo por turma ou curso após validação
+  de papel no backend;
+- métricas iniciais incluem listas disponíveis, listas com resposta, questões
+  respondidas, acertos, erros, aproveitamento, última atividade e atividade
+  recente;
+- esta etapa não cria simulado completo, ranking, cobrança, newsletter, blog ou
+  CRM.
 
 ### Configurações
 
