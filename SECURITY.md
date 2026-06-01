@@ -114,6 +114,8 @@ customizada `Bruce Student Access`, com os status:
 Regras de segurança:
 
 - páginas customizadas do aluno devem validar o usuário logado no backend;
+- a rota web `/aluno` deve redirecionar usuários sem sessão para login e sua API
+  backend não deve retornar payload pedagógico para `Guest`;
 - aluno só pode ver aulas vinculadas ao curso ou turma liberados em
   `Bruce Student Access`;
 - parâmetros vindos do frontend não podem definir aluno, turma, curso ou

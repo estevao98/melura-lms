@@ -137,8 +137,13 @@ Limites:
 
 Implementação atual:
 
+- a rota web `/aluno` é a experiência principal mobile-first do aluno fora do
+  Desk administrativo;
+- `/aluno` exige usuário logado e não retorna dados pedagógicos para `Guest`;
+- o portal mobile-first reutiliza o backend seguro da página `Minha Aula` e não
+  aceita aluno, curso ou turma como parâmetros de liberação vindos do frontend;
 - a página Desk `Minha Aula` (`/app/minha-aula`) está liberada para o papel
-  `LMS Student`;
+  `LMS Student` e permanece como fallback;
 - a tela consulta somente a próxima `Bruce Live Class` ativa ou agendada
   permitida ao aluno logado no backend;
 - a tela também consulta materiais recentes de `Bruce Educational Material`
@@ -155,7 +160,8 @@ Implementação atual:
 - a seção `Meu progresso` em `/app/minha-aula` é calculada no backend para o
   usuário logado e mostra apenas as próprias respostas do aluno;
 - alunos com status `Pendente`, `Bloqueado` ou `Expirado` não recebem métricas
-  pedagógicas liberadas na seção de progresso;
+  pedagógicas liberadas na seção de progresso nem conteúdo pedagógico no portal
+  `/aluno`;
 - a tela não inicia aula, não agenda aula, não envia WhatsApp, não consulta logs
   e não expõe configurações sensíveis;
 - `Bruce Live Class` e `Bruce Educational Material` possuem permissões scripted

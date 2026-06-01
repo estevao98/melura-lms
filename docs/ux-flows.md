@@ -92,10 +92,59 @@ Estados de tela:
 - encerrada: mostrar status e, se existir, material ou gravação futura;
 - sem permissão: mostrar mensagem simples orientando contato com suporte.
 
-### Base atual para aluno
+### Portal mobile-first do aluno
+
+A experiência principal do aluno passa a ser a rota web `/aluno`, separada do
+Desk administrativo. A URL é pública no sentido de ser uma rota web normal, mas
+exige usuário logado: usuários sem sessão são enviados para login antes de
+qualquer payload pedagógico ser renderizado.
+
+O portal é mobile-first e foi desenhado para Android e iOS:
+
+- uma coluna;
+- cards simples;
+- botões grandes;
+- bom espaçamento;
+- sem tabela horizontal;
+- textos curtos;
+- largura máxima confortável quando aberto no desktop.
+
+O portal não usa navbar nem footer padrão do Frappe. A rota possui cabeçalho
+próprio com identidade do portal, botão de menu visível e botão de alternância
+claro/escuro. O menu próprio contém atalhos de aluno e, quando o backend informa
+papel de professor ou administrador, links para painéis Desk. Esses links não
+liberam acesso por si só; as permissões continuam validadas pelo backend das
+rotas e páginas de destino.
+
+O tema claro/escuro é próprio da rota `/aluno`: a preferência fica em
+`localStorage` na chave `bruceStudentPortalTheme`, e a ausência de preferência
+usa `prefers-color-scheme`. As variáveis ficam em
+`bruce_lms_custom/public/css/student_portal.css`; para trocar a cor principal,
+ajuste `--bruce-primary` e `--bruce-primary-hover` nos blocos claro e escuro.
+
+O backend da rota usa o mesmo payload seguro da página `Minha Aula`, sem aceitar
+aluno, curso ou turma vindos do frontend. A fonte de liberação continua sendo
+`Bruce Student Access`.
+
+Aluno com status `Ativo` vê:
+
+- próxima aula;
+- botão `Entrar na aula`;
+- botão `Copiar link`, quando houver link;
+- materiais recentes;
+- listas de exercícios;
+- meu progresso;
+- status de acesso.
+
+Aluno com status `Pendente`, `Bloqueado` ou `Expirado` vê um aviso claro sobre
+o acesso e não recebe conteúdo pedagógico liberado.
+
+### Fallback Desk para aluno
 
 Nesta etapa, o aluno possui a página Desk `Minha Aula`, disponível pela rota
-`/app/minha-aula`.
+`/app/minha-aula`. Ela permanece funcionando como fallback para funcionalidades
+que ainda dependem do Desk, como responder listas de exercícios no diálogo
+existente.
 
 A tela valida o aluno logado no backend e mostra a primeira `Bruce Live Class`
 permitida pelo status pedagógico e pelo vínculo de curso/turma, priorizando aula
@@ -121,7 +170,7 @@ turma, aula relacionada e a ação `Baixar PDF` quando houver arquivo anexado ou
 Se não houver material publicado e permitido para o aluno, a tela mostra
 `Nenhum material disponível no momento.`.
 
-A página também possui a seção `Meu progresso`, calculada no backend a partir
+A página Desk também possui a seção `Meu progresso`, calculada no backend a partir
 das listas de exercícios e respostas do aluno logado. Quando o acesso
 pedagógico está `Ativo`, a seção mostra questões respondidas, acertos, erros,
 aproveitamento, última atividade e se o aluno teve atividade recente. Quando o
@@ -195,7 +244,7 @@ Regras de UX:
 7. Backend preenche `Publicado em` automaticamente quando o campo ainda estiver
    vazio.
 8. Alunos com acesso pedagógico ativo e escopo compatível passam a ver a lista
-   em `/app/minha-aula`.
+   em `/aluno` e, como fallback Desk, em `/app/minha-aula`.
 
 Regras de UX:
 
@@ -211,9 +260,11 @@ Regras de UX:
 
 ## Fluxo: aluno responde lista de exercícios
 
-1. Aluno acessa `/app/minha-aula`.
+1. Aluno acessa `/aluno`.
 2. Visualiza a seção `Listas de exercícios`.
-3. Clica em `Responder`.
+3. Clica em `Responder`; enquanto a experiência completa de resposta não for
+   portada para web mobile-first, o fluxo usa `/app/minha-aula` como fallback
+   Desk.
 4. Backend valida o usuário logado, status ativo e vínculo por curso ou turma.
 5. Backend retorna somente questões publicadas da lista, sem gabarito nem
    resolução comentada.
@@ -231,7 +282,7 @@ Regras de UX:
 
 ## Fluxo: aluno consulta o próprio progresso
 
-1. Aluno acessa `/app/minha-aula`.
+1. Aluno acessa `/aluno`.
 2. Backend identifica o usuário logado e consulta `Bruce Student Access`.
 3. Se o status pedagógico for `Ativo`, backend calcula o progresso usando as
    listas publicadas permitidas e as respostas em `Bruce Student Answer`.

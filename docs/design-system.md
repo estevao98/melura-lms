@@ -169,6 +169,42 @@ Evitar:
 - mensagens técnicas;
 - múltiplos caminhos para a mesma ação principal.
 
+#### Tema do portal mobile do aluno
+
+As cores da rota `/aluno` ficam centralizadas em
+`bruce_lms_custom/public/css/student_portal.css`.
+
+O portal não usa o tema do Desk administrativo. Ele define o próprio tema no
+atributo `data-bruce-theme` do elemento `<html>` e salva a preferência no
+`localStorage` com a chave `bruceStudentPortalTheme`. Quando não há preferência
+salva, o JavaScript respeita `prefers-color-scheme` do navegador.
+
+Para alterar a cor principal do portal, ajuste:
+
+- `--bruce-primary`: cor principal usada em botões e ações;
+- `--bruce-primary-hover`: cor usada no hover/foco visual de ações;
+- `--bruce-bg`: fundo da página;
+- `--bruce-card`: fundo dos cards e do menu;
+- `--bruce-text`: texto principal;
+- `--bruce-muted`: textos secundários e rótulos;
+- `--bruce-border`: bordas de cards, campos e menu;
+- `--bruce-success-bg`: fundo de badges positivos;
+- `--bruce-success-text`: texto de badges positivos.
+
+Essas variáveis existem para o tema claro em `:root` e
+`:root[data-bruce-theme="light"]`, e para o tema escuro em
+`:root[data-bruce-theme="dark"]`. Mantenha as mesmas variáveis nos dois temas
+para evitar fallback visual incorreto.
+
+O cabeçalho próprio do portal mostra o botão de menu e o botão de tema sempre no
+topo. O botão de tema alterna diretamente entre claro e escuro; os controles
+dentro do menu apenas refletem e permitem a mesma escolha.
+
+Evite adicionar cores diretamente nos componentes do portal. Quando uma nova cor
+for necessária para botões, badges, cards ou estados, crie uma variável no mesmo
+bloco de tema e use a variável no seletor. No tema escuro, valide contraste de
+texto, badges e botões em telas pequenas de Android e iOS.
+
 ### Painel administrativo
 
 Conteúdo recomendado:

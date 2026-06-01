@@ -1,0 +1,242 @@
+{% extends "templates/base.html" %}
+
+{% block title %}Portal do aluno{% endblock %}
+
+{% block head_include %}
+{{ super() }}
+<script>
+	(function () {
+		var storageKey = "bruceStudentPortalTheme";
+		var theme = null;
+
+		try {
+			theme = window.localStorage.getItem(storageKey);
+		} catch (error) {
+			theme = null;
+		}
+
+		if (theme !== "light" && theme !== "dark") {
+			theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+		}
+
+		document.documentElement.setAttribute("data-bruce-theme", theme);
+	}());
+</script>
+<link rel="stylesheet" href="/assets/bruce_lms_custom/css/student_portal.css">
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<main class="bruce-student-portal" data-student-portal>
+	<header class="bruce-student-portal__top">
+		<div>
+			<p class="bruce-student-portal__eyebrow">Portal do aluno</p>
+			<h1>Minha aula</h1>
+			<p class="bruce-student-portal__subtitle">Acesse sua próxima aula, materiais, listas e progresso em um só lugar.</p>
+		</div>
+		<div class="bruce-student-portal__top-actions" aria-label="Ações do portal">
+			<button
+				class="bruce-student-portal__icon-button"
+				type="button"
+				aria-label="Alternar tema"
+				data-student-theme-toggle
+			>
+				<span data-student-theme-label>Tema</span>
+			</button>
+			<button
+				class="bruce-student-portal__icon-button bruce-student-portal__menu-button"
+				type="button"
+				aria-controls="bruce-student-menu"
+				aria-expanded="false"
+				aria-label="Abrir menu"
+				data-student-menu-toggle
+			>
+				<span></span>
+				<span></span>
+				<span></span>
+			</button>
+		</div>
+	</header>
+
+	<div class="bruce-student-portal__menu-backdrop" data-student-menu-backdrop hidden></div>
+	<nav class="bruce-student-portal__menu" id="bruce-student-menu" aria-label="Menu do portal do aluno" data-student-menu hidden>
+		<div class="bruce-student-portal__menu-head">
+			<strong>Menu</strong>
+			<button class="bruce-student-portal__menu-close" type="button" aria-label="Fechar menu" data-student-menu-close>&times;</button>
+		</div>
+		<a href="#inicio" data-student-menu-item>Início</a>
+		<a href="#minha-aula" data-student-menu-item>Minha aula</a>
+		<a href="#materiais" data-student-menu-item>Materiais</a>
+		<a href="#listas" data-student-menu-item>Listas</a>
+		<a href="#meu-progresso" data-student-menu-item>Meu progresso</a>
+		{% if portal_data.support_url %}
+			<a href="{{ portal_data.support_url }}" target="_blank" rel="noopener" data-student-menu-item>Suporte</a>
+		{% else %}
+			<button type="button" data-student-menu-item data-student-support-placeholder>Suporte</button>
+		{% endif %}
+		{% if portal_data.can_access_professor_dashboard or portal_data.can_access_operational_dashboard %}
+			<div class="bruce-student-portal__menu-divider"></div>
+		{% endif %}
+		{% if portal_data.can_access_professor_dashboard %}
+			<a href="/app/bruce-professor-dashboard" data-student-menu-item>Painel do professor</a>
+		{% endif %}
+		{% if portal_data.can_access_operational_dashboard %}
+			<a href="/app/bruce-operational-dashboard" data-student-menu-item>Painel operacional</a>
+		{% endif %}
+		{% if portal_data.can_access_desk %}
+			<a href="/app" data-student-menu-item>Desk</a>
+		{% endif %}
+		<div class="bruce-student-portal__menu-divider"></div>
+		<div class="bruce-student-portal__theme" aria-label="Tema do portal">
+			<span>Tema</span>
+			<div class="bruce-student-portal__theme-options" role="group" aria-label="Alternar tema">
+				<button type="button" data-student-theme-option="light" aria-pressed="false">Tema claro</button>
+				<button type="button" data-student-theme-option="dark" aria-pressed="false">Tema escuro</button>
+			</div>
+		</div>
+		<div class="bruce-student-portal__menu-divider"></div>
+		<a href="/?cmd=web_logout" data-student-menu-item>Sair</a>
+	</nav>
+
+	<section class="bruce-student-portal__card bruce-student-portal__access" id="inicio">
+		<div>
+			<p class="bruce-student-portal__label">Status de acesso</p>
+			<h2>{{ portal_data.access_status or "Pendente" }}</h2>
+		</div>
+		<span class="bruce-student-portal__badge bruce-student-portal__badge--{{ (portal_data.access_status or 'Pendente') | lower }}">
+			{{ portal_data.access_status or "Pendente" }}
+		</span>
+		<p>{{ portal_data.student_filter_note }}</p>
+	</section>
+
+	{% if portal_data.student_is_active %}
+		{% set live_class = portal_data.next_live_class %}
+		<section class="bruce-student-portal__card" id="minha-aula">
+			<p class="bruce-student-portal__label">Próxima aula</p>
+			{% if live_class %}
+				<div class="bruce-student-portal__section-head">
+					<h2>{{ live_class.title or "Aula sem título" }}</h2>
+					<span class="bruce-student-portal__badge bruce-student-portal__badge--class">{{ live_class.class_status_label or live_class.status }}</span>
+				</div>
+				<div class="bruce-student-portal__fields">
+					<div>
+						<span>Curso</span>
+						<strong>{{ live_class.course_title or live_class.course or "Não informado" }}</strong>
+					</div>
+					<div>
+						<span>Turma</span>
+						<strong>{{ live_class.batch_title or live_class.batch or "Não informado" }}</strong>
+					</div>
+					<div>
+						<span>Data e horário</span>
+						<strong>{{ frappe.format(live_class.starts_at, {"fieldtype": "Datetime"}) if live_class.starts_at else "Não informado" }}</strong>
+					</div>
+				</div>
+				<div class="bruce-student-portal__actions">
+					{% if live_class.meeting_url %}
+						<a class="bruce-student-portal__button bruce-student-portal__button--primary" href="{{ live_class.meeting_url }}" target="_blank" rel="noopener">Entrar na aula</a>
+						<button class="bruce-student-portal__button bruce-student-portal__button--secondary" type="button" data-copy-link="{{ live_class.meeting_url }}">Copiar link</button>
+					{% else %}
+						<button class="bruce-student-portal__button bruce-student-portal__button--primary" type="button" disabled>Entrar na aula</button>
+					{% endif %}
+				</div>
+			{% else %}
+				<h2>Nenhuma aula agendada</h2>
+				<p>Quando houver uma aula ao vivo disponível, ela aparecerá aqui.</p>
+			{% endif %}
+		</section>
+
+		{% set progress = portal_data.student_progress or {} %}
+		<section class="bruce-student-portal__card" id="meu-progresso">
+			<p class="bruce-student-portal__label">Meu progresso</p>
+			<h2>Desempenho nas listas</h2>
+			<div class="bruce-student-portal__metrics">
+				<div><span>Respondidas</span><strong>{{ progress.total_answered_questions or 0 }}</strong></div>
+				<div><span>Acertos</span><strong>{{ progress.total_correct or 0 }}</strong></div>
+				<div><span>Erros</span><strong>{{ progress.total_errors or 0 }}</strong></div>
+				<div><span>Aproveitamento</span><strong>{{ progress.accuracy_percentage or 0 }}%</strong></div>
+			</div>
+		</section>
+
+		<section class="bruce-student-portal__card" id="listas">
+			<p class="bruce-student-portal__label">Listas de exercícios</p>
+			<h2>Listas disponíveis</h2>
+			{% if portal_data.exercise_lists %}
+				<div class="bruce-student-portal__list">
+					{% for exercise_list in portal_data.exercise_lists %}
+						<article class="bruce-student-portal__item">
+							<div>
+								<h3>{{ exercise_list.title or "Lista sem título" }}</h3>
+								<p>{{ exercise_list.question_count or 0 }} questões{% if exercise_list.due_date %} · Prazo: {{ frappe.format(exercise_list.due_date, {"fieldtype": "Datetime"}) }}{% endif %}</p>
+							</div>
+							<a class="bruce-student-portal__small-action" href="/app/minha-aula">Responder</a>
+						</article>
+					{% endfor %}
+				</div>
+			{% else %}
+				<p>Nenhuma lista de exercícios disponível no momento.</p>
+			{% endif %}
+		</section>
+
+		<section class="bruce-student-portal__card" id="materiais">
+			<p class="bruce-student-portal__label">Materiais</p>
+			<h2>Materiais recentes</h2>
+			{% if portal_data.recent_materials %}
+				<div class="bruce-student-portal__list">
+					{% for material in portal_data.recent_materials %}
+						<article class="bruce-student-portal__item">
+							<div>
+								<h3>{{ material.title or "Material sem título" }}</h3>
+								<p>{{ material.material_type or "Material" }}{% if material.course_title or material.course %} · {{ material.course_title or material.course }}{% endif %}</p>
+							</div>
+							{% if material.pdf_file %}
+								<a class="bruce-student-portal__small-action" href="{{ material.pdf_file }}" target="_blank" rel="noopener">Baixar PDF</a>
+							{% else %}
+								<span class="bruce-student-portal__small-action bruce-student-portal__small-action--muted">Disponível</span>
+							{% endif %}
+						</article>
+					{% endfor %}
+				</div>
+			{% else %}
+				<p>Nenhum material disponível no momento.</p>
+			{% endif %}
+		</section>
+	{% else %}
+		<section class="bruce-student-portal__card bruce-student-portal__locked" id="minha-aula">
+			<p class="bruce-student-portal__label">Conteúdo pedagógico</p>
+			<h2>Acesso não liberado</h2>
+			<p>Assim que seu acesso estiver ativo, suas aulas, materiais, listas e progresso aparecerão aqui.</p>
+		</section>
+		<section class="bruce-student-portal__card bruce-student-portal__locked" id="materiais">
+			<p class="bruce-student-portal__label">Materiais</p>
+			<h2>Acesso não liberado</h2>
+			<p>Os materiais serão exibidos quando seu acesso pedagógico estiver ativo.</p>
+		</section>
+		<section class="bruce-student-portal__card bruce-student-portal__locked" id="listas">
+			<p class="bruce-student-portal__label">Listas</p>
+			<h2>Acesso não liberado</h2>
+			<p>As listas serão exibidas quando seu acesso pedagógico estiver ativo.</p>
+		</section>
+		<section class="bruce-student-portal__card bruce-student-portal__locked" id="meu-progresso">
+			<p class="bruce-student-portal__label">Meu progresso</p>
+			<h2>Acesso não liberado</h2>
+			<p>Seu progresso será exibido quando seu acesso pedagógico estiver ativo.</p>
+		</section>
+	{% endif %}
+
+	<section class="bruce-student-portal__card bruce-student-portal__support" id="suporte">
+		<p class="bruce-student-portal__label">Suporte</p>
+		<h2>Precisa de ajuda?</h2>
+		{% if portal_data.support_url %}
+			<p>Use o canal de suporte configurado para falar com a equipe.</p>
+			<a class="bruce-student-portal__small-action" href="{{ portal_data.support_url }}" target="_blank" rel="noopener">Abrir suporte</a>
+		{% else %}
+			<p>O canal de suporte ainda não foi configurado. Fale com a equipe do curso pelo canal informado no seu acesso.</p>
+		{% endif %}
+	</section>
+</main>
+
+<script src="/assets/bruce_lms_custom/js/student_portal.js"></script>
+{% endblock %}
