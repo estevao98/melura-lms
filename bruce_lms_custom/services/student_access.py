@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import getdate, today
+from frappe.utils import getdate, now_datetime, today
 
 
 ACCESS_PENDING = "Pendente"
@@ -64,6 +64,24 @@ ENEM_QUESTION_ALTERNATIVE_FIELDS = [
 	"parent",
 	"option_label",
 	"option_text",
+]
+EXERCISE_LIST_FIELDS = [
+	"name",
+	"title",
+	"course",
+	"batch",
+	"related_live_class",
+	"related_material",
+	"published_at",
+	"due_date",
+	"description",
+]
+EXERCISE_LIST_ITEM_FIELDS = [
+	"name",
+	"parent",
+	"question",
+	"order",
+	"points",
 ]
 UNRESTRICTED_LIVE_CLASS_ROLES = {"System Manager", "Moderator", "Batch Evaluator", "Course Creator"}
 
@@ -151,6 +169,40 @@ def get_permitted_educational_materials_for_current_student(limit=10):
 	)[:limit]
 
 
+def get_permitted_exercise_lists_for_current_student(limit=10):
+	"""Return only published exercise lists allowed for the logged student."""
+	limit = _normalize_list_limit(limit, default=10, maximum=50)
+	exercise_lists_by_name = {}
+
+	for access in get_active_student_access_records():
+		scope_filters = _get_exercise_list_scope_filters(access)
+
+		if not scope_filters:
+			continue
+
+		for scope_filter in scope_filters:
+			filters = {"published": 1}
+			filters.update(scope_filter)
+
+			for exercise_list in frappe.get_all(
+				"Bruce Exercise List",
+				filters=filters,
+				fields=EXERCISE_LIST_FIELDS,
+				order_by="published_at desc, modified desc",
+				limit_page_length=limit,
+			):
+				exercise_lists_by_name[_get_value(exercise_list, "name")] = dict(exercise_list)
+
+	exercise_lists = sorted(
+		exercise_lists_by_name.values(),
+		key=lambda exercise_list: exercise_list.get("published_at") or "",
+		reverse=True,
+	)[:limit]
+
+	_add_exercise_list_question_counts(exercise_lists)
+	return exercise_lists
+
+
 @frappe.whitelist()
 def get_permitted_enem_questions_for_current_student(limit=20):
 	"""Return only published ENEM questions allowed for the logged student.
@@ -189,6 +241,86 @@ def get_permitted_enem_questions_for_current_student(limit=20):
 	return questions
 
 
+@frappe.whitelist()
+def get_exercise_list_for_current_student(exercise_list):
+	"""Return a published exercise list and its questions for the logged student."""
+	if not exercise_list:
+		frappe.throw(_("Informe a lista de exercícios."), frappe.ValidationError)
+
+	doc = frappe.get_doc("Bruce Exercise List", exercise_list)
+	assert_current_student_can_access_exercise_list(doc)
+
+	items = _get_exercise_list_items(doc.name)
+	questions = _get_visible_questions_for_exercise_items(items)
+
+	return {
+		"name": doc.name,
+		"title": doc.title,
+		"course": doc.course,
+		"batch": doc.batch,
+		"related_live_class": doc.related_live_class,
+		"related_material": doc.related_material,
+		"published_at": doc.published_at,
+		"due_date": doc.due_date,
+		"description": doc.description,
+		"question_count": len(items),
+		"questions": questions,
+	}
+
+
+@frappe.whitelist()
+def save_student_answer(exercise_list, question, selected_option):
+	"""Save or update the current student's answer after backend access validation."""
+	if not selected_option:
+		frappe.throw(_("Selecione uma alternativa."), frappe.ValidationError)
+
+	selected_option = str(selected_option).strip().upper()
+	if selected_option not in {"A", "B", "C", "D", "E"}:
+		frappe.throw(_("Alternativa inválida."), frappe.ValidationError)
+
+	if not is_current_student_active():
+		frappe.throw(_("Seu acesso ainda não está ativo. Entre em contato com o suporte."), frappe.PermissionError)
+
+	doc = frappe.get_doc("Bruce Exercise List", exercise_list)
+	assert_current_student_can_access_exercise_list(doc)
+
+	if not _exercise_list_contains_question(doc.name, question):
+		frappe.throw(_("Esta questão não pertence à lista informada."), frappe.PermissionError)
+
+	correct_option = frappe.db.get_value("Bruce ENEM Question", question, "correct_option")
+	if not correct_option:
+		frappe.throw(_("A questão ainda não possui gabarito cadastrado."), frappe.ValidationError)
+
+	answer_name = frappe.db.get_value(
+		"Bruce Student Answer",
+		{
+			"exercise_list": doc.name,
+			"question": question,
+			"student_user": frappe.session.user,
+		},
+		"name",
+	)
+	answer_doc = frappe.get_doc("Bruce Student Answer", answer_name) if answer_name else frappe.new_doc("Bruce Student Answer")
+	answer_doc.exercise_list = doc.name
+	answer_doc.question = question
+	answer_doc.student_user = frappe.session.user
+	answer_doc.selected_option = selected_option
+	answer_doc.is_correct = selected_option == correct_option
+	answer_doc.answered_at = now_datetime()
+
+	if answer_name:
+		answer_doc.save(ignore_permissions=True)
+	else:
+		answer_doc.insert(ignore_permissions=True)
+
+	return {
+		"name": answer_doc.name,
+		"is_correct": bool(answer_doc.is_correct),
+		"selected_option": answer_doc.selected_option,
+		"answered_at": answer_doc.answered_at,
+	}
+
+
 def get_active_student_access_records(user=None):
 	user = user or frappe.session.user
 
@@ -218,6 +350,17 @@ def assert_current_student_can_access_live_class(live_class):
 
 	if not can_current_student_access_live_class(live_class):
 		frappe.throw(_("Você não tem acesso a esta aula."), frappe.PermissionError)
+
+
+def assert_current_student_can_access_exercise_list(exercise_list):
+	if not is_current_student_active():
+		frappe.throw(_("Seu acesso ainda não está ativo. Entre em contato com o suporte."), frappe.PermissionError)
+
+	if not _exercise_list_is_student_visible(exercise_list):
+		frappe.throw(_("Esta lista de exercícios não está publicada."), frappe.PermissionError)
+
+	if not _exercise_list_matches_any_access(exercise_list, get_active_student_access_records()):
+		frappe.throw(_("Você não tem acesso a esta lista de exercícios."), frappe.PermissionError)
 
 
 def has_live_class_permission(doc, user=None, permission_type=None):
@@ -260,6 +403,21 @@ def has_enem_question_permission(doc, user=None, permission_type=None):
 		return False
 
 	return _question_matches_any_access(doc, get_active_student_access_records(user))
+
+
+def has_exercise_list_permission(doc, user=None, permission_type=None):
+	user = user or frappe.session.user
+
+	if not _should_restrict_student_live_classes(user):
+		return True
+
+	if permission_type and permission_type not in {"read", "select"}:
+		return False
+
+	if not _exercise_list_is_student_visible(doc):
+		return False
+
+	return _exercise_list_matches_any_access(doc, get_active_student_access_records(user))
 
 
 def get_live_class_permission_query_conditions(user=None):
@@ -314,6 +472,22 @@ def get_enem_question_permission_query_conditions(user=None):
 	return "`tabBruce ENEM Question`.`published` = 1 and (" + " or ".join(conditions) + ")"
 
 
+def get_exercise_list_permission_query_conditions(user=None):
+	user = user or frappe.session.user
+
+	if not _should_restrict_student_live_classes(user):
+		return None
+
+	records = get_active_student_access_records(user)
+	conditions = [_get_exercise_list_sql_condition(record) for record in records]
+	conditions = [condition for condition in conditions if condition]
+
+	if not conditions:
+		return "`tabBruce Exercise List`.`name` is null"
+
+	return "`tabBruce Exercise List`.`published` = 1 and (" + " or ".join(conditions) + ")"
+
+
 def _get_student_access_status(user):
 	if not user or user == "Guest":
 		return ACCESS_PENDING
@@ -364,6 +538,10 @@ def _question_matches_any_access(question, access_records):
 	return any(_question_matches_access(question, access) for access in access_records)
 
 
+def _exercise_list_matches_any_access(exercise_list, access_records):
+	return any(_exercise_list_matches_access(exercise_list, access) for access in access_records)
+
+
 def _live_class_matches_access(live_class, access):
 	batch = _get_value(live_class, "batch")
 	course = _get_value(live_class, "course")
@@ -396,6 +574,22 @@ def _material_matches_access(material, access):
 def _question_matches_access(question, access):
 	batch = _get_value(question, "related_batch")
 	course = _get_value(question, "related_course")
+
+	if batch:
+		if access.get("batch"):
+			return batch == access.get("batch")
+
+		return bool(access.get("course") and course == access.get("course"))
+
+	if course:
+		return course == access.get("course")
+
+	return False
+
+
+def _exercise_list_matches_access(exercise_list, access):
+	batch = _get_value(exercise_list, "batch")
+	course = _get_value(exercise_list, "course")
 
 	if batch:
 		if access.get("batch"):
@@ -457,6 +651,25 @@ def _get_question_scope_filters(access):
 	return []
 
 
+def _get_exercise_list_scope_filters(access):
+	if access.get("batch") and access.get("course"):
+		return [
+			{"batch": access.get("batch")},
+			{
+				"course": access.get("course"),
+				"batch": ["in", ("", None)],
+			},
+		]
+
+	if access.get("batch"):
+		return [{"batch": access.get("batch")}]
+
+	if access.get("course"):
+		return [{"course": access.get("course")}]
+
+	return []
+
+
 def _get_live_class_sql_condition(access):
 	if access.get("batch"):
 		return f"`tabBruce Live Class`.`batch` = {frappe.db.escape(access.get('batch'))}"
@@ -505,6 +718,25 @@ def _get_question_sql_condition(access):
 	return None
 
 
+def _get_exercise_list_sql_condition(access):
+	if access.get("batch") and access.get("course"):
+		return (
+			f"`tabBruce Exercise List`.`batch` = {frappe.db.escape(access.get('batch'))}"
+			" or ("
+			f"`tabBruce Exercise List`.`course` = {frappe.db.escape(access.get('course'))}"
+			" and ifnull(`tabBruce Exercise List`.`batch`, '') = ''"
+			")"
+		)
+
+	if access.get("batch"):
+		return f"`tabBruce Exercise List`.`batch` = {frappe.db.escape(access.get('batch'))}"
+
+	if access.get("course"):
+		return f"`tabBruce Exercise List`.`course` = {frappe.db.escape(access.get('course'))}"
+
+	return None
+
+
 def _material_is_student_visible(material):
 	return (
 		bool(_get_value(material, "published"))
@@ -514,6 +746,10 @@ def _material_is_student_visible(material):
 
 def _question_is_student_visible(question):
 	return bool(_get_value(question, "published"))
+
+
+def _exercise_list_is_student_visible(exercise_list):
+	return bool(_get_value(exercise_list, "published"))
 
 
 def _add_visible_question_alternatives(questions):
@@ -545,6 +781,89 @@ def _add_visible_question_alternatives(questions):
 
 def _sanitize_question_for_student(question):
 	return {fieldname: _get_value(question, fieldname) for fieldname in ENEM_QUESTION_FIELDS}
+
+
+def _add_exercise_list_question_counts(exercise_lists):
+	if not exercise_lists:
+		return
+
+	exercise_list_names = [exercise_list.get("name") for exercise_list in exercise_lists if exercise_list.get("name")]
+	counts = {name: 0 for name in exercise_list_names}
+
+	for item in frappe.get_all(
+		"Bruce Exercise List Item",
+		filters={
+			"parent": ["in", exercise_list_names],
+			"parenttype": "Bruce Exercise List",
+		},
+		fields=["parent"],
+	):
+		counts[_get_value(item, "parent")] = counts.get(_get_value(item, "parent"), 0) + 1
+
+	for exercise_list in exercise_lists:
+		exercise_list["question_count"] = counts.get(exercise_list.get("name"), 0)
+
+
+def _get_exercise_list_items(exercise_list):
+	return [
+		dict(item)
+		for item in frappe.get_all(
+			"Bruce Exercise List Item",
+			filters={
+				"parent": exercise_list,
+				"parenttype": "Bruce Exercise List",
+			},
+			fields=EXERCISE_LIST_ITEM_FIELDS,
+			order_by="`order` asc, idx asc",
+		)
+	]
+
+
+def _get_visible_questions_for_exercise_items(items):
+	if not items:
+		return []
+
+	question_names = [item.get("question") for item in items if item.get("question")]
+	questions_by_name = {}
+
+	for question in frappe.get_all(
+		"Bruce ENEM Question",
+		filters={
+			"name": ["in", question_names],
+			"published": 1,
+		},
+		fields=ENEM_QUESTION_FIELDS,
+	):
+		questions_by_name[_get_value(question, "name")] = _sanitize_question_for_student(question)
+
+	questions = []
+	for item in items:
+		question = questions_by_name.get(item.get("question"))
+		if not question:
+			continue
+
+		question["order"] = item.get("order")
+		question["points"] = item.get("points")
+		questions.append(question)
+
+	_add_visible_question_alternatives(questions)
+	return questions
+
+
+def _exercise_list_contains_question(exercise_list, question):
+	if not exercise_list or not question:
+		return False
+
+	return bool(
+		frappe.db.exists(
+			"Bruce Exercise List Item",
+			{
+				"parent": exercise_list,
+				"parenttype": "Bruce Exercise List",
+				"question": question,
+			},
+		)
+	)
 
 
 def _normalize_list_limit(limit, default=20, maximum=50):

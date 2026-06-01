@@ -299,6 +299,40 @@ Regras importantes:
 - esta etapa não implementa simulado completo, tentativa de resposta, nota ou
   correção do aluno.
 
+### Listas de exercícios
+
+Listas de exercícios são representadas por `Bruce Exercise List`, com questões
+vinculadas pela tabela filha `Bruce Exercise List Item`. As respostas do aluno
+são registradas em `Bruce Student Answer`.
+
+Permissões esperadas:
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Criar lista | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Editar lista | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Publicar lista | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Listar lista permitida | Não operacional | Não operacional | Sim, se ativo | Suporte | Não |
+| Ver questões da lista | Não operacional | Não operacional | Sim, se ativo | Suporte | Não |
+| Responder lista | Não operacional | Não operacional | Sim, se ativo | Suporte | Não |
+| Ver respostas de alunos | Sim | Futuro, se autorizado | Apenas próprias via fluxo | Sim | Não |
+
+Regras importantes:
+
+- lista publicada precisa ter pelo menos uma questão;
+- quando publicada, `published_at` é preenchido no backend;
+- alunos só veem listas publicadas e compatíveis com `Bruce Student Access`;
+- a página `/app/minha-aula` mostra listas permitidas na seção `Listas de
+  exercícios`;
+- a API de aluno retorna questões da lista sem gabarito nem resolução comentada;
+- `Bruce Student Answer` é salvo pelo backend usando o usuário logado, nunca um
+  aluno enviado pelo frontend;
+- `is_correct` é calculado no backend a partir do gabarito da questão;
+- aluno com acesso `Pendente`, `Bloqueado` ou `Expirado` não lista nem responde
+  exercícios;
+- esta etapa não implementa simulado completo, cobrança, ranking ou relatório
+  pedagógico avançado.
+
 ## Integração futura com SaaS financeiro externo
 
 Cobrança, assinatura, funil comercial, blog e newsletter ficam fora do Frappe.

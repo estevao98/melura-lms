@@ -9,6 +9,7 @@ from bruce_lms_custom.services.student_access import (
 	LIVE_CLASS_VISIBLE_STATUSES,
 	get_current_student_access_status,
 	get_permitted_educational_materials_for_current_student,
+	get_permitted_exercise_lists_for_current_student,
 	get_permitted_live_classes_for_current_student,
 	is_current_student_active,
 )
@@ -25,6 +26,7 @@ def get_student_dashboard_data():
 		"student_is_active": student_is_active,
 		"next_live_class": _get_next_visible_live_class() if student_is_active else None,
 		"recent_materials": _get_recent_materials() if student_is_active else [],
+		"exercise_lists": _get_exercise_lists() if student_is_active else [],
 		"student_filter_enabled": True,
 		"student_filter_note": _get_student_filter_note(access_status),
 	}
@@ -37,6 +39,15 @@ def get_student_materials():
 		return []
 
 	return _get_recent_materials()
+
+
+@frappe.whitelist()
+def get_student_exercise_lists():
+	"""Return exercise lists allowed for the current logged student."""
+	if not is_current_student_active():
+		return []
+
+	return _get_exercise_lists()
 
 
 def _get_next_visible_live_class():
@@ -78,11 +89,22 @@ def _get_recent_materials(limit=6):
 	return [_with_material_display_values(dict(material)) for material in get_permitted_educational_materials_for_current_student(limit=limit)]
 
 
+def _get_exercise_lists(limit=6):
+	return [_with_exercise_list_display_values(dict(exercise_list)) for exercise_list in get_permitted_exercise_lists_for_current_student(limit=limit)]
+
+
 def _with_material_display_values(material):
 	material["course_title"] = _get_link_title("LMS Course", material.get("course"))
 	material["batch_title"] = _get_link_title("LMS Batch", material.get("batch"))
 	material["related_live_class_title"] = _get_link_title("Bruce Live Class", material.get("related_live_class"))
 	return material
+
+
+def _with_exercise_list_display_values(exercise_list):
+	exercise_list["course_title"] = _get_link_title("LMS Course", exercise_list.get("course"))
+	exercise_list["batch_title"] = _get_link_title("LMS Batch", exercise_list.get("batch"))
+	exercise_list["related_live_class_title"] = _get_link_title("Bruce Live Class", exercise_list.get("related_live_class"))
+	return exercise_list
 
 
 def _get_link_title(doctype, name):

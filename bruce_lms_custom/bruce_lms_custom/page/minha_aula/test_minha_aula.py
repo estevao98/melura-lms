@@ -8,8 +8,10 @@ import frappe
 
 from bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula import (
 	_get_class_status_label,
+	_get_exercise_lists,
 	_get_next_visible_live_class,
 	_get_recent_materials,
+	get_student_exercise_lists,
 	get_student_materials,
 	get_student_dashboard_data,
 )
@@ -36,11 +38,16 @@ class TestMinhaAula(unittest.TestCase):
 					"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula._get_recent_materials",
 					return_value=[{"name": "BEM-2026-00001"}],
 				),
+				patch(
+					"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula._get_exercise_lists",
+					return_value=[{"name": "BEL-2026-00001"}],
+				),
 			):
 				result = get_student_dashboard_data()
 
 		self.assertEqual(result["next_live_class"], {"name": "BLC-2026-00001"})
 		self.assertEqual(result["recent_materials"], [{"name": "BEM-2026-00001"}])
+		self.assertEqual(result["exercise_lists"], [{"name": "BEL-2026-00001"}])
 		self.assertTrue(result["student_filter_enabled"])
 		self.assertTrue(result["student_is_active"])
 		self.assertEqual(result["access_status"], "Ativo")
@@ -60,6 +67,10 @@ class TestMinhaAula(unittest.TestCase):
 				return_value=[{"name": "BEM-2026-00001"}],
 			) as get_recent_materials,
 			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula._get_exercise_lists",
+				return_value=[{"name": "BEL-2026-00001"}],
+			) as get_exercise_lists,
+			patch(
 				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.get_current_student_access_status",
 				return_value="Pendente",
 			),
@@ -72,11 +83,13 @@ class TestMinhaAula(unittest.TestCase):
 
 		self.assertIsNone(result["next_live_class"])
 		self.assertEqual(result["recent_materials"], [])
+		self.assertEqual(result["exercise_lists"], [])
 		self.assertFalse(result["student_is_active"])
 		self.assertEqual(result["access_status"], "Pendente")
 		self.assertIn("pendente", result["student_filter_note"])
 		get_next_visible_live_class.assert_not_called()
 		get_recent_materials.assert_not_called()
+		get_exercise_lists.assert_not_called()
 
 	def test_get_next_visible_live_class_prefers_live_class(self):
 		live_class = {
@@ -209,3 +222,60 @@ class TestMinhaAula(unittest.TestCase):
 
 		self.assertEqual(result, [])
 		get_recent_materials.assert_not_called()
+
+	def test_get_exercise_lists_adds_display_values(self):
+		exercise_list = {
+			"name": "BEL-2026-00001",
+			"title": "Lista de Humanas",
+			"course": "COURSE-001",
+			"batch": "BATCH-001",
+			"related_live_class": "BLC-2026-00001",
+		}
+
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.get_permitted_exercise_lists_for_current_student",
+				return_value=[exercise_list],
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.frappe.db",
+				Mock(get_value=Mock(side_effect=["Curso ENEM", "Turma Maio", "Aula 1"])),
+			),
+		):
+			result = _get_exercise_lists()
+
+		self.assertEqual(result[0]["course_title"], "Curso ENEM")
+		self.assertEqual(result[0]["batch_title"], "Turma Maio")
+		self.assertEqual(result[0]["related_live_class_title"], "Aula 1")
+
+	def test_get_student_exercise_lists_returns_only_when_student_is_active(self):
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.is_current_student_active",
+				return_value=True,
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula._get_exercise_lists",
+				return_value=[{"name": "BEL-2026-00001"}],
+			) as get_exercise_lists,
+		):
+			result = get_student_exercise_lists()
+
+		self.assertEqual(result, [{"name": "BEL-2026-00001"}])
+		get_exercise_lists.assert_called_once_with()
+
+	def test_get_student_exercise_lists_returns_empty_for_inactive_student(self):
+		with (
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.is_current_student_active",
+				return_value=False,
+			),
+			patch(
+				"bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula._get_exercise_lists",
+				return_value=[{"name": "BEL-2026-00001"}],
+			) as get_exercise_lists,
+		):
+			result = get_student_exercise_lists()
+
+		self.assertEqual(result, [])
+		get_exercise_lists.assert_not_called()

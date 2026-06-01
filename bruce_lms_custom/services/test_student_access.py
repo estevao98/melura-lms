@@ -14,9 +14,11 @@ from bruce_lms_custom.services.student_access import (
 	get_permitted_educational_materials_for_current_student,
 	get_current_student_access_status,
 	get_permitted_enem_questions_for_current_student,
+	get_permitted_exercise_lists_for_current_student,
 	get_permitted_live_classes_for_current_student,
 	has_enem_question_permission,
 	has_educational_material_permission,
+	save_student_answer,
 	has_live_class_permission,
 	is_current_student_active,
 )
@@ -398,6 +400,162 @@ class TestStudentAccess(unittest.TestCase):
 
 		self.assertEqual(result, [])
 		get_all.assert_not_called()
+
+	def test_published_exercise_list_is_listed_for_active_student(self):
+		access_records = [
+			{
+				"name": "BSA-2026-00001",
+				"access_status": ACCESS_ACTIVE,
+				"course": "COURSE-001",
+				"batch": "BATCH-001",
+			}
+		]
+		exercise_list = frappe._dict(
+			name="BEL-2026-00001",
+			title="Lista de Humanas",
+			course="COURSE-001",
+			batch="BATCH-001",
+			related_live_class="",
+			related_material="",
+			published_at="2026-06-01 19:00:00",
+			due_date="2026-06-07 23:59:00",
+			description="",
+		)
+		item = frappe._dict(parent="BEL-2026-00001")
+
+		with (
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=access_records,
+			),
+			patch(
+				"bruce_lms_custom.services.student_access.frappe.get_all",
+				side_effect=[[exercise_list], [], [item]],
+			) as get_all,
+		):
+			result = get_permitted_exercise_lists_for_current_student(limit=5)
+
+		self.assertEqual(result[0]["name"], "BEL-2026-00001")
+		self.assertEqual(result[0]["question_count"], 1)
+		get_all.assert_any_call(
+			"Bruce Exercise List",
+			filters={
+				"published": 1,
+				"batch": "BATCH-001",
+			},
+			fields=[
+				"name",
+				"title",
+				"course",
+				"batch",
+				"related_live_class",
+				"related_material",
+				"published_at",
+				"due_date",
+				"description",
+			],
+			order_by="published_at desc, modified desc",
+			limit_page_length=5,
+		)
+
+	def test_unpublished_exercise_list_is_not_listed_for_student(self):
+		access_records = [
+			{
+				"name": "BSA-2026-00001",
+				"access_status": ACCESS_ACTIVE,
+				"course": "COURSE-001",
+				"batch": "BATCH-001",
+			}
+		]
+
+		with (
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=access_records,
+			),
+			patch("bruce_lms_custom.services.student_access.frappe.get_all", side_effect=[[], [], []]) as get_all,
+		):
+			result = get_permitted_exercise_lists_for_current_student(limit=5)
+
+		self.assertEqual(result, [])
+		get_all.assert_any_call(
+			"Bruce Exercise List",
+			filters={
+				"published": 1,
+				"batch": "BATCH-001",
+			},
+			fields=[
+				"name",
+				"title",
+				"course",
+				"batch",
+				"related_live_class",
+				"related_material",
+				"published_at",
+				"due_date",
+				"description",
+			],
+			order_by="published_at desc, modified desc",
+			limit_page_length=5,
+		)
+
+	def test_blocked_or_pending_student_gets_no_exercise_lists(self):
+		with (
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=[],
+			),
+			patch("bruce_lms_custom.services.student_access.frappe.get_all") as get_all,
+		):
+			result = get_permitted_exercise_lists_for_current_student(limit=5)
+
+		self.assertEqual(result, [])
+		get_all.assert_not_called()
+
+	def test_correct_student_answer_is_marked_correct(self):
+		answer_doc = Mock(name="BSAW-2026-00001")
+		exercise_list = Mock(name="BEL-2026-00001")
+
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.session", Mock(user="aluno@example.com")),
+			patch("bruce_lms_custom.services.student_access.is_current_student_active", return_value=True),
+			patch("bruce_lms_custom.services.student_access.assert_current_student_can_access_exercise_list"),
+			patch("bruce_lms_custom.services.student_access._exercise_list_contains_question", return_value=True),
+			patch("bruce_lms_custom.services.student_access.frappe.get_doc", return_value=exercise_list),
+			patch("bruce_lms_custom.services.student_access.frappe.new_doc", return_value=answer_doc),
+			patch("bruce_lms_custom.services.student_access.now_datetime", return_value="2026-06-01 20:00:00"),
+			patch(
+				"bruce_lms_custom.services.student_access.frappe.db",
+				Mock(get_value=Mock(side_effect=["A", None])),
+			),
+		):
+			result = save_student_answer("BEL-2026-00001", "BEQ-2026-00001", "A")
+
+		self.assertTrue(result["is_correct"])
+		self.assertEqual(answer_doc.student_user, "aluno@example.com")
+		answer_doc.insert.assert_called_once_with(ignore_permissions=True)
+
+	def test_wrong_student_answer_is_marked_wrong(self):
+		answer_doc = Mock(name="BSAW-2026-00001")
+		exercise_list = Mock(name="BEL-2026-00001")
+
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.session", Mock(user="aluno@example.com")),
+			patch("bruce_lms_custom.services.student_access.is_current_student_active", return_value=True),
+			patch("bruce_lms_custom.services.student_access.assert_current_student_can_access_exercise_list"),
+			patch("bruce_lms_custom.services.student_access._exercise_list_contains_question", return_value=True),
+			patch("bruce_lms_custom.services.student_access.frappe.get_doc", return_value=exercise_list),
+			patch("bruce_lms_custom.services.student_access.frappe.new_doc", return_value=answer_doc),
+			patch("bruce_lms_custom.services.student_access.now_datetime", return_value="2026-06-01 20:00:00"),
+			patch(
+				"bruce_lms_custom.services.student_access.frappe.db",
+				Mock(get_value=Mock(side_effect=["A", None])),
+			),
+		):
+			result = save_student_answer("BEL-2026-00001", "BEQ-2026-00001", "B")
+
+		self.assertFalse(result["is_correct"])
+		answer_doc.insert.assert_called_once_with(ignore_permissions=True)
 
 	def test_student_live_class_permission_rejects_class_outside_access_scope(self):
 		doc = Mock(course="COURSE-001", batch="BATCH-999")

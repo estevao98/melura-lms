@@ -176,6 +176,52 @@ Regras de UX:
   retornar gabarito ou resolução comentada;
 - aluno com status `Pendente`, `Bloqueado` ou `Expirado` não vê questões.
 
+## Fluxo: professor publica lista de exercícios
+
+1. Professor ou administrador autorizado acessa `Bruce Exercise List`.
+2. Informa título, curso e, quando necessário, turma, aula ao vivo ou material
+   relacionado.
+3. Adiciona questões ENEM publicadas na tabela `Questões`.
+4. Define ordem e pontos quando precisar organizar a lista.
+5. Marca `Publicado`.
+6. Backend valida que a lista publicada possui pelo menos uma questão.
+7. Backend preenche `Publicado em` automaticamente quando o campo ainda estiver
+   vazio.
+8. Alunos com acesso pedagógico ativo e escopo compatível passam a ver a lista
+   em `/app/minha-aula`.
+
+Regras de UX:
+
+- todos os rótulos aparecem em português brasileiro;
+- a seção do aluno se chama `Listas de exercícios`;
+- cada item mostra título, quantidade de questões, prazo quando houver e a ação
+  `Responder`;
+- a tela inicial é simples e não substitui um simulado completo;
+- lista não publicada não aparece para aluno;
+- aluno com status `Pendente`, `Bloqueado` ou `Expirado` não vê nem responde
+  listas;
+- o frontend não envia aluno, curso ou turma para ampliar acesso.
+
+## Fluxo: aluno responde lista de exercícios
+
+1. Aluno acessa `/app/minha-aula`.
+2. Visualiza a seção `Listas de exercícios`.
+3. Clica em `Responder`.
+4. Backend valida o usuário logado, status ativo e vínculo por curso ou turma.
+5. Backend retorna somente questões publicadas da lista, sem gabarito nem
+   resolução comentada.
+6. Aluno seleciona alternativas.
+7. Backend salva `Bruce Student Answer` usando sempre o usuário logado.
+8. Backend calcula `Correta` comparando a alternativa marcada com o gabarito da
+   questão.
+
+Regras de UX:
+
+- mensagens e ações aparecem em português brasileiro;
+- a resposta pode ser salva novamente, atualizando a alternativa do aluno;
+- o retorno mostra se a resposta ficou correta ou incorreta;
+- a etapa não cria cobrança, ranking, newsletter, CRM ou simulado completo.
+
 ## Fluxo futuro: SaaS financeiro libera ou bloqueia acesso pedagógico
 
 1. SaaS externo processa cobrança, assinatura ou regra comercial fora do Frappe.

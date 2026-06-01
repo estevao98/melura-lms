@@ -42,8 +42,10 @@ class BruceStudentDashboard {
 	render_dashboard(dashboardData) {
 		const liveClass = dashboardData.next_live_class;
 		const materials = Array.isArray(dashboardData.recent_materials) ? dashboardData.recent_materials : [];
+		const exerciseLists = Array.isArray(dashboardData.exercise_lists) ? dashboardData.exercise_lists : [];
 		this.container.html(`
 			${liveClass ? this.render_next_live_class(liveClass) : this.render_empty_state(dashboardData)}
+			${this.render_exercise_lists_section(exerciseLists)}
 			${this.render_materials_section(materials)}
 		`);
 
@@ -52,6 +54,7 @@ class BruceStudentDashboard {
 		}
 
 		this.bind_material_actions(materials);
+		this.bind_exercise_list_actions();
 	}
 
 	render_empty_state(dashboardData) {
@@ -123,6 +126,58 @@ class BruceStudentDashboard {
 				${materials.length ? this.render_materials_list(materials) : this.render_empty_materials()}
 			</div>
 		`;
+	}
+
+	render_exercise_lists_section(exerciseLists) {
+		return `
+			<div class="bruce-student-dashboard__panel bruce-student-dashboard__exercise-lists">
+				<div class="bruce-student-dashboard__section-title">
+					<div>
+						<div class="text-muted">${this.escape_html(__("Listas de exercícios"))}</div>
+						<h3>${this.escape_html(__("Listas disponíveis"))}</h3>
+					</div>
+				</div>
+				${exerciseLists.length ? this.render_exercise_lists(exerciseLists) : this.render_empty_exercise_lists()}
+			</div>
+		`;
+	}
+
+	render_exercise_lists(exerciseLists) {
+		return `
+			<div class="bruce-student-dashboard__exercise-list">
+				${exerciseLists.map((exerciseList) => this.render_exercise_list_item(exerciseList)).join("")}
+			</div>
+		`;
+	}
+
+	render_exercise_list_item(exerciseList) {
+		const questionCount = Number(exerciseList.question_count || 0);
+		const questionLabel = questionCount === 1 ? __("1 questão") : __("{0} questões", [questionCount]);
+		const dueDate = this.format_datetime(exerciseList.due_date);
+
+		return `
+			<div class="bruce-student-dashboard__exercise-item">
+				<div class="bruce-student-dashboard__exercise-main">
+					<div class="bruce-student-dashboard__material-title">${this.escape_html(this.clean(exerciseList.title) || __("Sem título"))}</div>
+					<div class="bruce-student-dashboard__material-meta">
+						${this.escape_html(questionLabel)}
+						${dueDate ? ` · ${this.escape_html(__("Prazo: {0}", [dueDate]))}` : ""}
+					</div>
+				</div>
+				<div class="bruce-student-dashboard__material-action">
+					<button
+						class="btn btn-primary btn-sm bruce-student-dashboard__answer-list"
+						data-exercise-list="${this.escape_attribute(exerciseList.name)}"
+					>
+						${this.escape_html(__("Responder"))}
+					</button>
+				</div>
+			</div>
+		`;
+	}
+
+	render_empty_exercise_lists() {
+		return `<p class="text-muted mb-0">${this.escape_html(__("Nenhuma lista de exercícios disponível no momento."))}</p>`;
 	}
 
 	render_materials_list(materials) {
@@ -200,6 +255,124 @@ class BruceStudentDashboard {
 			if (materialName) {
 				frappe.set_route("Form", "Bruce Educational Material", materialName);
 			}
+		});
+	}
+
+	bind_exercise_list_actions() {
+		this.container.find(".bruce-student-dashboard__answer-list").on("click", (event) => {
+			const exerciseList = this.clean($(event.currentTarget).attr("data-exercise-list"));
+			if (exerciseList) {
+				this.open_exercise_list(exerciseList);
+			}
+		});
+	}
+
+	open_exercise_list(exerciseList) {
+		frappe.call({
+			method: "bruce_lms_custom.services.student_access.get_exercise_list_for_current_student",
+			args: {
+				exercise_list: exerciseList,
+			},
+			callback: (response) => {
+				this.show_exercise_dialog(response.message || {});
+			},
+		});
+	}
+
+	show_exercise_dialog(exerciseList) {
+		const questions = Array.isArray(exerciseList.questions) ? exerciseList.questions : [];
+		const dialog = new frappe.ui.Dialog({
+			title: this.clean(exerciseList.title) || __("Lista de exercícios"),
+			size: "large",
+			fields: [
+				{
+					fieldtype: "HTML",
+					fieldname: "exercise_html",
+					options: questions.length
+						? this.render_exercise_questions(questions)
+						: `<p class="text-muted">${this.escape_html(__("Nenhuma questão disponível nesta lista."))}</p>`,
+				},
+			],
+			primary_action_label: __("Salvar respostas"),
+			primary_action: () => this.save_exercise_answers(dialog, exerciseList, questions),
+		});
+
+		dialog.show();
+	}
+
+	render_exercise_questions(questions) {
+		return `
+			<div class="bruce-exercise-dialog">
+				${questions.map((question, index) => this.render_exercise_question(question, index)).join("")}
+			</div>
+		`;
+	}
+
+	render_exercise_question(question, index) {
+		const alternatives = Array.isArray(question.alternatives) ? question.alternatives : [];
+		return `
+			<div class="bruce-exercise-dialog__question" data-question="${this.escape_attribute(question.name)}">
+				<div class="bruce-exercise-dialog__title">${this.escape_html(__("Questão {0}", [index + 1]))}</div>
+				<div class="bruce-exercise-dialog__statement">${question.statement || ""}</div>
+				<div class="bruce-exercise-dialog__alternatives">
+					${alternatives.map((alternative) => this.render_exercise_alternative(question, alternative)).join("")}
+				</div>
+				<div class="bruce-exercise-dialog__result text-muted"></div>
+			</div>
+		`;
+	}
+
+	render_exercise_alternative(question, alternative) {
+		const optionLabel = this.clean(alternative.option_label);
+		return `
+			<label class="bruce-exercise-dialog__alternative">
+				<input type="radio" name="question-${this.escape_attribute(question.name)}" value="${this.escape_attribute(optionLabel)}">
+				<span><strong>${this.escape_html(optionLabel)}.</strong> ${alternative.option_text || ""}</span>
+			</label>
+		`;
+	}
+
+	save_exercise_answers(dialog, exerciseList, questions) {
+		const selectedAnswers = questions
+			.map((question) => {
+				const selectedOption = dialog.$wrapper.find(`input[name="question-${this.css_escape(question.name)}"]:checked`).val();
+				return {
+					question: question.name,
+					selected_option: selectedOption,
+				};
+			})
+			.filter((answer) => answer.selected_option);
+
+		if (!selectedAnswers.length) {
+			frappe.msgprint(__("Selecione pelo menos uma alternativa."));
+			return;
+		}
+
+		const calls = selectedAnswers.map((answer) => frappe.call({
+			method: "bruce_lms_custom.services.student_access.save_student_answer",
+			args: {
+				exercise_list: exerciseList.name,
+				question: answer.question,
+				selected_option: answer.selected_option,
+			},
+		}));
+
+		Promise.all(calls).then((responses) => {
+			responses.forEach((response, index) => {
+				const answer = selectedAnswers[index];
+				const result = response.message || {};
+				const resultElement = dialog.$wrapper
+					.find(`.bruce-exercise-dialog__question[data-question="${this.escape_attribute(answer.question)}"] .bruce-exercise-dialog__result`);
+				resultElement
+					.removeClass("text-muted text-success text-danger")
+					.addClass(result.is_correct ? "text-success" : "text-danger")
+					.text(result.is_correct ? __("Resposta correta.") : __("Resposta incorreta."));
+			});
+
+			frappe.show_alert({
+				message: __("Respostas salvas."),
+				indicator: "green",
+			});
 		});
 	}
 
@@ -319,6 +492,14 @@ class BruceStudentDashboard {
 		return this.escape_html(value);
 	}
 
+	css_escape(value) {
+		if (window.CSS && window.CSS.escape) {
+			return window.CSS.escape(String(value || ""));
+		}
+
+		return String(value || "").replace(/[^a-zA-Z0-9_-]/g, "\\$&");
+	}
+
 	inject_styles() {
 		if ($("#bruce-student-dashboard-styles").length) {
 			return;
@@ -365,7 +546,14 @@ class BruceStudentDashboard {
 				margin-top: 16px;
 			}
 
-			.bruce-student-dashboard__material-item {
+			.bruce-student-dashboard__exercise-list {
+				display: grid;
+				gap: 12px;
+				margin-top: 16px;
+			}
+
+			.bruce-student-dashboard__material-item,
+			.bruce-student-dashboard__exercise-item {
 				align-items: flex-start;
 				border: 1px solid var(--border-color);
 				border-radius: 8px;
@@ -401,6 +589,10 @@ class BruceStudentDashboard {
 				flex: 0 0 auto;
 			}
 
+			.bruce-student-dashboard__exercise-main {
+				min-width: 0;
+			}
+
 			.bruce-student-dashboard__field {
 				min-width: 0;
 			}
@@ -422,6 +614,45 @@ class BruceStudentDashboard {
 				margin-top: 24px;
 			}
 
+			.bruce-exercise-dialog {
+				display: grid;
+				gap: 20px;
+			}
+
+			.bruce-exercise-dialog__question {
+				border-bottom: 1px solid var(--border-color);
+				padding-bottom: 16px;
+			}
+
+			.bruce-exercise-dialog__question:last-child {
+				border-bottom: 0;
+				padding-bottom: 0;
+			}
+
+			.bruce-exercise-dialog__title {
+				font-weight: 600;
+				margin-bottom: 8px;
+			}
+
+			.bruce-exercise-dialog__statement {
+				margin-bottom: 12px;
+			}
+
+			.bruce-exercise-dialog__alternatives {
+				display: grid;
+				gap: 8px;
+			}
+
+			.bruce-exercise-dialog__alternative {
+				align-items: flex-start;
+				display: flex;
+				gap: 8px;
+			}
+
+			.bruce-exercise-dialog__result {
+				margin-top: 8px;
+			}
+
 			@media (max-width: 640px) {
 				.bruce-student-dashboard__panel {
 					padding: 16px;
@@ -439,7 +670,8 @@ class BruceStudentDashboard {
 					grid-template-columns: 1fr;
 				}
 
-				.bruce-student-dashboard__material-item {
+				.bruce-student-dashboard__material-item,
+				.bruce-student-dashboard__exercise-item {
 					display: block;
 				}
 

@@ -157,6 +157,27 @@ Regras de segurança:
 - a API inicial de aluno não retorna gabarito nem resolução comentada;
 - `Pendente`, `Bloqueado` e `Expirado` não liberam questões.
 
+## Listas de exercícios
+
+`Bruce Exercise List` segue a mesma fonte segura de acesso pedagógico:
+`Bruce Student Access`. As respostas são registradas em `Bruce Student Answer`.
+
+Regras de segurança:
+
+- listas para aluno devem estar publicadas;
+- lista publicada precisa ter pelo menos uma questão;
+- `published_at` é preenchido no backend quando a lista é publicada;
+- páginas e APIs do aluno não recebem aluno, curso ou turma como parâmetros de
+  liberação;
+- aluno só recebe listas compatíveis com seu acesso ativo por turma ou curso;
+- aluno só pode buscar questões de lista publicada e permitida;
+- a API de questões da lista não retorna gabarito nem resolução comentada;
+- resposta de aluno é salva sempre para `frappe.session.user`;
+- `selected_option` pode vir do frontend, mas `student_user`, acesso e
+  `is_correct` são definidos no backend;
+- `Pendente`, `Bloqueado` e `Expirado` não liberam listagem, leitura ou resposta
+  de listas.
+
 Integrações futuras com SaaS financeiro externo devem atualizar apenas o status
 pedagógico e referências opacas. Não salvar tokens, dados de cartão, payloads
 financeiros completos ou segredos em `Bruce Student Access`.

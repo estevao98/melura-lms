@@ -15,8 +15,8 @@ Status permitidos:
 - `Bloqueado`;
 - `Expirado`.
 
-Somente `Ativo`, dentro do período configurado, libera aulas, materiais e
-questões publicadas para o aluno.
+Somente `Ativo`, dentro do período configurado, libera aulas, materiais,
+questões publicadas e listas de exercícios para o aluno.
 
 ## Escopo de acesso
 
@@ -37,6 +37,12 @@ curso.
 Para questões ENEM, o aluno com acesso por turma vê questões da própria turma e
 questões gerais do mesmo curso sem turma específica. Quando somente `course`
 estiver preenchido, a liberação cobre questões publicadas daquele curso.
+
+Para listas de exercícios, a regra é a mesma de materiais e questões: o aluno
+com acesso por turma vê listas da própria turma e listas gerais do mesmo curso
+sem turma específica. Quando somente `course` estiver preenchido, a liberação
+cobre listas publicadas daquele curso. Respostas de aluno são salvas no backend
+para o usuário logado, sem aceitar `student_user` vindo do frontend.
 
 ## Dados proibidos
 
@@ -62,10 +68,10 @@ definido, mas deve:
 - registrar erro resumido sem expor segredo;
 - nunca depender de parâmetros do frontend do aluno.
 
-As APIs de aluno, como `/app/minha-aula` e a listagem inicial de questões ENEM,
-devem consultar aulas, materiais e questões a partir do usuário logado e do
-`Bruce Student Access`. O frontend não deve enviar escopo de curso, turma ou
-aluno para ampliar acesso.
+As APIs de aluno, como `/app/minha-aula`, a listagem inicial de questões ENEM e
+as listas de exercícios, devem consultar aulas, materiais, questões e listas a
+partir do usuário logado e do `Bruce Student Access`. O frontend não deve enviar
+escopo de curso, turma ou aluno para ampliar acesso.
 
 Até essa etapa ser implementada, o acesso pode ser mantido manualmente por
 usuários administrativos autorizados.
