@@ -141,6 +141,8 @@ Implementação atual:
   `LMS Student`;
 - a tela consulta somente a próxima `Bruce Live Class` ativa ou agendada
   permitida ao aluno logado no backend;
+- a tela também consulta materiais recentes de `Bruce Educational Material`
+  permitidos ao aluno logado no backend;
 - o status pedagógico do aluno é representado em `Bruce Student Access` como
   `Pendente`, `Ativo`, `Bloqueado` ou `Expirado`;
 - somente `Ativo`, dentro do período configurado, libera aulas;
@@ -148,10 +150,13 @@ Implementação atual:
   por `LMS Course` quando houver apenas curso;
 - a ação do aluno é restrita a abrir o link da aula já salvo ou copiar esse
   link;
+- em materiais, o aluno só vê registros publicados, com visibilidade `Aluno` e
+  compatíveis com seu curso ou turma;
 - a tela não inicia aula, não agenda aula, não envia WhatsApp, não consulta logs
   e não expõe configurações sensíveis;
-- `Bruce Live Class` possui permissões scripted na app customizada para que
-  `LMS Student` não leia aulas fora do seu escopo;
+- `Bruce Live Class` e `Bruce Educational Material` possuem permissões scripted
+  na app customizada para que `LMS Student` não leia registros fora do seu
+  escopo;
 - a relação com `LMS Batch Enrollment` e `LMS Enrollment` ainda será refinada
   depois. Nesta etapa, a fonte segura de liberação é `Bruce Student Access`,
   preparada para ser atualizada por integração externa.
@@ -243,6 +248,31 @@ Regras importantes:
   de turma/curso e aula disponível;
 - o professor só inicia aula em turma ou curso sob sua responsabilidade;
 - ações de iniciar, cancelar ou encerrar aula devem ser auditáveis.
+
+### Materiais educacionais
+
+Materiais educacionais são representados por `Bruce Educational Material`.
+
+Permissões esperadas:
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Criar material | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Editar material | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Publicar material | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Ver material publicado | Suporte técnico | Sim | Sim, se ativo e no escopo | Sim | Não |
+| Ver material interno | Sim | Sim, se autorizado | Não | Sim | Não |
+
+Regras importantes:
+
+- material sem título é inválido;
+- ao marcar `Publicado`, o backend preenche `Publicado em` automaticamente;
+- aluno só vê material com `Publicado` marcado, visibilidade `Aluno` e acesso
+  pedagógico `Ativo`;
+- aluno com acesso por turma vê material da própria turma e material geral do
+  mesmo curso sem turma específica;
+- aluno com acesso por curso vê materiais vinculados ao curso;
+- a liberação não depende de curso, turma ou aluno enviados pelo frontend.
 
 ## Integração futura com SaaS financeiro externo
 

@@ -34,20 +34,24 @@ class BruceStudentDashboard {
 	render_loading() {
 		this.container.html(`
 			<div class="bruce-student-dashboard__panel">
-				<div class="text-muted">${this.escape_html(__("Carregando sua próxima aula..."))}</div>
+				<div class="text-muted">${this.escape_html(__("Carregando sua aula e materiais..."))}</div>
 			</div>
 		`);
 	}
 
 	render_dashboard(dashboardData) {
 		const liveClass = dashboardData.next_live_class;
+		const materials = Array.isArray(dashboardData.recent_materials) ? dashboardData.recent_materials : [];
 		this.container.html(`
 			${liveClass ? this.render_next_live_class(liveClass) : this.render_empty_state(dashboardData)}
+			${this.render_materials_section(materials)}
 		`);
 
 		if (liveClass) {
 			this.bind_live_class_actions(liveClass);
 		}
+
+		this.bind_material_actions(materials);
 	}
 
 	render_empty_state(dashboardData) {
@@ -107,6 +111,65 @@ class BruceStudentDashboard {
 		`;
 	}
 
+	render_materials_section(materials) {
+		return `
+			<div class="bruce-student-dashboard__panel bruce-student-dashboard__materials">
+				<div class="bruce-student-dashboard__section-title">
+					<div>
+						<div class="text-muted">${this.escape_html(__("Materiais"))}</div>
+						<h3>${this.escape_html(__("Materiais recentes"))}</h3>
+					</div>
+				</div>
+				${materials.length ? this.render_materials_list(materials) : this.render_empty_materials()}
+			</div>
+		`;
+	}
+
+	render_materials_list(materials) {
+		return `
+			<div class="bruce-student-dashboard__material-list">
+				${materials.map((material) => this.render_material_item(material)).join("")}
+			</div>
+		`;
+	}
+
+	render_material_item(material) {
+		const courseDisplay = this.clean(material.course_title) || this.clean(material.course);
+		const batchDisplay = this.clean(material.batch_title) || this.clean(material.batch);
+		const liveClassDisplay = this.clean(material.related_live_class_title) || this.clean(material.related_live_class);
+		const hasPdf = Boolean(this.clean(material.pdf_file));
+		const actionLabel = hasPdf ? __("Baixar PDF") : __("Abrir material");
+
+		return `
+			<div class="bruce-student-dashboard__material-item">
+				<div class="bruce-student-dashboard__material-main">
+					<div class="bruce-student-dashboard__material-title">${this.escape_html(this.clean(material.title) || __("Sem título"))}</div>
+					<div class="bruce-student-dashboard__material-meta">
+						${this.escape_html(this.clean(material.material_type) || __("Material"))}
+					</div>
+					<div class="bruce-student-dashboard__material-grid">
+						${this.render_field(__("Curso"), courseDisplay)}
+						${this.render_field(__("Turma"), batchDisplay)}
+						${this.render_field(__("Aula relacionada"), liveClassDisplay)}
+					</div>
+				</div>
+				<div class="bruce-student-dashboard__material-action">
+					<button
+						class="btn btn-default btn-sm bruce-student-dashboard__open-material"
+						data-material-name="${this.escape_attribute(material.name)}"
+						data-pdf-file="${this.escape_attribute(material.pdf_file)}"
+					>
+						${this.escape_html(actionLabel)}
+					</button>
+				</div>
+			</div>
+		`;
+	}
+
+	render_empty_materials() {
+		return `<p class="text-muted mb-0">${this.escape_html(__("Nenhum material disponível no momento."))}</p>`;
+	}
+
 	bind_live_class_actions(liveClass) {
 		const meetingUrl = this.clean(liveClass.meeting_url);
 
@@ -120,6 +183,23 @@ class BruceStudentDashboard {
 
 		this.container.find(".bruce-student-dashboard__copy").on("click", () => {
 			this.copy_meeting_url(meetingUrl);
+		});
+	}
+
+	bind_material_actions() {
+		this.container.find(".bruce-student-dashboard__open-material").on("click", (event) => {
+			const button = $(event.currentTarget);
+			const pdfFile = this.clean(button.attr("data-pdf-file"));
+			const materialName = this.clean(button.attr("data-material-name"));
+
+			if (pdfFile) {
+				window.open(pdfFile, "_blank", "noopener");
+				return;
+			}
+
+			if (materialName) {
+				frappe.set_route("Form", "Bruce Educational Material", materialName);
+			}
 		});
 	}
 
@@ -235,6 +315,10 @@ class BruceStudentDashboard {
 			.replace(/'/g, "&#039;");
 	}
 
+	escape_attribute(value) {
+		return this.escape_html(value);
+	}
+
 	inject_styles() {
 		if ($("#bruce-student-dashboard-styles").length) {
 			return;
@@ -249,6 +333,7 @@ class BruceStudentDashboard {
 				background: var(--card-bg);
 				border: 1px solid var(--border-color);
 				border-radius: 8px;
+				margin-bottom: 16px;
 				padding: 24px;
 			}
 
@@ -264,10 +349,56 @@ class BruceStudentDashboard {
 				margin: 4px 0 0;
 			}
 
+			.bruce-student-dashboard__section-title h3 {
+				margin: 4px 0 0;
+			}
+
 			.bruce-student-dashboard__grid {
 				display: grid;
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 				gap: 16px;
+			}
+
+			.bruce-student-dashboard__material-list {
+				display: grid;
+				gap: 12px;
+				margin-top: 16px;
+			}
+
+			.bruce-student-dashboard__material-item {
+				align-items: flex-start;
+				border: 1px solid var(--border-color);
+				border-radius: 8px;
+				display: flex;
+				gap: 16px;
+				justify-content: space-between;
+				padding: 16px;
+			}
+
+			.bruce-student-dashboard__material-main {
+				min-width: 0;
+			}
+
+			.bruce-student-dashboard__material-title {
+				font-weight: 600;
+				overflow-wrap: anywhere;
+			}
+
+			.bruce-student-dashboard__material-meta {
+				color: var(--text-muted);
+				font-size: 12px;
+				margin-top: 4px;
+			}
+
+			.bruce-student-dashboard__material-grid {
+				display: grid;
+				gap: 12px;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				margin-top: 16px;
+			}
+
+			.bruce-student-dashboard__material-action {
+				flex: 0 0 auto;
 			}
 
 			.bruce-student-dashboard__field {
@@ -306,6 +437,18 @@ class BruceStudentDashboard {
 
 				.bruce-student-dashboard__grid {
 					grid-template-columns: 1fr;
+				}
+
+				.bruce-student-dashboard__material-item {
+					display: block;
+				}
+
+				.bruce-student-dashboard__material-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.bruce-student-dashboard__material-action {
+					margin-top: 16px;
 				}
 			}
 		</style>`).appendTo("head");

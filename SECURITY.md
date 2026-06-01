@@ -124,6 +124,22 @@ Regras de segurança:
   pedagógico;
 - `Pendente`, `Bloqueado` e `Expirado` não liberam aula.
 
+## Materiais educacionais
+
+`Bruce Educational Material` segue a mesma fonte segura de acesso pedagógico:
+`Bruce Student Access`.
+
+Regras de segurança:
+
+- materiais para aluno devem estar publicados e com visibilidade `Aluno`;
+- `published_at` é preenchido no backend quando o material é publicado;
+- páginas e APIs do aluno não recebem aluno, curso ou turma como parâmetros de
+  liberação;
+- aluno só recebe materiais compatíveis com seu acesso ativo por turma ou curso;
+- materiais com visibilidade `Professor` ou `Interno` não são retornados para
+  `LMS Student`;
+- `Pendente`, `Bloqueado` e `Expirado` não liberam materiais.
+
 Integrações futuras com SaaS financeiro externo devem atualizar apenas o status
 pedagógico e referências opacas. Não salvar tokens, dados de cartão, payloads
 financeiros completos ou segredos em `Bruce Student Access`.

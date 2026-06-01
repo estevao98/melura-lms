@@ -30,6 +30,18 @@ LIVE_CLASS_FIELDS = [
 	"status",
 	"meeting_url",
 ]
+EDUCATIONAL_MATERIAL_FIELDS = [
+	"name",
+	"title",
+	"material_type",
+	"course",
+	"batch",
+	"related_live_class",
+	"topic",
+	"pdf_file",
+	"published_at",
+	"description",
+]
 UNRESTRICTED_LIVE_CLASS_ROLES = {"System Manager", "Moderator", "Batch Evaluator", "Course Creator"}
 
 
@@ -83,6 +95,39 @@ def get_permitted_live_classes_for_current_student(statuses=None, starts_from=No
 	return sorted(classes_by_name.values(), key=lambda live_class: live_class.get("starts_at") or "")[:limit]
 
 
+def get_permitted_educational_materials_for_current_student(limit=10):
+	"""Return only published materials allowed for the logged student."""
+	materials_by_name = {}
+
+	for access in get_active_student_access_records():
+		scope_filters = _get_material_scope_filters(access)
+
+		if not scope_filters:
+			continue
+
+		for scope_filter in scope_filters:
+			filters = {
+				"published": 1,
+				"visibility": "Aluno",
+			}
+			filters.update(scope_filter)
+
+			for material in frappe.get_all(
+				"Bruce Educational Material",
+				filters=filters,
+				fields=EDUCATIONAL_MATERIAL_FIELDS,
+				order_by="published_at desc, modified desc",
+				limit_page_length=limit,
+			):
+				materials_by_name[_get_value(material, "name")] = dict(material)
+
+	return sorted(
+		materials_by_name.values(),
+		key=lambda material: material.get("published_at") or "",
+		reverse=True,
+	)[:limit]
+
+
 def get_active_student_access_records(user=None):
 	user = user or frappe.session.user
 
@@ -126,6 +171,21 @@ def has_live_class_permission(doc, user=None, permission_type=None):
 	return _live_class_matches_any_access(doc, get_active_student_access_records(user))
 
 
+def has_educational_material_permission(doc, user=None, permission_type=None):
+	user = user or frappe.session.user
+
+	if not _should_restrict_student_live_classes(user):
+		return True
+
+	if permission_type and permission_type not in {"read", "select"}:
+		return False
+
+	if not _material_is_student_visible(doc):
+		return False
+
+	return _material_matches_any_access(doc, get_active_student_access_records(user))
+
+
 def get_live_class_permission_query_conditions(user=None):
 	user = user or frappe.session.user
 
@@ -140,6 +200,26 @@ def get_live_class_permission_query_conditions(user=None):
 		return "`tabBruce Live Class`.`name` is null"
 
 	return "(" + " or ".join(conditions) + ")"
+
+
+def get_educational_material_permission_query_conditions(user=None):
+	user = user or frappe.session.user
+
+	if not _should_restrict_student_live_classes(user):
+		return None
+
+	records = get_active_student_access_records(user)
+	conditions = [_get_material_sql_condition(record) for record in records]
+	conditions = [condition for condition in conditions if condition]
+
+	if not conditions:
+		return "`tabBruce Educational Material`.`name` is null"
+
+	return (
+		"`tabBruce Educational Material`.`published` = 1"
+		" and `tabBruce Educational Material`.`visibility` = 'Aluno'"
+		" and (" + " or ".join(conditions) + ")"
+	)
 
 
 def _get_student_access_status(user):
@@ -184,6 +264,10 @@ def _live_class_matches_any_access(live_class, access_records):
 	return any(_live_class_matches_access(live_class, access) for access in access_records)
 
 
+def _material_matches_any_access(material, access_records):
+	return any(_material_matches_access(material, access) for access in access_records)
+
+
 def _live_class_matches_access(live_class, access):
 	batch = _get_value(live_class, "batch")
 	course = _get_value(live_class, "course")
@@ -192,6 +276,22 @@ def _live_class_matches_access(live_class, access):
 		return batch == access.get("batch")
 
 	if access.get("course"):
+		return course == access.get("course")
+
+	return False
+
+
+def _material_matches_access(material, access):
+	batch = _get_value(material, "batch")
+	course = _get_value(material, "course")
+
+	if batch:
+		if access.get("batch"):
+			return batch == access.get("batch")
+
+		return bool(access.get("course") and course == access.get("course"))
+
+	if course:
 		return course == access.get("course")
 
 	return False
@@ -207,6 +307,25 @@ def _get_live_class_scope_filter(access):
 	return None
 
 
+def _get_material_scope_filters(access):
+	if access.get("batch") and access.get("course"):
+		return [
+			{"batch": access.get("batch")},
+			{
+				"course": access.get("course"),
+				"batch": ["in", ("", None)],
+			},
+		]
+
+	if access.get("batch"):
+		return [{"batch": access.get("batch")}]
+
+	if access.get("course"):
+		return [{"course": access.get("course")}]
+
+	return []
+
+
 def _get_live_class_sql_condition(access):
 	if access.get("batch"):
 		return f"`tabBruce Live Class`.`batch` = {frappe.db.escape(access.get('batch'))}"
@@ -215,6 +334,32 @@ def _get_live_class_sql_condition(access):
 		return f"`tabBruce Live Class`.`course` = {frappe.db.escape(access.get('course'))}"
 
 	return None
+
+
+def _get_material_sql_condition(access):
+	if access.get("batch") and access.get("course"):
+		return (
+			f"`tabBruce Educational Material`.`batch` = {frappe.db.escape(access.get('batch'))}"
+			" or ("
+			f"`tabBruce Educational Material`.`course` = {frappe.db.escape(access.get('course'))}"
+			" and ifnull(`tabBruce Educational Material`.`batch`, '') = ''"
+			")"
+		)
+
+	if access.get("batch"):
+		return f"`tabBruce Educational Material`.`batch` = {frappe.db.escape(access.get('batch'))}"
+
+	if access.get("course"):
+		return f"`tabBruce Educational Material`.`course` = {frappe.db.escape(access.get('course'))}"
+
+	return None
+
+
+def _material_is_student_visible(material):
+	return (
+		bool(_get_value(material, "published"))
+		and _get_value(material, "visibility") == "Aluno"
+	)
 
 
 def _should_restrict_student_live_classes(user):

@@ -127,10 +127,14 @@ app_license = "mit"
 
 permission_query_conditions = {
 	"Bruce Live Class": "bruce_lms_custom.services.student_access.get_live_class_permission_query_conditions",
+	"Bruce Educational Material": (
+		"bruce_lms_custom.services.student_access.get_educational_material_permission_query_conditions"
+	),
 }
 
 has_permission = {
 	"Bruce Live Class": "bruce_lms_custom.services.student_access.has_live_class_permission",
+	"Bruce Educational Material": "bruce_lms_custom.services.student_access.has_educational_material_permission",
 }
 
 # DocType Class

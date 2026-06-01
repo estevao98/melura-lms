@@ -15,7 +15,8 @@ Status permitidos:
 - `Bloqueado`;
 - `Expirado`.
 
-Somente `Ativo`, dentro do período configurado, libera aulas para o aluno.
+Somente `Ativo`, dentro do período configurado, libera aulas e materiais
+publicados para o aluno.
 
 ## Escopo de acesso
 
@@ -27,8 +28,11 @@ Cada registro deve apontar para:
 - `starts_on` e `expires_on`, quando houver janela de acesso;
 - `external_reference`, quando o SaaS precisar guardar uma referência opaca.
 
-Quando `batch` estiver preenchida, a liberação fica restrita à turma. Quando
-somente `course` estiver preenchido, a liberação cobre aulas daquele curso.
+Quando `batch` estiver preenchida, a liberação de aulas fica restrita à turma.
+Para materiais educacionais, o aluno com acesso por turma vê materiais da
+própria turma e materiais gerais do mesmo curso sem turma específica. Quando
+somente `course` estiver preenchido, a liberação cobre aulas e materiais daquele
+curso.
 
 ## Dados proibidos
 
@@ -53,6 +57,10 @@ definido, mas deve:
 - criar ou atualizar `Bruce Student Access`;
 - registrar erro resumido sem expor segredo;
 - nunca depender de parâmetros do frontend do aluno.
+
+As APIs de aluno, como `/app/minha-aula`, devem consultar aulas e materiais a
+partir do usuário logado e do `Bruce Student Access`. O frontend não deve enviar
+escopo de curso, turma ou aluno para ampliar acesso.
 
 Até essa etapa ser implementada, o acesso pode ser mantido manualmente por
 usuários administrativos autorizados.

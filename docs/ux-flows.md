@@ -113,12 +113,41 @@ O status de acesso do aluno é controlado em `Bruce Student Access`:
 Quando não houver aula ao vivo ou agendada, a tela mostra um aviso simples em
 português brasileiro.
 
+A página também possui a seção `Materiais`, que lista materiais educacionais
+recentes liberados para o aluno atual. A seção mostra título, tipo, curso,
+turma, aula relacionada e a ação `Baixar PDF` quando houver arquivo anexado ou
+`Abrir material` quando o material não tiver PDF.
+
+Se não houver material publicado e permitido para o aluno, a tela mostra
+`Nenhum material disponível no momento.`.
+
 Esta é uma versão inicial segura: ela não envia WhatsApp, não chama automações,
 não expõe API key no frontend, não confia em parâmetros enviados pelo navegador
 e não altera o core do LMS. A relação com `LMS Batch Enrollment` e
 `LMS Enrollment` será refinada depois; nesta etapa, a fonte de liberação é
 `Bruce Student Access`, preparada para sincronização futura com o SaaS
 financeiro externo.
+
+## Fluxo: professor publica material educacional
+
+1. Professor ou administrador autorizado acessa `Bruce Educational Material`.
+2. Informa título, tipo, curso e, quando necessário, turma e aula relacionada.
+3. Anexa o PDF quando o material for um arquivo para download.
+4. Define a visibilidade como `Aluno` quando o material puder aparecer para
+   estudantes.
+5. Marca `Publicado`.
+6. Backend preenche `Publicado em` automaticamente quando o campo ainda estiver
+   vazio.
+7. Alunos com acesso pedagógico ativo e escopo compatível passam a ver o
+   material em `/app/minha-aula`.
+
+Regras de UX:
+
+- todos os rótulos aparecem em português brasileiro;
+- material não publicado não aparece para aluno;
+- material `Professor` ou `Interno` não aparece para aluno;
+- a tela do aluno não escolhe curso, turma ou usuário por parâmetro de frontend;
+- aluno com status `Pendente`, `Bloqueado` ou `Expirado` não vê materiais.
 
 ## Fluxo futuro: SaaS financeiro libera ou bloqueia acesso pedagógico
 

@@ -8,6 +8,7 @@ from bruce_lms_custom.services.student_access import (
 	ACCESS_ACTIVE,
 	LIVE_CLASS_VISIBLE_STATUSES,
 	get_current_student_access_status,
+	get_permitted_educational_materials_for_current_student,
 	get_permitted_live_classes_for_current_student,
 	is_current_student_active,
 )
@@ -23,9 +24,19 @@ def get_student_dashboard_data():
 		"access_status": access_status,
 		"student_is_active": student_is_active,
 		"next_live_class": _get_next_visible_live_class() if student_is_active else None,
+		"recent_materials": _get_recent_materials() if student_is_active else [],
 		"student_filter_enabled": True,
 		"student_filter_note": _get_student_filter_note(access_status),
 	}
+
+
+@frappe.whitelist()
+def get_student_materials():
+	"""Return recent materials allowed for the current logged student."""
+	if not is_current_student_active():
+		return []
+
+	return _get_recent_materials()
 
 
 def _get_next_visible_live_class():
@@ -61,6 +72,17 @@ def _with_display_values(live_class):
 	live_class["batch_title"] = _get_link_title("LMS Batch", live_class.get("batch"))
 	live_class["class_status_label"] = _get_class_status_label(live_class.get("status"))
 	return live_class
+
+
+def _get_recent_materials(limit=6):
+	return [_with_material_display_values(dict(material)) for material in get_permitted_educational_materials_for_current_student(limit=limit)]
+
+
+def _with_material_display_values(material):
+	material["course_title"] = _get_link_title("LMS Course", material.get("course"))
+	material["batch_title"] = _get_link_title("LMS Batch", material.get("batch"))
+	material["related_live_class_title"] = _get_link_title("Bruce Live Class", material.get("related_live_class"))
+	return material
 
 
 def _get_link_title(doctype, name):

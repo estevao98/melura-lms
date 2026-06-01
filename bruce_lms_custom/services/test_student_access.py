@@ -11,8 +11,10 @@ from bruce_lms_custom.services.student_access import (
 	ACCESS_BLOCKED,
 	ACCESS_PENDING,
 	can_current_student_access_live_class,
+	get_permitted_educational_materials_for_current_student,
 	get_current_student_access_status,
 	get_permitted_live_classes_for_current_student,
+	has_educational_material_permission,
 	has_live_class_permission,
 	is_current_student_active,
 )
@@ -161,6 +163,130 @@ class TestStudentAccess(unittest.TestCase):
 			limit_page_length=5,
 		)
 
+	def test_published_material_is_listed_for_active_student(self):
+		access_records = [
+			{
+				"name": "BSA-2026-00001",
+				"access_status": ACCESS_ACTIVE,
+				"course": "COURSE-001",
+				"batch": "BATCH-001",
+			}
+		]
+		batch_material = frappe._dict(
+			name="BEM-2026-00001",
+			title="Apostila permitida",
+			material_type="Apostila",
+			course="COURSE-001",
+			batch="BATCH-001",
+			related_live_class="BLC-2026-00001",
+			topic="Brasil Colônia",
+			pdf_file="/private/files/apostila.pdf",
+			published_at="2026-06-01 19:00:00",
+			description="",
+		)
+		course_material = frappe._dict(
+			name="BEM-2026-00002",
+			title="Resumo do curso",
+			material_type="Resumo",
+			course="COURSE-001",
+			batch="",
+			related_live_class="",
+			topic="Revisão",
+			pdf_file="/private/files/resumo.pdf",
+			published_at="2026-06-02 19:00:00",
+			description="",
+		)
+
+		with (
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=access_records,
+			),
+			patch(
+				"bruce_lms_custom.services.student_access.frappe.get_all",
+				side_effect=[[batch_material], [course_material]],
+			) as get_all,
+		):
+			result = get_permitted_educational_materials_for_current_student(limit=5)
+
+		self.assertEqual([material["name"] for material in result], ["BEM-2026-00002", "BEM-2026-00001"])
+		self.assertEqual(get_all.call_count, 2)
+		get_all.assert_any_call(
+			"Bruce Educational Material",
+			filters={
+				"published": 1,
+				"visibility": "Aluno",
+				"batch": "BATCH-001",
+			},
+			fields=[
+				"name",
+				"title",
+				"material_type",
+				"course",
+				"batch",
+				"related_live_class",
+				"topic",
+				"pdf_file",
+				"published_at",
+				"description",
+			],
+			order_by="published_at desc, modified desc",
+			limit_page_length=5,
+		)
+		get_all.assert_any_call(
+			"Bruce Educational Material",
+			filters={
+				"published": 1,
+				"visibility": "Aluno",
+				"course": "COURSE-001",
+				"batch": ["in", ("", None)],
+			},
+			fields=[
+				"name",
+				"title",
+				"material_type",
+				"course",
+				"batch",
+				"related_live_class",
+				"topic",
+				"pdf_file",
+				"published_at",
+				"description",
+			],
+			order_by="published_at desc, modified desc",
+			limit_page_length=5,
+		)
+
+	def test_unpublished_material_is_not_allowed_for_student_permission(self):
+		doc = Mock(
+			course="COURSE-001",
+			batch="BATCH-001",
+			published=0,
+			visibility="Aluno",
+		)
+
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.get_roles", return_value=["LMS Student"]),
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=[{"course": "COURSE-001", "batch": "BATCH-001"}],
+			),
+		):
+			self.assertFalse(has_educational_material_permission(doc, user="aluno@example.com", permission_type="read"))
+
+	def test_blocked_or_pending_student_gets_no_materials(self):
+		with (
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=[],
+			),
+			patch("bruce_lms_custom.services.student_access.frappe.get_all") as get_all,
+		):
+			result = get_permitted_educational_materials_for_current_student(limit=5)
+
+		self.assertEqual(result, [])
+		get_all.assert_not_called()
+
 	def test_student_live_class_permission_rejects_class_outside_access_scope(self):
 		doc = Mock(course="COURSE-001", batch="BATCH-999")
 
@@ -173,3 +299,20 @@ class TestStudentAccess(unittest.TestCase):
 			),
 		):
 			self.assertFalse(has_live_class_permission(doc, user="aluno@example.com", permission_type="read"))
+
+	def test_active_student_material_permission_rejects_other_batch(self):
+		doc = Mock(
+			course="COURSE-001",
+			batch="BATCH-999",
+			published=1,
+			visibility="Aluno",
+		)
+
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.get_roles", return_value=["LMS Student"]),
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=[{"course": "COURSE-001", "batch": "BATCH-001"}],
+			),
+		):
+			self.assertFalse(has_educational_material_permission(doc, user="aluno@example.com", permission_type="read"))
