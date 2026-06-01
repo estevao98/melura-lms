@@ -568,6 +568,37 @@ Regras de UX:
 - KPIs devem ser poucos, claros e acionáveis.
 - Cada indicador deve ter uma origem de dados rastreável.
 
+### Versão atual no Desk
+
+A versão inicial do painel administrativo é uma Page Desk chamada `Painel
+Operacional`, disponível pela rota `/app/bruce-operational-dashboard`.
+
+A tela é funcional e enxuta, com seções em português brasileiro:
+
+- `Visão geral`;
+- `Aulas`;
+- `Conteúdo`;
+- `Exercícios e progresso`;
+- `Alertas operacionais`.
+
+Indicadores exibidos:
+
+- total de alunos com `Bruce Student Access`;
+- alunos `Ativo`, `Pendente`, `Bloqueado` e `Expirado`;
+- aulas ao vivo da semana;
+- próximas aulas da semana sem link ou sala;
+- materiais publicados;
+- questões ENEM publicadas;
+- listas de exercícios publicadas;
+- respostas registradas;
+- aproveitamento médio simples a partir de `Bruce Student Answer`;
+- alunos ativos sem atividade recente, quando identificável por
+  `Bruce Student Answer`.
+
+A tela não implementa cobrança, dashboard financeiro, newsletter, blog ou CRM.
+Ela não expõe dados sensíveis desnecessários e usa uma API backend agregada que
+valida permissão antes de consultar os dados.
+
 ## Mensagens e linguagem
 
 Padrões:

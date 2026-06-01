@@ -201,6 +201,22 @@ Integrações futuras com SaaS financeiro externo devem atualizar apenas o statu
 pedagógico e referências opacas. Não salvar tokens, dados de cartão, payloads
 financeiros completos ou segredos em `Bruce Student Access`.
 
+## Painel operacional
+
+O `Painel Operacional` (`/app/bruce-operational-dashboard`) é uma tela
+administrativa de agregados acadêmicos e operacionais.
+
+Regras de segurança:
+
+- a API backend deve validar permissão antes de consultar qualquer dado;
+- somente `Administrator`, `System Manager`, `Administrador LMS`,
+  `Admin operacional` ou `LMS Admin` podem acessar os agregados;
+- alunos comuns e `LMS Student` não podem acessar o painel nem a API;
+- retornar apenas contagens, resumos e listas operacionais mínimas;
+- não retornar API keys, tokens, endpoints sensíveis, dados financeiros,
+  payloads de integração ou informações pessoais desnecessárias;
+- o frontend não deve ser tratado como fonte de autorização.
+
 ## Logs
 
 Logs devem ajudar na auditoria operacional sem virar depósito de dados sensíveis.

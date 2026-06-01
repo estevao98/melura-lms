@@ -385,6 +385,17 @@ Os KPIs administrativos básicos poderão ser consultados em tempo real ou
 armazenados futuramente em estrutura como `Bruce Admin KPI Snapshot`, mas este
 documento não cria esse DocType.
 
+Implementação atual:
+
+- a página Desk `Painel Operacional` (`/app/bruce-operational-dashboard`) mostra
+  agregados operacionais iniciais para administração;
+- o backend valida acesso antes de retornar dados agregados;
+- o usuário `Administrator`, `System Manager`, `Administrador LMS`,
+  `Admin operacional` ou `LMS Admin` pode consultar o painel;
+- alunos comuns, incluindo `LMS Student`, não podem consultar a API do painel;
+- os dados retornados são resumos acadêmicos e operacionais, sem segredos,
+  tokens, dados financeiros, payloads de integração ou detalhes sensíveis.
+
 Permissões esperadas:
 
 | Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
