@@ -281,12 +281,16 @@ class BruceStudentDashboard {
 		}
 
 		this.container.find(".bruce-student-dashboard__enter").on("click", () => {
-			window.open(meetingUrl, "_blank", "noopener");
+			this.open_live_room(liveClass.name);
 		});
 
 		this.container.find(".bruce-student-dashboard__copy").on("click", () => {
 			this.copy_meeting_url(meetingUrl);
 		});
+	}
+
+	open_live_room(liveClass) {
+		frappe.set_route("bruce-live-room", liveClass);
 	}
 
 	bind_material_actions() {

@@ -83,7 +83,7 @@ Regras de UX:
 3. Visualiza aula disponível.
 4. Clica em `Entrar na aula`.
 5. Sistema valida matrícula e disponibilidade.
-6. Aula abre via experiência Jitsi definida para o LMS.
+6. Aula abre em `/app/bruce-live-room/<aula>`, com Jitsi embutido no LMS.
 
 Estados de tela:
 
@@ -101,7 +101,8 @@ A tela valida o aluno logado no backend e mostra a primeira `Bruce Live Class`
 permitida pelo status pedagógico e pelo vínculo de curso/turma, priorizando aula
 `Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro. Ela
 exibe título, curso, turma, data e horário, status da aula e ações `Entrar na
-aula` e `Copiar link`.
+aula` e `Copiar link`. `Entrar na aula` abre a sala interna do LMS, enquanto
+`Copiar link` mantém o link externo como fallback.
 
 O status de acesso do aluno é controlado em `Bruce Student Access`:
 
@@ -498,7 +499,7 @@ Campos exibidos no card de `Próxima aula`:
 - horário de início;
 - status da aula;
 - status do WhatsApp;
-- link da aula, quando existir.
+- link da aula, quando existir, como fallback externo.
 
 Abaixo do card principal, o painel mostra a seção `Aulas da semana`, com aulas
 `Agendada` ou `Ao vivo` dos próximos 7 dias, ordenadas por data de início.
@@ -514,10 +515,11 @@ Campos exibidos na lista semanal:
 
 Ações disponíveis:
 
-- `Abrir aula`, quando a aula tiver link;
+- `Abrir aula`, quando a aula tiver link, abrindo a página interna da sala;
 - `Iniciar aula`, para aula `Agendada`, chamando a validação backend já existente
-  de `Bruce Live Class`.
-- `Copiar link`, quando a aula tiver link e o navegador permitir cópia simples.
+  de `Bruce Live Class` e abrindo a sala interna.
+- `Copiar link`, quando a aula tiver link e o navegador permitir cópia simples,
+  mantendo o fallback externo.
 - `Pré-visualizar WhatsApp`, chamando o backend de prévia já existente, sem
   enviar mensagem real, sem chamar Evolution API/n8n e sem criar log.
 - `Ir para a aula no Desk`, abrindo o formulário da `Bruce Live Class`.
@@ -542,6 +544,21 @@ formulário `Bruce Live Class`, enquanto o painel mostra o status operacional e
 permite revisar destinatários e mensagem antes de qualquer envio real. Ele ainda
 não reenviará avisos a partir dos logs e não substitui os fluxos administrativos
 do Desk.
+
+### Base atual para sala ao vivo embutida
+
+A rota `/app/bruce-live-room/<aula>` mostra uma página interna para a aula ao
+vivo. Ela carrega título, curso, turma, status e um frame grande do Jitsi.
+
+O frontend informa apenas o identificador da aula na rota. A liberação real é
+feita no backend, que valida usuário logado, status da aula, existência de
+`room_name` e `meeting_url`, acesso ativo do aluno por `Bruce Student Access`,
+escopo de curso/turma, professor responsável ou papel administrativo.
+
+O botão `Entrar na aula` em `/app/minha-aula` abre essa rota interna. O botão
+`Abrir aula` e a ação `Iniciar aula` no `Painel do Professor` também abrem a
+rota interna. A opção de copiar o link externo continua disponível, e a sala
+interna mantém o botão `Abrir em nova aba` como fallback.
 
 ## Fluxo: painel administrativo básico
 

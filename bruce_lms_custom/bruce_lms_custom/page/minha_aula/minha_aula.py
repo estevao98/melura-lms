@@ -84,6 +84,7 @@ def _with_display_values(live_class):
 	live_class["course_title"] = _get_link_title("LMS Course", live_class.get("course"))
 	live_class["batch_title"] = _get_link_title("LMS Batch", live_class.get("batch"))
 	live_class["class_status_label"] = _get_class_status_label(live_class.get("status"))
+	live_class["live_room_route"] = f"/app/bruce-live-room/{live_class.get('name')}"
 	return live_class
 
 

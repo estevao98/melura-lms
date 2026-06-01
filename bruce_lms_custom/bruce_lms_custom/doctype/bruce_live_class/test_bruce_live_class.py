@@ -85,6 +85,7 @@ class TestBruceLiveClass(unittest.TestCase):
 
 	def test_start_live_class_marks_scheduled_class_as_live(self):
 		doc = Mock(status="Agendada", meeting_url="https://meet.jit.si/sala-existente")
+		doc.name = "BLC-2026-00001"
 
 		with (
 			patch(
@@ -106,6 +107,7 @@ class TestBruceLiveClass(unittest.TestCase):
 		create_notice_log.assert_called_once()
 		self.assertEqual(doc.status, "Ao vivo")
 		self.assertEqual(result["meeting_url"], "https://meet.jit.si/sala-existente")
+		self.assertEqual(result["live_room_route"], "/app/bruce-live-room/BLC-2026-00001")
 
 	def test_start_live_class_requires_meeting_url(self):
 		doc = Mock(status="Agendada", meeting_url="")

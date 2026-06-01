@@ -2,13 +2,11 @@
 
 ## Escopo desta etapa
 
-Esta etapa cria apenas a fundação de dados da integração Jitsi dentro da app
-`bruce_lms_custom`.
+Esta etapa cria a fundação de dados da integração Jitsi e a experiência interna
+de aula ao vivo dentro da app `bruce_lms_custom`.
 
 Não foram implementados nesta etapa:
 
-- frontend para professor ou aluno;
-- incorporação com Jitsi IFrame API;
 - envio de WhatsApp;
 - logs de WhatsApp;
 - alterações em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`.
@@ -84,20 +82,42 @@ motivo e tratar o impacto para alunos, professor e avisos enviados.
 O formulário `Bruce Live Class` possui ações simples no grupo `Jitsi`, sem
 frontend Vue nesta etapa:
 
-- `Abrir aula`: abre o `meeting_url` já salvo em uma nova aba.
+- `Abrir aula`: abre a página interna `/app/bruce-live-room/<aula>` no LMS.
 - `Copiar link`: copia o `meeting_url` quando o contexto do navegador permitir.
   Se a cópia automática falhar, o Desk mostra o link para cópia manual.
 - `Iniciar aula`: valida permissão no backend, marca aulas `Agendada` como
-  `Ao vivo` e abre o `meeting_url` em uma nova aba.
+  `Ao vivo` e abre a página interna da aula.
 
 As ações não montam URL no frontend e não hardcodam domínio. Elas usam apenas o
-`meeting_url` registrado no documento.
+`meeting_url` registrado no documento para cópia e fallback externo.
 
 Se a aula ainda não tiver `meeting_url`, o usuário vê uma mensagem amigável em
 português orientando salvar a aula novamente ou revisar a configuração do Jitsi.
 
 A ação `Iniciar aula` exige permissão de escrita no documento antes de alterar o
 status. Aulas `Encerrada` ou `Cancelada` não podem ser iniciadas por essa ação.
+
+## Página interna de aula ao vivo
+
+A página Desk `Aula ao vivo` usa a rota `/app/bruce-live-room/<aula>` e incorpora
+o Jitsi com a Jitsi IFrame API carregada por `https://<domínio>/external_api.js`.
+
+O domínio vem de `Bruce Jitsi Settings.domain`. Para `meet.jit.si`, manter
+`meet.jit.si` configurado nas settings.
+
+A API backend
+`bruce_lms_custom.bruce_lms_custom.page.bruce_live_room.bruce_live_room.get_live_room_context`
+valida usuário logado, status da aula, existência de `room_name` e
+`meeting_url`, URL externa HTTP/HTTPS, acesso ativo do aluno por
+`Bruce Student Access`, escopo de turma/curso, professor responsável ou papel
+administrativo autorizado.
+
+O payload retornado ao navegador contém apenas dados necessários para montar a
+sala: título, curso, turma, status, domínio Jitsi, `room_name` e `external_url`
+para fallback. Nenhuma API key ou segredo é exposto.
+
+Na interface, o aluno ou professor vê título da aula, curso, turma, status,
+área grande com Jitsi embutido e botão `Abrir em nova aba`.
 
 ## Permissões iniciais
 

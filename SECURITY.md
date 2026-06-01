@@ -60,6 +60,8 @@ Boas práticas:
 - salvar curso, turma, professor, data, link e status;
 - validar permissão antes de iniciar aula;
 - validar matrícula antes de liberar entrada do aluno;
+- validar no backend qualquer abertura da sala interna antes de retornar
+  `domain`, `room_name` ou link externo;
 - evitar expor configurações internas desnecessárias ao navegador;
 - não reutilizar nomes previsíveis como turma, curso ou data pura.
 
@@ -120,8 +122,10 @@ Regras de segurança:
   escopo de acesso;
 - `Bruce Live Class` usa permissões scripted para impedir leitura ampla por
   `LMS Student`;
-- o link Jitsi só deve ser retornado por APIs que validem status ativo e vínculo
-  pedagógico;
+- o link Jitsi só deve ser retornado por APIs que validem status permitido e
+  vínculo pedagógico;
+- a página `/app/bruce-live-room/<aula>` deve validar usuário logado, aula
+  disponível, `Bruce Student Access` ativo e escopo de curso/turma no backend;
 - `Pendente`, `Bloqueado` e `Expirado` não liberam aula.
 
 ## Materiais educacionais

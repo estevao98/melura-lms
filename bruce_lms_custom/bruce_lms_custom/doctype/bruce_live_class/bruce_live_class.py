@@ -96,8 +96,10 @@ def start_live_class(name):
 
 	if doc.status == "Ao vivo":
 		return {
+			"name": doc.name,
 			"status": doc.status,
 			"meeting_url": doc.meeting_url,
+			"live_room_route": f"/app/bruce-live-room/{doc.name}",
 			"message": _("A aula já está ao vivo."),
 		}
 
@@ -115,7 +117,9 @@ def start_live_class(name):
 	)
 
 	return {
+		"name": doc.name,
 		"status": doc.status,
 		"meeting_url": doc.meeting_url,
+		"live_room_route": f"/app/bruce-live-room/{doc.name}",
 		"message": _("A aula foi marcada como ao vivo."),
 	}

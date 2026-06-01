@@ -122,7 +122,7 @@ Permissões esperadas:
 
 - visualizar cursos e aulas em que possui matrícula válida;
 - visualizar data, horário e status de aulas ao vivo disponíveis;
-- entrar na aula ao vivo quando a aula estiver liberada;
+- entrar na aula ao vivo pela página interna quando a aula estiver liberada;
 - visualizar mensagens simples de erro ou orientação.
 
 Limites:
@@ -148,8 +148,9 @@ Implementação atual:
 - somente `Ativo`, dentro do período configurado, libera aulas;
 - a liberação é escopada por `LMS Batch` quando a turma estiver preenchida ou
   por `LMS Course` quando houver apenas curso;
-- a ação do aluno é restrita a abrir o link da aula já salvo ou copiar esse
-  link;
+- a ação do aluno abre `/app/bruce-live-room/<aula>` e o backend valida o acesso
+  antes de retornar dados para a Jitsi IFrame API;
+- o link externo salvo permanece disponível apenas como cópia/fallback;
 - em materiais, o aluno só vê registros publicados, com visibilidade `Aluno` e
   compatíveis com seu curso ou turma;
 - a seção `Meu progresso` em `/app/minha-aula` é calculada no backend para o
@@ -242,6 +243,7 @@ Permissões esperadas:
 | Ver link da aula | Suporte técnico | Sim, se responsável | Sim, se matriculado e liberado | Sim | Não |
 | Iniciar aula | Suporte técnico | Sim, se responsável | Não | Sim, se necessário | Não |
 | Entrar como aluno | Não operacional | Não operacional | Sim, se matriculado | Suporte | Não |
+| Abrir sala interna | Suporte técnico | Sim, se responsável | Sim, se ativo e no escopo | Sim | Não |
 | Cancelar ou encerrar aula | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
 | Ver status da aula | Sim | Sim, se vinculada | Sim, se matriculado | Sim | Não |
 
@@ -251,6 +253,8 @@ Regras importantes:
 - o aluno só entra na aula se tiver acesso pedagógico `Ativo`, escopo compatível
   de turma/curso e aula disponível;
 - o professor só inicia aula em turma ou curso sob sua responsabilidade;
+- a página interna de sala ao vivo não confia apenas no parâmetro da rota para
+  liberar acesso;
 - ações de iniciar, cancelar ou encerrar aula devem ser auditáveis.
 
 ### Materiais educacionais
@@ -493,6 +497,7 @@ Toda implementação futura deve validar:
 - vínculo com curso, turma, aula ou matrícula;
 - responsabilidade do professor pela aula;
 - status atual da aula;
+- existência de `room_name` e `meeting_url` antes de abrir sala Jitsi embutida;
 - status atual da mensagem de WhatsApp;
 - escopo da integração ou bot;
 - ausência de segredos na resposta;

@@ -11,10 +11,10 @@ frappe.ui.form.on("Bruce Live Class", {
 				return;
 			}
 
-			record_notice_event(frm.doc.name, "Aula aberta", __("Aula aberta"), __("O link da aula foi aberto pelo usuário."), "Sucesso", () => {
+			record_notice_event(frm.doc.name, "Aula aberta", __("Aula aberta"), __("A aula foi aberta pelo usuário no LMS."), "Sucesso", () => {
 				render_notice_history(frm);
 			});
-			window.open(meetingUrl, "_blank", "noopener");
+			open_live_room(frm.doc.name);
 		}, __("Jitsi"));
 
 		frm.add_custom_button(__("Copiar link"), () => {
@@ -48,8 +48,8 @@ frappe.ui.form.on("Bruce Live Class", {
 
 						frm.reload_doc();
 
-						if (result.meeting_url) {
-							window.open(result.meeting_url, "_blank", "noopener");
+						if (result.name) {
+							open_live_room(result.name);
 						}
 					},
 				});
@@ -99,6 +99,10 @@ frappe.ui.form.on("Bruce Live Class", {
 
 function get_meeting_url(frm) {
 	return (frm.doc.meeting_url || "").trim();
+}
+
+function open_live_room(liveClass) {
+	frappe.set_route("bruce-live-room", liveClass);
 }
 
 function show_missing_meeting_url() {

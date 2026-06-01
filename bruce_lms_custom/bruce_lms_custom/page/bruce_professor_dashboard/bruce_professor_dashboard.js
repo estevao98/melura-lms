@@ -141,10 +141,10 @@ class BruceProfessorDashboard {
 		const canStart = liveClass.status === "Agendada";
 		if (meetingUrl) {
 			this.container.find(".bruce-professor-dashboard__open").on("click", () => {
-				this.record_notice_event(liveClass.name, "Aula aberta", __("Aula aberta"), __("O link da aula foi aberto pelo usuário."), "Sucesso", () => {
+				this.record_notice_event(liveClass.name, "Aula aberta", __("Aula aberta"), __("A aula foi aberta pelo usuário no LMS."), "Sucesso", () => {
 					this.load();
 				});
-				window.open(meetingUrl, "_blank", "noopener");
+				this.open_live_room(liveClass.name);
 			});
 
 			this.container.find(".bruce-professor-dashboard__copy").on("click", () => {
@@ -306,10 +306,10 @@ class BruceProfessorDashboard {
 				return;
 			}
 
-			this.record_notice_event(liveClass.name, "Aula aberta", __("Aula aberta"), __("O link da aula foi aberto pelo usuário."), "Sucesso", () => {
+			this.record_notice_event(liveClass.name, "Aula aberta", __("Aula aberta"), __("A aula foi aberta pelo usuário no LMS."), "Sucesso", () => {
 				this.load();
 			});
-			window.open(meetingUrl, "_blank", "noopener");
+			this.open_live_room(liveClass.name);
 		});
 
 		this.container.find(".bruce-professor-dashboard__week-copy").on("click", (event) => {
@@ -355,13 +355,17 @@ class BruceProfessorDashboard {
 					});
 				}
 
-				if (result.meeting_url) {
-					window.open(result.meeting_url, "_blank", "noopener");
+				if (result.name) {
+					this.open_live_room(result.name);
 				}
 
 				this.load();
 			},
 		});
+	}
+
+	open_live_room(liveClass) {
+		frappe.set_route("bruce-live-room", liveClass);
 	}
 
 	preview_whatsapp_link(name) {
