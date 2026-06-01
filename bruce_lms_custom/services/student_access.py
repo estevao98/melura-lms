@@ -42,6 +42,29 @@ EDUCATIONAL_MATERIAL_FIELDS = [
 	"published_at",
 	"description",
 ]
+ENEM_QUESTION_FIELDS = [
+	"name",
+	"title",
+	"statement",
+	"discipline",
+	"topic",
+	"competence",
+	"skill",
+	"year",
+	"difficulty",
+	"source",
+	"related_course",
+	"related_batch",
+	"related_live_class",
+	"related_material",
+	"published_at",
+]
+ENEM_QUESTION_ALTERNATIVE_FIELDS = [
+	"name",
+	"parent",
+	"option_label",
+	"option_text",
+]
 UNRESTRICTED_LIVE_CLASS_ROLES = {"System Manager", "Moderator", "Batch Evaluator", "Course Creator"}
 
 
@@ -128,6 +151,44 @@ def get_permitted_educational_materials_for_current_student(limit=10):
 	)[:limit]
 
 
+@frappe.whitelist()
+def get_permitted_enem_questions_for_current_student(limit=20):
+	"""Return only published ENEM questions allowed for the logged student.
+
+	The returned payload intentionally omits the answer key and commented resolution.
+	"""
+	limit = _normalize_list_limit(limit, default=20, maximum=50)
+	questions_by_name = {}
+
+	for access in get_active_student_access_records():
+		scope_filters = _get_question_scope_filters(access)
+
+		if not scope_filters:
+			continue
+
+		for scope_filter in scope_filters:
+			filters = {"published": 1}
+			filters.update(scope_filter)
+
+			for question in frappe.get_all(
+				"Bruce ENEM Question",
+				filters=filters,
+				fields=ENEM_QUESTION_FIELDS,
+				order_by="published_at desc, modified desc",
+				limit_page_length=limit,
+			):
+				questions_by_name[_get_value(question, "name")] = _sanitize_question_for_student(question)
+
+	questions = sorted(
+		questions_by_name.values(),
+		key=lambda question: question.get("published_at") or "",
+		reverse=True,
+	)[:limit]
+
+	_add_visible_question_alternatives(questions)
+	return questions
+
+
 def get_active_student_access_records(user=None):
 	user = user or frappe.session.user
 
@@ -186,6 +247,21 @@ def has_educational_material_permission(doc, user=None, permission_type=None):
 	return _material_matches_any_access(doc, get_active_student_access_records(user))
 
 
+def has_enem_question_permission(doc, user=None, permission_type=None):
+	user = user or frappe.session.user
+
+	if not _should_restrict_student_live_classes(user):
+		return True
+
+	if permission_type and permission_type not in {"read", "select"}:
+		return False
+
+	if not _question_is_student_visible(doc):
+		return False
+
+	return _question_matches_any_access(doc, get_active_student_access_records(user))
+
+
 def get_live_class_permission_query_conditions(user=None):
 	user = user or frappe.session.user
 
@@ -220,6 +296,22 @@ def get_educational_material_permission_query_conditions(user=None):
 		" and `tabBruce Educational Material`.`visibility` = 'Aluno'"
 		" and (" + " or ".join(conditions) + ")"
 	)
+
+
+def get_enem_question_permission_query_conditions(user=None):
+	user = user or frappe.session.user
+
+	if not _should_restrict_student_live_classes(user):
+		return None
+
+	records = get_active_student_access_records(user)
+	conditions = [_get_question_sql_condition(record) for record in records]
+	conditions = [condition for condition in conditions if condition]
+
+	if not conditions:
+		return "`tabBruce ENEM Question`.`name` is null"
+
+	return "`tabBruce ENEM Question`.`published` = 1 and (" + " or ".join(conditions) + ")"
 
 
 def _get_student_access_status(user):
@@ -268,6 +360,10 @@ def _material_matches_any_access(material, access_records):
 	return any(_material_matches_access(material, access) for access in access_records)
 
 
+def _question_matches_any_access(question, access_records):
+	return any(_question_matches_access(question, access) for access in access_records)
+
+
 def _live_class_matches_access(live_class, access):
 	batch = _get_value(live_class, "batch")
 	course = _get_value(live_class, "course")
@@ -284,6 +380,22 @@ def _live_class_matches_access(live_class, access):
 def _material_matches_access(material, access):
 	batch = _get_value(material, "batch")
 	course = _get_value(material, "course")
+
+	if batch:
+		if access.get("batch"):
+			return batch == access.get("batch")
+
+		return bool(access.get("course") and course == access.get("course"))
+
+	if course:
+		return course == access.get("course")
+
+	return False
+
+
+def _question_matches_access(question, access):
+	batch = _get_value(question, "related_batch")
+	course = _get_value(question, "related_course")
 
 	if batch:
 		if access.get("batch"):
@@ -326,6 +438,25 @@ def _get_material_scope_filters(access):
 	return []
 
 
+def _get_question_scope_filters(access):
+	if access.get("batch") and access.get("course"):
+		return [
+			{"related_batch": access.get("batch")},
+			{
+				"related_course": access.get("course"),
+				"related_batch": ["in", ("", None)],
+			},
+		]
+
+	if access.get("batch"):
+		return [{"related_batch": access.get("batch")}]
+
+	if access.get("course"):
+		return [{"related_course": access.get("course")}]
+
+	return []
+
+
 def _get_live_class_sql_condition(access):
 	if access.get("batch"):
 		return f"`tabBruce Live Class`.`batch` = {frappe.db.escape(access.get('batch'))}"
@@ -355,11 +486,77 @@ def _get_material_sql_condition(access):
 	return None
 
 
+def _get_question_sql_condition(access):
+	if access.get("batch") and access.get("course"):
+		return (
+			f"`tabBruce ENEM Question`.`related_batch` = {frappe.db.escape(access.get('batch'))}"
+			" or ("
+			f"`tabBruce ENEM Question`.`related_course` = {frappe.db.escape(access.get('course'))}"
+			" and ifnull(`tabBruce ENEM Question`.`related_batch`, '') = ''"
+			")"
+		)
+
+	if access.get("batch"):
+		return f"`tabBruce ENEM Question`.`related_batch` = {frappe.db.escape(access.get('batch'))}"
+
+	if access.get("course"):
+		return f"`tabBruce ENEM Question`.`related_course` = {frappe.db.escape(access.get('course'))}"
+
+	return None
+
+
 def _material_is_student_visible(material):
 	return (
 		bool(_get_value(material, "published"))
 		and _get_value(material, "visibility") == "Aluno"
 	)
+
+
+def _question_is_student_visible(question):
+	return bool(_get_value(question, "published"))
+
+
+def _add_visible_question_alternatives(questions):
+	if not questions:
+		return
+
+	question_names = [question.get("name") for question in questions if question.get("name")]
+	alternatives_by_question = {name: [] for name in question_names}
+
+	for alternative in frappe.get_all(
+		"Bruce ENEM Question Alternative",
+		filters={
+			"parent": ["in", question_names],
+			"parenttype": "Bruce ENEM Question",
+		},
+		fields=ENEM_QUESTION_ALTERNATIVE_FIELDS,
+		order_by="parent asc, idx asc",
+	):
+		alternatives_by_question.setdefault(_get_value(alternative, "parent"), []).append(
+			{
+				"option_label": _get_value(alternative, "option_label"),
+				"option_text": _get_value(alternative, "option_text"),
+			}
+		)
+
+	for question in questions:
+		question["alternatives"] = alternatives_by_question.get(question.get("name"), [])
+
+
+def _sanitize_question_for_student(question):
+	return {fieldname: _get_value(question, fieldname) for fieldname in ENEM_QUESTION_FIELDS}
+
+
+def _normalize_list_limit(limit, default=20, maximum=50):
+	try:
+		normalized_limit = int(limit)
+	except (TypeError, ValueError):
+		return default
+
+	if normalized_limit < 1:
+		return default
+
+	return min(normalized_limit, maximum)
 
 
 def _should_restrict_student_live_classes(user):

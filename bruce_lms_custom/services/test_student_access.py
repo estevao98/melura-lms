@@ -13,7 +13,9 @@ from bruce_lms_custom.services.student_access import (
 	can_current_student_access_live_class,
 	get_permitted_educational_materials_for_current_student,
 	get_current_student_access_status,
+	get_permitted_enem_questions_for_current_student,
 	get_permitted_live_classes_for_current_student,
+	has_enem_question_permission,
 	has_educational_material_permission,
 	has_live_class_permission,
 	is_current_student_active,
@@ -283,6 +285,116 @@ class TestStudentAccess(unittest.TestCase):
 			patch("bruce_lms_custom.services.student_access.frappe.get_all") as get_all,
 		):
 			result = get_permitted_educational_materials_for_current_student(limit=5)
+
+		self.assertEqual(result, [])
+		get_all.assert_not_called()
+
+	def test_active_student_can_list_published_permitted_enem_question(self):
+		access_records = [
+			{
+				"name": "BSA-2026-00001",
+				"access_status": ACCESS_ACTIVE,
+				"course": "COURSE-001",
+				"batch": "BATCH-001",
+			}
+		]
+		question = frappe._dict(
+			name="BEQ-2026-00001",
+			title="Brasil Colônia",
+			statement="Enunciado permitido",
+			discipline="História",
+			topic="Brasil Colônia",
+			competence="C1",
+			skill="H1",
+			year=2025,
+			difficulty="Média",
+			source="ENEM",
+			related_course="COURSE-001",
+			related_batch="BATCH-001",
+			related_live_class="",
+			related_material="",
+			published_at="2026-06-01 19:00:00",
+			correct_option="A",
+			commented_resolution="Não deve sair na listagem do aluno",
+		)
+		alternative = frappe._dict(
+			name="BEQA-2026-00001",
+			parent="BEQ-2026-00001",
+			option_label="A",
+			option_text="Alternativa A",
+			is_correct=1,
+		)
+
+		with (
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=access_records,
+			),
+			patch(
+				"bruce_lms_custom.services.student_access.frappe.get_all",
+				side_effect=[[question], [], [alternative]],
+			) as get_all,
+		):
+			frappe.local.flags = frappe._dict(in_test=True)
+			result = get_permitted_enem_questions_for_current_student(limit=5)
+
+		self.assertEqual([item["name"] for item in result], ["BEQ-2026-00001"])
+		self.assertNotIn("correct_option", result[0])
+		self.assertNotIn("commented_resolution", result[0])
+		self.assertEqual(result[0]["alternatives"], [{"option_label": "A", "option_text": "Alternativa A"}])
+		get_all.assert_any_call(
+			"Bruce ENEM Question",
+			filters={
+				"published": 1,
+				"related_batch": "BATCH-001",
+			},
+			fields=[
+				"name",
+				"title",
+				"statement",
+				"discipline",
+				"topic",
+				"competence",
+				"skill",
+				"year",
+				"difficulty",
+				"source",
+				"related_course",
+				"related_batch",
+				"related_live_class",
+				"related_material",
+				"published_at",
+			],
+			order_by="published_at desc, modified desc",
+			limit_page_length=5,
+		)
+
+	def test_unpublished_enem_question_is_not_allowed_for_student_permission(self):
+		doc = Mock(
+			related_course="COURSE-001",
+			related_batch="BATCH-001",
+			published=0,
+		)
+
+		with (
+			patch("bruce_lms_custom.services.student_access.frappe.get_roles", return_value=["LMS Student"]),
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=[{"course": "COURSE-001", "batch": "BATCH-001"}],
+			),
+		):
+			self.assertFalse(has_enem_question_permission(doc, user="aluno@example.com", permission_type="read"))
+
+	def test_blocked_or_pending_student_gets_no_enem_questions(self):
+		with (
+			patch(
+				"bruce_lms_custom.services.student_access.get_active_student_access_records",
+				return_value=[],
+			),
+			patch("bruce_lms_custom.services.student_access.frappe.get_all") as get_all,
+		):
+			frappe.local.flags = frappe._dict(in_test=True)
+			result = get_permitted_enem_questions_for_current_student(limit=5)
 
 		self.assertEqual(result, [])
 		get_all.assert_not_called()

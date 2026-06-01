@@ -274,6 +274,31 @@ Regras importantes:
 - aluno com acesso por curso vê materiais vinculados ao curso;
 - a liberação não depende de curso, turma ou aluno enviados pelo frontend.
 
+### Banco de questões ENEM
+
+Questões ENEM são representadas por `Bruce ENEM Question`, com alternativas na
+tabela filha `Bruce ENEM Question Alternative`.
+
+Permissões esperadas:
+
+| Ação | Root Técnico | Professor | Aluno | Administrador LMS | Integração/Bot |
+| --- | --- | --- | --- | --- | --- |
+| Criar questão | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Editar questão | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Publicar questão | Suporte técnico | Sim, se autorizado | Não | Sim | Não |
+| Listar questão permitida | Não operacional | Não operacional | Sim, se ativo | Suporte | Não |
+| Ver gabarito administrativo | Sim | Sim, se autorizado | Não nesta etapa | Sim | Não |
+| Responder questão | Fora do escopo | Fora do escopo | Fora do escopo | Fora do escopo | Não |
+
+Regras importantes:
+
+- a questão publicada precisa ter enunciado e gabarito;
+- quando publicada, `published_at` é preenchido no backend;
+- alunos só recebem questões publicadas e compatíveis com `Bruce Student Access`;
+- a API inicial de aluno não retorna gabarito nem resolução comentada;
+- esta etapa não implementa simulado completo, tentativa de resposta, nota ou
+  correção do aluno.
+
 ## Integração futura com SaaS financeiro externo
 
 Cobrança, assinatura, funil comercial, blog e newsletter ficam fora do Frappe.

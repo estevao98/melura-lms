@@ -140,6 +140,23 @@ Regras de segurança:
   `LMS Student`;
 - `Pendente`, `Bloqueado` e `Expirado` não liberam materiais.
 
+## Banco de questões ENEM
+
+`Bruce ENEM Question` segue a mesma fonte segura de acesso pedagógico:
+`Bruce Student Access`.
+
+Regras de segurança:
+
+- questões para aluno devem estar publicadas;
+- `published_at` é preenchido no backend quando a questão é publicada;
+- questão publicada precisa ter gabarito cadastrado;
+- a listagem de aluno é feita por API backend, a partir do usuário logado;
+- parâmetros do frontend não podem definir aluno, curso, turma ou escopo de
+  liberação;
+- aluno só recebe questões compatíveis com seu acesso ativo por turma ou curso;
+- a API inicial de aluno não retorna gabarito nem resolução comentada;
+- `Pendente`, `Bloqueado` e `Expirado` não liberam questões.
+
 Integrações futuras com SaaS financeiro externo devem atualizar apenas o status
 pedagógico e referências opacas. Não salvar tokens, dados de cartão, payloads
 financeiros completos ou segredos em `Bruce Student Access`.

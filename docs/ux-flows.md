@@ -149,6 +149,33 @@ Regras de UX:
 - a tela do aluno não escolhe curso, turma ou usuário por parâmetro de frontend;
 - aluno com status `Pendente`, `Bloqueado` ou `Expirado` não vê materiais.
 
+## Fluxo: professor cadastra questão ENEM
+
+1. Professor ou administrador autorizado acessa `Bruce ENEM Question`.
+2. Informa título, disciplina, dificuldade e enunciado.
+3. Classifica a questão por tópico, competência, habilidade, ano e fonte quando
+   esses dados estiverem disponíveis.
+4. Relaciona a questão a curso, turma, aula ao vivo ou material educacional
+   quando fizer sentido para o escopo pedagógico.
+5. Cadastra as alternativas `A` a `E` na tabela de alternativas.
+6. Informa o gabarito ou marca uma única alternativa como correta.
+7. Preenche a resolução comentada quando existir.
+8. Marca `Publicado` quando a questão puder aparecer em listagens futuras do
+   aluno.
+9. Backend preenche `Publicado em` automaticamente quando o campo ainda estiver
+   vazio.
+
+Regras de UX:
+
+- todos os rótulos aparecem em português brasileiro;
+- questão precisa ter enunciado;
+- questão publicada precisa ter gabarito;
+- a tela administrativa inicial é a lista/formulário padrão do DocType;
+- aluno não possui tela complexa de resposta nesta etapa;
+- a API inicial de aluno lista apenas questões publicadas e permitidas, sem
+  retornar gabarito ou resolução comentada;
+- aluno com status `Pendente`, `Bloqueado` ou `Expirado` não vê questões.
+
 ## Fluxo futuro: SaaS financeiro libera ou bloqueia acesso pedagógico
 
 1. SaaS externo processa cobrança, assinatura ou regra comercial fora do Frappe.

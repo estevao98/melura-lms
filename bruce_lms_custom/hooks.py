@@ -130,11 +130,15 @@ permission_query_conditions = {
 	"Bruce Educational Material": (
 		"bruce_lms_custom.services.student_access.get_educational_material_permission_query_conditions"
 	),
+	"Bruce ENEM Question": (
+		"bruce_lms_custom.services.student_access.get_enem_question_permission_query_conditions"
+	),
 }
 
 has_permission = {
 	"Bruce Live Class": "bruce_lms_custom.services.student_access.has_live_class_permission",
 	"Bruce Educational Material": "bruce_lms_custom.services.student_access.has_educational_material_permission",
+	"Bruce ENEM Question": "bruce_lms_custom.services.student_access.has_enem_question_permission",
 }
 
 # DocType Class
