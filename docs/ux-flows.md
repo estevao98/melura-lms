@@ -97,18 +97,46 @@ Estados de tela:
 Nesta etapa, o aluno possui a página Desk `Minha Aula`, disponível pela rota
 `/app/minha-aula`.
 
-A tela mostra a primeira `Bruce Live Class` visível para o usuário, priorizando
-aula `Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro.
-Ela exibe título, curso, turma, data e horário, status da aula e ações
-`Entrar na aula` e `Copiar link`.
+A tela valida o aluno logado no backend e mostra a primeira `Bruce Live Class`
+permitida pelo status pedagógico e pelo vínculo de curso/turma, priorizando aula
+`Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro. Ela
+exibe título, curso, turma, data e horário, status da aula e ações `Entrar na
+aula` e `Copiar link`.
+
+O status de acesso do aluno é controlado em `Bruce Student Access`:
+
+- `Pendente`: não libera aula e orienta contato/aguardo;
+- `Ativo`: libera apenas aulas da turma ou curso configurados;
+- `Bloqueado`: não libera aula;
+- `Expirado`: não libera aula.
 
 Quando não houver aula ao vivo ou agendada, a tela mostra um aviso simples em
 português brasileiro.
 
 Esta é uma versão inicial segura: ela não envia WhatsApp, não chama automações,
-não expõe API key no frontend e não altera o core do LMS. O filtro refinado por
-matrícula/turma do aluno ainda será implementado depois, quando a relação real
-entre `LMS Student`, `LMS Batch` e matrícula estiver consolidada para o produto.
+não expõe API key no frontend, não confia em parâmetros enviados pelo navegador
+e não altera o core do LMS. A relação com `LMS Batch Enrollment` e
+`LMS Enrollment` será refinada depois; nesta etapa, a fonte de liberação é
+`Bruce Student Access`, preparada para sincronização futura com o SaaS
+financeiro externo.
+
+## Fluxo futuro: SaaS financeiro libera ou bloqueia acesso pedagógico
+
+1. SaaS externo processa cobrança, assinatura ou regra comercial fora do Frappe.
+2. SaaS chama integração backend protegida do Frappe.
+3. Backend identifica o aluno pelo usuário/e-mail e localiza o curso/turma.
+4. Backend cria ou atualiza `Bruce Student Access`.
+5. O LMS passa a liberar ou bloquear apenas acesso pedagógico.
+6. A página `Minha Aula` reflete o status atualizado sem receber detalhes
+   financeiros.
+
+Regras de UX:
+
+- não mostrar termos de cobrança dentro do LMS;
+- mensagens para aluno devem ser simples e em português brasileiro;
+- falhas de integração devem aparecer para operação, não para o aluno final;
+- suporte deve conseguir ver o status pedagógico sem acessar segredos ou dados
+  financeiros sensíveis.
 
 ## Fluxo: envio manual de link por WhatsApp
 

@@ -26,7 +26,7 @@ class BruceStudentDashboard {
 				method: "bruce_lms_custom.bruce_lms_custom.page.minha_aula.minha_aula.get_student_dashboard_data",
 				callback: (response) => {
 					const dashboardData = response.message || {};
-					this.render_dashboard(dashboardData.next_live_class);
+					this.render_dashboard(dashboardData);
 				},
 			});
 	}
@@ -39,9 +39,10 @@ class BruceStudentDashboard {
 		`);
 	}
 
-	render_dashboard(liveClass) {
+	render_dashboard(dashboardData) {
+		const liveClass = dashboardData.next_live_class;
 		this.container.html(`
-			${liveClass ? this.render_next_live_class(liveClass) : this.render_empty_state()}
+			${liveClass ? this.render_next_live_class(liveClass) : this.render_empty_state(dashboardData)}
 		`);
 
 		if (liveClass) {
@@ -49,12 +50,20 @@ class BruceStudentDashboard {
 		}
 	}
 
-	render_empty_state() {
+	render_empty_state(dashboardData) {
+		const accessStatus = this.clean(dashboardData.access_status);
+		const studentFilterNote = this.clean(dashboardData.student_filter_note)
+			|| __("Quando houver uma aula ao vivo disponível, ela aparecerá aqui.");
+		const title = dashboardData.student_is_active
+			? __("Nenhuma aula agendada no momento.")
+			: __("Acesso não liberado.");
+
 		return `
 			<div class="bruce-student-dashboard__panel">
 				<div class="text-muted">${this.escape_html(__("Próxima aula ao vivo"))}</div>
-				<h3>${this.escape_html(__("Nenhuma aula agendada no momento."))}</h3>
-				<p class="text-muted">${this.escape_html(__("Quando houver uma aula ao vivo disponível, ela aparecerá aqui."))}</p>
+				<h3>${this.escape_html(title)}</h3>
+				${accessStatus ? `<p><span class="indicator-pill ${this.get_access_status_indicator(accessStatus)}">${this.escape_html(accessStatus)}</span></p>` : ""}
+				<p class="text-muted">${this.escape_html(studentFilterNote)}</p>
 			</div>
 		`;
 	}
@@ -192,6 +201,22 @@ class BruceStudentDashboard {
 
 		if (status === "Agendada") {
 			return "blue";
+		}
+
+		return "gray";
+	}
+
+	get_access_status_indicator(status) {
+		if (status === "Ativo") {
+			return "green";
+		}
+
+		if (status === "Pendente") {
+			return "orange";
+		}
+
+		if (status === "Bloqueado" || status === "Expirado") {
+			return "red";
 		}
 
 		return "gray";

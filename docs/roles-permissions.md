@@ -139,14 +139,22 @@ Implementação atual:
 
 - a página Desk `Minha Aula` (`/app/minha-aula`) está liberada para o papel
   `LMS Student`;
-- a tela consulta somente a próxima `Bruce Live Class` ativa ou agendada visível
-  pelas permissões do usuário;
+- a tela consulta somente a próxima `Bruce Live Class` ativa ou agendada
+  permitida ao aluno logado no backend;
+- o status pedagógico do aluno é representado em `Bruce Student Access` como
+  `Pendente`, `Ativo`, `Bloqueado` ou `Expirado`;
+- somente `Ativo`, dentro do período configurado, libera aulas;
+- a liberação é escopada por `LMS Batch` quando a turma estiver preenchida ou
+  por `LMS Course` quando houver apenas curso;
 - a ação do aluno é restrita a abrir o link da aula já salvo ou copiar esse
   link;
 - a tela não inicia aula, não agenda aula, não envia WhatsApp, não consulta logs
   e não expõe configurações sensíveis;
-- o filtro por vínculo real de matrícula/turma ainda será refinado em etapa
-  posterior.
+- `Bruce Live Class` possui permissões scripted na app customizada para que
+  `LMS Student` não leia aulas fora do seu escopo;
+- a relação com `LMS Batch Enrollment` e `LMS Enrollment` ainda será refinada
+  depois. Nesta etapa, a fonte segura de liberação é `Bruce Student Access`,
+  preparada para ser atualizada por integração externa.
 
 ### Administrador LMS
 
@@ -231,9 +239,28 @@ Permissões esperadas:
 Regras importantes:
 
 - o `roomName` deve ser gerado no backend, de forma única e não previsível;
-- o aluno só entra na aula se tiver matrícula válida e a aula estiver disponível;
+- o aluno só entra na aula se tiver acesso pedagógico `Ativo`, escopo compatível
+  de turma/curso e aula disponível;
 - o professor só inicia aula em turma ou curso sob sua responsabilidade;
 - ações de iniciar, cancelar ou encerrar aula devem ser auditáveis.
+
+## Integração futura com SaaS financeiro externo
+
+Cobrança, assinatura, funil comercial, blog e newsletter ficam fora do Frappe.
+O SaaS externo deve enviar ao Frappe apenas eventos necessários para liberar ou
+bloquear acesso pedagógico.
+
+Contrato esperado em alto nível:
+
+- identificar o aluno pelo usuário/e-mail já existente no Frappe;
+- informar curso e, preferencialmente, turma;
+- atualizar `Bruce Student Access.access_status` para `Pendente`, `Ativo`,
+  `Bloqueado` ou `Expirado`;
+- preencher `external_reference` com uma referência opaca e não sensível;
+- não enviar API keys, tokens, dados de cartão ou payloads financeiros completos.
+
+Até essa integração existir, a operação pode cadastrar ou ajustar
+`Bruce Student Access` manualmente por usuário autorizado.
 
 ### Logs de WhatsApp
 

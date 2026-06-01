@@ -4,28 +4,27 @@
 import frappe
 from frappe.utils import now_datetime
 
-
-LIVE_CLASS_FIELDS = [
-	"name",
-	"title",
-	"course",
-	"batch",
-	"starts_at",
-	"status",
-	"meeting_url",
-]
+from bruce_lms_custom.services.student_access import (
+	ACCESS_ACTIVE,
+	LIVE_CLASS_VISIBLE_STATUSES,
+	get_current_student_access_status,
+	get_permitted_live_classes_for_current_student,
+	is_current_student_active,
+)
 
 
 @frappe.whitelist()
 def get_student_dashboard_data():
-	"""Return the first live or scheduled class visible to the current student."""
+	"""Return the first live or scheduled class allowed for the current student."""
+	access_status = get_current_student_access_status()
+	student_is_active = is_current_student_active()
+
 	return {
-		"next_live_class": _get_next_visible_live_class(),
-		"student_filter_enabled": False,
-		"student_filter_note": (
-			"Versão inicial: lista a próxima Bruce Live Class ativa ou agendada "
-			"visível para o usuário. O filtro por matrícula/turma será refinado depois."
-		),
+		"access_status": access_status,
+		"student_is_active": student_is_active,
+		"next_live_class": _get_next_visible_live_class() if student_is_active else None,
+		"student_filter_enabled": True,
+		"student_filter_note": _get_student_filter_note(access_status),
 	}
 
 
@@ -43,12 +42,12 @@ def _get_next_visible_live_class():
 
 
 def _get_first_visible_live_class(filters):
-	classes = frappe.get_list(
-		"Bruce Live Class",
-		filters=filters,
-		fields=LIVE_CLASS_FIELDS,
-		order_by="starts_at asc",
-		limit_page_length=1,
+	status = filters.get("status")
+	starts_from = filters.get("starts_at", [None, None])[1] if isinstance(filters.get("starts_at"), list) else None
+	classes = get_permitted_live_classes_for_current_student(
+		statuses=(status,) if status else LIVE_CLASS_VISIBLE_STATUSES,
+		starts_from=starts_from,
+		limit=1,
 	)
 
 	if not classes:
@@ -82,3 +81,16 @@ def _get_class_status_label(status):
 		return "Aula agendada"
 
 	return status or "Sem status"
+
+
+def _get_student_filter_note(access_status):
+	if access_status == ACCESS_ACTIVE:
+		return "Seu acesso está ativo. Mostramos apenas aulas vinculadas ao seu curso ou turma."
+
+	if access_status == "Bloqueado":
+		return "Seu acesso está bloqueado. Entre em contato com o suporte."
+
+	if access_status == "Expirado":
+		return "Seu acesso expirou. Entre em contato com o suporte."
+
+	return "Seu acesso ainda está pendente. As aulas serão liberadas quando seu cadastro estiver ativo."

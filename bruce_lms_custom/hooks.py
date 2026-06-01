@@ -125,6 +125,14 @@ app_license = "mit"
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
+permission_query_conditions = {
+	"Bruce Live Class": "bruce_lms_custom.services.student_access.get_live_class_permission_query_conditions",
+}
+
+has_permission = {
+	"Bruce Live Class": "bruce_lms_custom.services.student_access.has_live_class_permission",
+}
+
 # DocType Class
 # ---------------
 # Override standard doctype classes
@@ -246,4 +254,3 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

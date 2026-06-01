@@ -97,6 +97,37 @@ Ações críticas devem validar permissão no backend:
 - consultar logs detalhados;
 - alterar configurações de integração.
 
+## Onboarding e acesso pedagógico de alunos
+
+O Frappe LMS não deve implementar cobrança, assinatura, captação, blog,
+newsletter ou CRM. Esses fluxos pertencem ao SaaS externo definido para a
+operação financeira/comercial.
+
+Dentro do Frappe, o acesso pedagógico do aluno é controlado pela camada
+customizada `Bruce Student Access`, com os status:
+
+- `Pendente`;
+- `Ativo`;
+- `Bloqueado`;
+- `Expirado`.
+
+Regras de segurança:
+
+- páginas customizadas do aluno devem validar o usuário logado no backend;
+- aluno só pode ver aulas vinculadas ao curso ou turma liberados em
+  `Bruce Student Access`;
+- parâmetros vindos do frontend não podem definir aluno, turma, curso ou
+  escopo de acesso;
+- `Bruce Live Class` usa permissões scripted para impedir leitura ampla por
+  `LMS Student`;
+- o link Jitsi só deve ser retornado por APIs que validem status ativo e vínculo
+  pedagógico;
+- `Pendente`, `Bloqueado` e `Expirado` não liberam aula.
+
+Integrações futuras com SaaS financeiro externo devem atualizar apenas o status
+pedagógico e referências opacas. Não salvar tokens, dados de cartão, payloads
+financeiros completos ou segredos em `Bruce Student Access`.
+
 ## Logs
 
 Logs devem ajudar na auditoria operacional sem virar depósito de dados sensíveis.
