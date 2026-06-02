@@ -2,6 +2,7 @@
 # For license information, please see LICENSE
 
 import frappe
+from frappe import _
 from frappe.utils import add_to_date, now_datetime
 
 from zuno_lms.services.student_access import get_progress_summary_for_scope
@@ -26,23 +27,53 @@ LIVE_CLASS_FIELDS = [
 	"whatsapp_status",
 	"meeting_url",
 ]
+PROFESSOR_DASHBOARD_ROLES = {
+	"System Manager",
+	"Moderator",
+	"Batch Evaluator",
+	"Course Creator",
+	"Professor",
+	"Administrador LMS",
+	"LMS Admin",
+}
 
 
 @frappe.whitelist()
 def get_next_live_class():
 	"""Return the current live class, or the next scheduled class visible to the user."""
+	_assert_can_access_professor_dashboard()
 	return _get_next_live_class()
 
 
 @frappe.whitelist()
 def get_dashboard_data():
 	"""Return the data shown in the professor dashboard."""
+	_assert_can_access_professor_dashboard()
 	next_live_class = _get_next_live_class()
 	return {
 		"next_live_class": next_live_class,
 		"week_classes": _get_week_live_classes(),
 		"class_progress": _get_class_progress_summary(next_live_class),
 	}
+
+
+def _assert_can_access_professor_dashboard(user=None):
+	user = user or frappe.session.user
+	if _can_access_professor_dashboard(user):
+		return
+
+	frappe.throw(_("Você não tem permissão para acessar o Painel do Professor."), frappe.PermissionError)
+
+
+def _can_access_professor_dashboard(user=None):
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return True
+
+	if not user or user == "Guest":
+		return False
+
+	return bool(set(frappe.get_roles(user)) & PROFESSOR_DASHBOARD_ROLES)
 
 
 def _get_next_live_class():

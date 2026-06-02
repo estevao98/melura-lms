@@ -19,6 +19,7 @@ from zuno_lms.services.whatsapp import (
 	get_live_class_batch_recipient_candidates,
 	get_live_class_recipients,
 	normalize_phone,
+	redact_sensitive_values,
 	send_evolution_test_message,
 	send_live_class_link_for_doc,
 	validate_evolution_configuration,
@@ -264,6 +265,28 @@ class TestWhatsAppService(unittest.TestCase):
 		self.assertTrue(result["valid"])
 		self.assertEqual(result["status"], CONFIG_STATUS_VALID)
 		self.assertNotIn("secret-value", result["message"])
+
+	def test_provider_response_redaction_removes_nested_secrets(self):
+		response = {
+			"ok": True,
+			"apikey": "secret-api-key",
+			"nested": {
+				"Authorization": "Bearer secret-token",
+				"items": [
+					{"token": "secret-token"},
+					{"safe": "value"},
+				],
+			},
+		}
+
+		result = redact_sensitive_values(response)
+
+		self.assertEqual(result["apikey"], "***")
+		self.assertEqual(result["nested"]["Authorization"], "***")
+		self.assertEqual(result["nested"]["items"][0]["token"], "***")
+		self.assertEqual(result["nested"]["items"][1]["safe"], "value")
+		self.assertNotIn("secret-api-key", str(result))
+		self.assertNotIn("secret-token", str(result))
 
 	def test_disabled_settings_registers_failed_log_without_external_call(self):
 		live_class = self.make_live_class()

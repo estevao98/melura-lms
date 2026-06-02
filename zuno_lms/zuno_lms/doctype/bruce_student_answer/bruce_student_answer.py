@@ -10,6 +10,8 @@ from frappe.utils import now_datetime
 class BruceStudentAnswer(Document):
 	def validate(self):
 		self._validate_required_fields()
+		self._normalize_selected_option()
+		self._compute_correctness()
 		if not self.answered_at:
 			self.answered_at = now_datetime()
 
@@ -25,3 +27,15 @@ class BruceStudentAnswer(Document):
 
 		if not self.selected_option:
 			frappe.throw(_("Selecione uma alternativa."))
+
+	def _normalize_selected_option(self):
+		self.selected_option = str(self.selected_option or "").strip().upper()
+		if self.selected_option not in {"A", "B", "C", "D", "E"}:
+			frappe.throw(_("Alternativa inválida."))
+
+	def _compute_correctness(self):
+		correct_option = frappe.db.get_value("Bruce ENEM Question", self.question, "correct_option")
+		if not correct_option:
+			frappe.throw(_("A questão ainda não possui gabarito cadastrado."))
+
+		self.is_correct = self.selected_option == str(correct_option).strip().upper()

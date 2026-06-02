@@ -9,6 +9,7 @@ import frappe
 from zuno_lms.services.student_access import (
 	ACCESS_ACTIVE,
 	ACCESS_BLOCKED,
+	ACCESS_EXPIRED,
 	ACCESS_PENDING,
 	can_current_student_access_live_class,
 	get_permitted_educational_materials_for_current_student,
@@ -80,6 +81,27 @@ class TestStudentAccess(unittest.TestCase):
 		):
 			self.assertFalse(is_current_student_active())
 			self.assertEqual(get_current_student_access_status(), ACCESS_BLOCKED)
+
+	def test_expired_student_access_is_not_active(self):
+		records = [
+			frappe._dict(
+				name="BSA-2026-00001",
+				student="aluno@example.com",
+				access_status=ACCESS_ACTIVE,
+				course="COURSE-001",
+				batch="BATCH-001",
+				starts_on="2026-01-01",
+				expires_on="2026-05-31",
+			)
+		]
+
+		with (
+			patch("zuno_lms.services.student_access.frappe.session", Mock(user="aluno@example.com")),
+			patch("zuno_lms.services.student_access.frappe.get_all", return_value=records),
+			patch("zuno_lms.services.student_access.today", return_value="2026-06-01"),
+		):
+			self.assertFalse(is_current_student_active())
+			self.assertEqual(get_current_student_access_status(), ACCESS_EXPIRED)
 
 	def test_current_student_can_access_live_class_only_inside_active_batch_scope(self):
 		access_records = [
@@ -558,6 +580,27 @@ class TestStudentAccess(unittest.TestCase):
 
 		self.assertFalse(result["is_correct"])
 		answer_doc.insert.assert_called_once_with(ignore_permissions=True)
+
+	def test_student_answer_submission_does_not_accept_frontend_student_user_parameter(self):
+		with self.assertRaises(TypeError):
+			save_student_answer(
+				"BEL-2026-00001",
+				"BEQ-2026-00001",
+				"A",
+				student_user="outro-aluno@example.com",
+			)
+
+	def test_inactive_student_cannot_save_answer_before_content_lookup(self):
+		with (
+			patch("zuno_lms.services.student_access.is_current_student_active", return_value=False),
+			patch("zuno_lms.services.student_access.frappe.throw", side_effect=frappe.PermissionError),
+			patch("zuno_lms.services.student_access._", side_effect=lambda value: value),
+			patch("zuno_lms.services.student_access.frappe.get_doc") as get_doc,
+		):
+			with self.assertRaises(frappe.PermissionError):
+				save_student_answer("BEL-2026-00001", "BEQ-2026-00001", "A")
+
+		get_doc.assert_not_called()
 
 	def test_active_student_progress_uses_only_current_student(self):
 		access_records = [

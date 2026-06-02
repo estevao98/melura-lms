@@ -106,6 +106,16 @@ Limites:
 - não acessa turmas fora de sua responsabilidade sem permissão explícita;
 - não altera dados financeiros nem administra o sistema como um todo.
 
+Implementação atual:
+
+- os métodos backend do `Painel do Professor` rejeitam `Guest` e `LMS Student`
+  antes de retornar aulas, logs de aviso ou progresso;
+- o acesso ao painel é permitido para papéis acadêmicos/operacionais
+  autorizados, como `Professor`, `Batch Evaluator`, `Course Creator`,
+  `Moderator`, `Administrador LMS`, `LMS Admin` e `System Manager`;
+- a visibilidade detalhada de aulas ainda depende das permissões de lista do
+  Frappe e deve ser validada em ambiente com papéis reais antes da produção.
+
 ### Aluno
 
 Papel humano responsável por consumir conteúdos, aulas e avisos do curso.

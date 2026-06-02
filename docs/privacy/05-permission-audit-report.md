@@ -126,9 +126,10 @@ Child table sensitivity:
 - Operational dashboard aggregates student access counts, content counts,
   answer counts, average accuracy, and inactive active students after explicit
   role validation.
-- Professor dashboard returns next/week live classes through Frappe list
-  permission and uses a progress helper that returns data only for progress
-  manager roles.
+- Professor dashboard rejects guests and normal students through an explicit
+  backend role check before returning next/week live classes, notice logs, or
+  class progress. Class visibility still uses Frappe list permissions and the
+  progress helper still returns data only for progress manager roles.
 - Starting a live class calls `doc.check_permission("write")` before changing
   status to `Ao vivo`.
 - WhatsApp preview/send loads the live class and calls
@@ -141,10 +142,10 @@ Child table sensitivity:
 
 ## Permission Risks Found
 
-- `bruce-professor-dashboard` currently relies on Frappe list permissions for
-  class visibility rather than an explicit instructor-scope check in the page
-  controller. This may be acceptable if DocType permissions are configured
-  correctly, but it needs integration tests against a real site role setup.
+- `bruce-professor-dashboard` now has an explicit backend role gate for page
+  methods. It still relies on Frappe list permissions for detailed class
+  visibility rather than a custom instructor-scope filter in the page
+  controller, so it needs integration tests against a real site role setup.
 - `Bruce Educational Material` and `Bruce Exercise List` grant read permission
   to `LMS Student`; the permission hooks restrict records, but field-level
   exposure in Desk list/form views should be manually verified.
@@ -159,13 +160,14 @@ Child table sensitivity:
   Confirm that notice messages never include secrets or excessive personal data.
 - `Bruce Student Access.notes` can become a privacy risk if operators paste
   financial/commercial payloads, sensitive context, or support transcripts.
+- Direct `Bruce Student Answer` writes now recompute `is_correct` on validation
+  from the linked question's `correct_option`. This avoids trusting caller
+  supplied correctness, including backend/API writes that bypass the student
+  page service.
 - Future external SaaS webhook is not implemented yet. Webhook spoofing,
   overbroad payloads, and unverified access activation remain future risks.
 - Backup, framework log, file storage, and production infrastructure retention
   were not audited in code because they are outside this app folder.
-
-No serious small permission bug was found that was safe to fix in this feature
-without changing behavior or role architecture.
 
 ## Tests Already Existing
 
@@ -198,21 +200,31 @@ Priority coverage already present:
 
 ## Tests Added Or Changed In This Feature
 
-No tests were added or changed. The current test pattern already covers the
-highest-priority risks requested for this audit, and no narrow behavior fix was
-made.
+- `zuno_lms/zuno_lms/page/bruce_professor_dashboard/test_bruce_professor_dashboard.py`
+  now covers that `LMS Student` cannot call professor dashboard data methods
+  and that `Professor` is an allowed backend role.
+- `zuno_lms/services/test_student_access.py` now covers expired access records,
+  inactive answer submission blocking before protected content lookup, and the
+  fact that `save_student_answer` does not accept frontend `student_user`.
+- `zuno_lms/zuno_lms/doctype/bruce_student_answer/test_bruce_student_answer.py`
+  covers DocType-level server-computed answer correctness and rejection when
+  the linked question has no answer key.
+- `zuno_lms/services/test_whatsapp.py` now covers nested provider response
+  redaction for API keys, authorization headers, and tokens.
 
 ## Recommended Next Tests
 
-- Expired access windows specifically for materials, questions, lists, answers,
-  progress, and live-room context.
-- Direct student calls to `save_student_answer` when access is `Pendente`,
-  `Bloqueado`, and `Expirado`.
+- Expired access windows specifically for materials, questions, lists,
+  progress, and live-room context beyond the added access-status unit coverage.
+- Direct student calls to `save_student_answer` for each explicit inactive
+  status value (`Pendente`, `Bloqueado`, and `Expirado`) in a real Frappe site
+  permission context.
 - Student direct Desk read/list/form access for `Bruce Live Class`,
   `Bruce Educational Material`, `Bruce ENEM Question`, and `Bruce Exercise
   List` in a real Frappe site.
 - Professor dashboard class scope with real instructor and non-instructor users.
-- Provider response redaction for nested secrets and mixed-case sensitive keys.
+- Provider response redaction for broader mixed-case sensitive key aliases
+  beyond the nested API key, authorization, and token cases now covered.
 - Operational admin role matrix for each allowed admin role.
 - Future external SaaS webhook invalid signature, replay/idempotency, forbidden
   payload fields, and no financial payload persistence.

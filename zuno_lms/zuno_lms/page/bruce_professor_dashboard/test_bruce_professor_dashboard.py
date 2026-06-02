@@ -8,6 +8,7 @@ import frappe
 
 from zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard import (
 	WHATSAPP_INTEGRATION_DISABLED_LABEL,
+	_can_access_professor_dashboard,
 	_get_class_status_label,
 	_get_class_progress_summary,
 	_get_link_title,
@@ -15,6 +16,7 @@ from zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard 
 	_get_week_live_classes,
 	_get_whatsapp_status_label,
 	get_dashboard_data,
+	get_next_live_class,
 )
 
 
@@ -151,6 +153,9 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 
 		with (
 			patch(
+				"zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard._assert_can_access_professor_dashboard"
+			) as assert_can_access_professor_dashboard,
+			patch(
 				"zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard._get_next_live_class",
 				return_value={"name": "BLC-2026-00001"},
 			) as get_next_live_class,
@@ -169,9 +174,47 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertEqual(result["week_classes"], [{"name": "BLC-2026-00002"}])
 		self.assertEqual(result["class_progress"], {"total_students": 1, "students": [{"student": "aluno@example.com"}]})
 		self.assertNotIn("week_live_classes", result)
+		assert_can_access_professor_dashboard.assert_called_once_with()
 		get_next_live_class.assert_called_once_with()
 		get_week_live_classes.assert_called_once_with()
 		get_class_progress_summary.assert_called_once_with({"name": "BLC-2026-00001"})
+
+	def test_lms_student_cannot_access_professor_dashboard_data(self):
+		frappe.local.session = frappe._dict(user="student@example.com")
+
+		with (
+			patch(
+				"zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_roles",
+				return_value=["LMS Student"],
+			),
+			patch(
+				"zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.throw",
+				side_effect=frappe.PermissionError,
+			),
+			patch(
+				"zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard._",
+				side_effect=lambda message: message,
+			),
+			patch(
+				"zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard._get_next_live_class"
+			) as get_next_internal,
+		):
+			self.assertFalse(_can_access_professor_dashboard())
+			with self.assertRaises(frappe.PermissionError):
+				get_dashboard_data()
+			with self.assertRaises(frappe.PermissionError):
+				get_next_live_class()
+
+		get_next_internal.assert_not_called()
+
+	def test_professor_role_can_access_professor_dashboard_data(self):
+		frappe.local.session = frappe._dict(user="professor@example.com")
+
+		with patch(
+			"zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.get_roles",
+			return_value=["Professor"],
+		):
+			self.assertTrue(_can_access_professor_dashboard())
 
 	def test_get_class_progress_summary_uses_live_class_batch_and_course(self):
 		live_class = {"name": "BLC-2026-00001", "course": "COURSE-001", "batch": "BATCH-001"}

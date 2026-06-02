@@ -35,6 +35,21 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Integração/Bot tem escopo mínimo para automações.
 - Ações críticas bloqueiam usuário sem permissão mesmo se a chamada for feita diretamente à API.
 
+## Permission hardening validation
+
+- Direct API calls to `bruce-professor-dashboard` reject `LMS Student` and
+  `Guest` users before returning live class, notice log, or progress data.
+- Student-facing methods derive the student from `frappe.session.user`; calls
+  must not accept `student_user`, `user`, `email`, `student`, or `owner` as
+  authorization scope.
+- `Pendente`, `Bloqueado`, `Expirado`, expired windows, and missing access do
+  not unlock classes, materials, exercise lists, answers, progress, or live
+  room context.
+- `Bruce Student Answer.is_correct` is recomputed on the backend from the
+  linked question answer key, including direct document writes.
+- WhatsApp preview/send/test responses and logs do not expose API keys, tokens,
+  authorization headers, webhook secrets, or raw provider secret values.
+
 ## Aula ao vivo com Jitsi
 
 - Criar aula vinculada a curso ou turma.
