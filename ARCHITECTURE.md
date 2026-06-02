@@ -1,156 +1,331 @@
-# Arquitetura do bruce_lms_custom
+# Architecture — Zuno / bruce_lms_custom
 
-## Visão geral
+## 1. System Overview
 
-O `bruce_lms_custom` customiza o Frappe LMS para um curso online de Ciências Humanas/ENEM do professor Bruce. A arquitetura parte de um Frappe LMS limpo, sem alterações diretas em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`, e concentra regras, telas, integrações e documentação dentro desta app customizada.
+Zuno is a focused education platform layer built on top of Frappe LMS for
+Professor Bruce's ENEM / Ciências Humanas course context.
+`bruce_lms_custom` is the custom Frappe app that contains the
+project-specific LMS behavior.
 
-O produto final deve oferecer uma experiência simples em português brasileiro para:
+The system supports students, Professor Bruce, and operational/admin users. It
+handles pedagogical operations: live classes, access control, educational
+materials, ENEM questions, exercise lists, student answers, progress,
+dashboards, and communication preparation.
 
-- alunos acessarem conteúdos, aulas ao vivo e links importantes;
-- professor iniciar aulas, acompanhar turmas e reenviar comunicações sem depender de operação técnica;
-- administração visualizar KPIs básicos do LMS sem transformar o LMS em uma secretaria financeira completa.
+Financial and commercial operations are outside this repository.
 
-## Princípios
+## 2. Architecture Goals
 
-- Manter o Frappe LMS como base limpa e atualizável.
-- Implementar extensões por app customizada, usando hooks, permissões, páginas, componentes e DocTypes próprios quando necessário.
-- Usar Frappe UI sempre que possível nas interfaces.
-- Não expor credenciais, tokens ou API keys no frontend.
-- Manter todos os textos da interface final em português brasileiro.
-- Separar responsabilidades acadêmicas, comunicação e indicadores básicos do LMS das rotinas financeiras completas.
+- Preserve upgradeability of Frappe and Frappe LMS.
+- Keep custom logic isolated in `bruce_lms_custom`.
+- Enforce backend permissions for sensitive behavior.
+- Keep the student experience simple.
+- Keep teacher/admin workflows operationally clear.
+- Keep user-facing UI in Brazilian Portuguese.
+- Protect secrets and student data.
+- Prepare for production without premature complexity.
 
-## Componentes principais
+## 3. High-Level Architecture
 
-### Frappe Framework
+```mermaid
+flowchart TD
+  Student[Student] --> LMS[Frappe LMS]
+  Teacher[Teacher] --> LMS
+  Admin[Operational Admin] --> LMS
+  LMS --> CustomApp[bruce_lms_custom]
+  CustomApp --> Access[Bruce Student Access]
+  CustomApp --> Content[Materials, Questions, Lists, Answers, Progress]
+  CustomApp --> Jitsi[Jitsi Live Classes]
+  CustomApp --> WhatsApp[Evolution API / n8n]
+  ExternalSaaS[External Financial SaaS] -. future access status only .-> Access
+```
 
-Responsável por autenticação, permissões, ORM, DocTypes, jobs em background, APIs internas, scheduler, logs e configuração por site.
+Frappe LMS remains the LMS base. `bruce_lms_custom` adds the
+project-specific layer through Frappe extension points, custom DocTypes, pages,
+backend methods, hooks, fixtures, patches, and scoped assets.
 
-Configurações sensíveis devem ficar em variáveis de ambiente ou `site_config.json`, nunca em código versionado.
+Integrations must be accessed through controlled backend logic or protected
+flows. A future external financial SaaS may update pedagogical access status,
+but billing logic must not move into this app.
 
-### Frappe LMS
+## 4. Repository Boundary
 
-Permanece como a base de cursos, aulas, matrículas, progresso e experiência de aprendizagem. O projeto deve preferir configurações, extensões e pontos de integração do LMS antes de qualquer alteração em core.
+Inside this app:
 
-### bruce_lms_custom
+- pedagogical access;
+- live classes;
+- student pages;
+- teacher dashboard;
+- operational dashboard;
+- educational materials;
+- ENEM questions;
+- exercise lists;
+- student answers;
+- student progress;
+- WhatsApp notification preparation and logs.
 
-Camada de customização do projeto. Deve conter:
+Outside this app:
 
-- DocTypes customizados para aulas ao vivo, logs de envio e configurações operacionais;
-- hooks para conectar eventos do LMS às rotinas customizadas;
-- páginas e componentes específicos do professor e da administração;
-- APIs backend para Jitsi, WhatsApp e KPIs;
-- documentação funcional e técnica do projeto.
+- checkout;
+- subscription billing;
+- CRM;
+- lead capture;
+- blog/newsletter;
+- fiscal/accounting;
+- banking reconciliation;
+- full financial secretary workflows.
+
+## 5. Technical Stack
+
+- Frappe Framework.
+- Frappe LMS / Frappe Learning.
+- Python backend.
+- Frappe DocTypes.
+- Frappe Desk/pages.
+- Frappe UI where applicable.
+- Jitsi for live classes.
+- Evolution API / n8n for WhatsApp preparation.
+- MariaDB, Redis, and Frappe Bench as part of the Frappe environment.
+
+## 6. Custom App Structure
+
+`bruce_lms_custom` is the customization layer. Custom DocTypes, pages,
+whitelisted methods, hooks, fixtures, patches, and assets should live in this
+app.
+
+Core apps must remain untouched: do not modify Frappe, Frappe LMS, Frappe UI,
+or Jitsi core directly.
+
+Before adding new code, search existing patterns in `bruce_lms_custom` and
+extend them when they fit.
+
+## 7. Core Domains
+
+- Student Access: controls pedagogical access through `Bruce Student Access`.
+- Live Classes: represents scheduled, live, ended, or canceled Jitsi classes.
+- Student Home / "Minha Aula": gives students one simple entry point for class,
+  materials, exercise lists, and progress.
+- Educational Materials: manages published or internal learning resources.
+- ENEM Question Bank: stores classified ENEM questions and answer metadata.
+- Exercise Lists: groups published questions for student practice.
+- Student Answers: records answers for the authenticated student and computes
+  correctness server-side.
+- Student Progress: calculates simple progress metrics from allowed lists and
+  answers.
+- Teacher Dashboard: supports class operation, live-room access, and recent
+  class actions.
+- Operational Dashboard: shows pedagogical operation health for authorized
+  admins.
+- WhatsApp / Evolution / n8n preparation: prepares, previews, sends where
+  configured, and records communication attempts through protected flows.
+- Logs and operational history: preserves class notices, send attempts, status,
+  timestamps, and short error summaries without exposing secrets.
+
+## 8. Data Model Summary
+
+| Domain | Main DocType / Entity | Responsibility |
+| ------ | --------------------- | -------------- |
+| Student Access | Bruce Student Access | Stores pedagogical access status, student, course/batch scope, access window, and opaque external reference. |
+| Live Classes | Bruce Live Class | Stores class metadata, LMS scope, instructor, Jitsi room data, status, and WhatsApp status. |
+| Educational Materials | Bruce Educational Material | Stores learning materials, publication state, visibility, file/reference, and LMS scope. |
+| ENEM Question Bank | Bruce ENEM Question | Stores ENEM question content, classification, answer key, resolution metadata, publication state, and LMS scope. |
+| ENEM Alternatives | Bruce ENEM Question Alternative | Stores alternatives for ENEM questions. |
+| Exercise Lists | Bruce Exercise List | Stores published exercise lists, LMS scope, related content, and publication state. |
+| Exercise List Items | Bruce Exercise List Item | Links questions to exercise lists with ordering and optional points. |
+| Student Answers | Bruce Student Answer | Stores the logged-in student's selected answer and server-computed correctness. |
+| Jitsi Settings | Bruce Jitsi Settings | Stores non-sensitive Jitsi operational settings such as domain and room prefix. |
+| WhatsApp Settings | Bruce Evolution Settings | Stores non-sensitive provider configuration and references to secrets kept outside Git/frontend. |
+| WhatsApp Templates | Bruce WhatsApp Message Template | Stores Brazilian Portuguese WhatsApp message templates. |
+| WhatsApp Logs | Bruce WhatsApp Notification Log | Records WhatsApp send/test attempts, status, timestamps, related class, and short errors. |
+| Live Class History | Bruce Live Class Notice Log | Records operational events and notices for live classes. |
+
+## 9. Access and Permission Architecture
+
+Backend permission checks are mandatory. Frontend visibility is not
+authorization.
+
+Student identity must come from `frappe.session.user`. Students must not send
+`student_user`, course, or batch from the frontend as trusted authorization
+input. Student access is controlled by `Bruce Student Access`, and student
+content must be scoped to the allowed course and/or batch.
+
+Admin and teacher dashboards must reject normal students. Permission behavior
+must match `docs/roles-permissions.md` and `SECURITY.md`.
+
+Access statuses:
+
+- "Ativo" unlocks pedagogical content.
+- "Pendente", "Bloqueado", and "Expirado" do not unlock classes, materials,
+  questions, exercise lists, answers, or progress metrics.
+
+## 10. Main User Flows
+
+Student opens "Minha Aula":
+
+1. Backend identifies the logged-in student.
+2. Backend checks `Bruce Student Access`.
+3. If access is "Ativo", the page shows allowed class, materials, exercise
+   lists, and progress.
+4. If access is not active, the page shows a blocked/pending/expired state
+   without releasing pedagogical metrics.
+
+Student enters live class:
+
+1. Student clicks "Entrar na aula".
+2. Backend validates user, live class, status, room data, and access scope.
+3. `/app/bruce-live-room/<class>` loads the embedded Jitsi room.
+4. External Jitsi URL remains an explicit fallback.
+
+Teacher starts/opens a live class:
+
+1. Teacher uses "Painel do Professor" or the `Bruce Live Class` form.
+2. Backend validates role, class status, and responsibility/scope.
+3. The class opens in the internal live-room page and may move to "Ao vivo".
+
+Admin reviews operational dashboard:
+
+1. Admin opens "Painel Operacional".
+2. Backend validates admin/operational role.
+3. Dashboard returns only pedagogical aggregates and operational alerts.
+
+WhatsApp notification attempt is logged:
+
+1. Authorized user previews or sends a message through backend logic.
+2. Provider call happens server-side or through protected n8n.
+3. Attempt status, timestamp, related class, recipient summary, and short error
+   are recorded.
+
+Future external SaaS updates student pedagogical status:
+
+1. External SaaS calls a protected backend endpoint.
+2. Backend verifies the webhook and resolves student/course/batch.
+3. Backend updates only `Bruce Student Access` status and opaque references.
+
+## 11. Integration Architecture
 
 ### Jitsi
 
-Usado para aulas ao vivo. O LMS deve permitir criar, iniciar e acessar aulas com Jitsi IFrame API.
+- Room names are generated server-side.
+- Room names must be unique and non-predictable.
+- Live room data is returned only after permission checks.
+- `meet.jit.si` is acceptable for development/testing.
+- Production should evaluate self-hosted Jitsi or Jitsi as a Service.
 
-Requisitos arquiteturais:
+### WhatsApp / Evolution / n8n
 
-- gerar `roomName` único e não previsível;
-- armazenar link, turma, curso, professor, data/hora e status;
-- permitir que o professor inicie a aula pelo painel;
-- permitir que o aluno entre na aula pelo LMS quando autorizado;
-- manter qualquer configuração sensível do Jitsi fora do frontend.
+- Provider calls must happen backend-side or through protected n8n.
+- Provider secrets must never go to the frontend.
+- Notification attempts are logged.
+- Manual resend requires permission.
 
-### WhatsApp via Evolution API ou n8n
+### External Financial SaaS
 
-O envio de mensagens deve acontecer no backend ou por fluxo n8n. O frontend pode solicitar ações, mas não deve conhecer tokens nem endpoints sensíveis.
+- Future only.
+- Sends access-status updates to this LMS app.
+- Webhook must be verified.
+- Store only pedagogical status and opaque external references.
+- Do not store card data or full financial payloads.
 
-Requisitos arquiteturais:
+## 12. Frontend Architecture
 
-- registrar log de cada tentativa de envio;
-- guardar status, destinatário, payload mínimo necessário, erro retornado e data/hora;
-- permitir reenvio manual em caso de falha;
-- permitir integração direta com Evolution API ou indireta via webhook n8n, conforme configuração do site.
+Teacher/admin flows may use Frappe Desk where appropriate. Student-facing flows
+should be simple, mobile-aware, and should not feel like administrative Desk.
 
-## Limites do LMS
+Frontend work must follow `docs/design-system.md`. User-facing UI remains in
+Brazilian Portuguese. Important screens need loading, empty, and error states.
+Destructive actions require confirmation.
 
-O LMS deve cuidar de curso, turma, aula, acesso, comunicação acadêmica e indicadores básicos. Ele não deve se tornar uma secretaria financeira completa.
+## 13. Backend Architecture
 
-Fora do escopo do LMS:
+Backend is responsible for:
 
-- gestão completa de mensalidades;
-- conciliação bancária;
-- cobrança recorrente;
-- inadimplência detalhada;
-- emissão fiscal;
-- contratos, descontos e renegociação financeira;
-- relatórios contábeis.
+- authentication checks;
+- authorization checks;
+- student access validation;
+- business rules;
+- Jitsi room data protection;
+- WhatsApp send/log flow;
+- progress calculation;
+- safe error handling;
+- safe logging.
 
-Dentro do escopo do LMS:
+```txt
+Request
+  ↓
+Authentication
+  ↓
+Authorization / Student Access Check
+  ↓
+Input Validation
+  ↓
+Business Logic
+  ↓
+Database / Integration
+  ↓
+Safe Response
+```
 
-- total de alunos ativos;
-- matrículas por curso ou turma;
-- presença ou acesso em aulas ao vivo;
-- engajamento básico em conteúdos;
-- envios de WhatsApp por status;
-- próximas aulas;
-- erros operacionais relevantes para suporte.
+## 14. Security Architecture
 
-## Modelo conceitual de dados
+See `SECURITY.md` for the full policy.
 
-DocTypes customizados previstos, sujeitos a refinamento durante implementação:
+- No secrets in Git.
+- No provider keys in frontend code, HTML, browser responses, or logs.
+- No real student data in the repository.
+- Permission checks happen server-side.
+- Logs must not contain secrets, auth headers, full provider tokens, or full
+  sensitive payloads.
+- Private student data must be scoped to the authenticated user and allowed
+  course/batch.
 
-- `Bruce Live Class`: representa uma aula ao vivo vinculada a curso, turma, professor, data/hora, sala Jitsi, link e status.
-- `Bruce WhatsApp Message Log`: registra tentativas de envio, destinatário, origem, status, erro e possibilidade de reenvio.
-- `Bruce Integration Settings`: armazena chaves de configuração não sensíveis e referências para valores sensíveis em site config ou variáveis de ambiente.
-- `Bruce Admin KPI Snapshot`: opcional para consolidar métricas administrativas básicas quando consultas em tempo real ficarem caras.
+## 15. Deployment and Operations
 
-Sempre que possível, relacionar os DocTypes customizados aos DocTypes nativos do LMS em vez de duplicar dados.
+Production deployment still needs hardening.
 
-## Papéis e permissões
+- Secrets must use environment variables, site config, deployment secrets, or
+  equivalent secure mechanisms.
+- Backups must stay outside Git.
+- Restore flow should be tested.
+- Workers, scheduler, and Redis must be validated in production.
+- Production Jitsi path must be decided.
 
-Papéis previstos:
+## 16. Architectural Anti-Patterns
 
-- `Professor Bruce`: opera aulas, acessa turmas, inicia Jitsi e acompanha indicadores simples de sua rotina.
-- `Aluno`: acessa cursos, aulas, links ao vivo e avisos.
-- `Administrador LMS`: acompanha KPIs básicos, configura integrações e consulta logs operacionais.
+- Modifying core Frappe, Frappe LMS, Frappe UI, or Jitsi directly.
+- Frontend-only authorization.
+- Trusting user, course, or batch from frontend requests.
+- Exposing API keys in Vue, HTML, or browser responses.
+- Using predictable Jitsi room names.
+- Putting financial SaaS responsibilities inside this app.
+- Broad refactors during small tasks.
+- Duplicating existing DocTypes, pages, or services without checking current
+  patterns.
+- Adding dependencies for trivial problems.
 
-O usuário `Administrator` não deve ser usado como usuário operacional do professor.
+## 17. Architecture Decisions
 
-## Fluxos de integração
+| Decision | Status | Reason |
+| -------- | ------ | ------ |
+| Use Frappe LMS as base. | Active | Keeps the project aligned with LMS-native course, Desk, DocType, permission, and learning patterns. |
+| Keep custom behavior in `bruce_lms_custom`. | Active | Preserves upgradeability and avoids core modification. |
+| Keep user-facing UI in Brazilian Portuguese. | Active | Matches the product audience and existing labels/statuses. |
+| Keep internal docs in English. | Active | Gives future developers and AI agents one documentation language. |
+| Use Jitsi for live classes. | Active | Supports embedded live classes through a known provider/API. |
+| Use Evolution API/n8n for WhatsApp preparation. | Active | Keeps communication provider calls backend-side or protected. |
+| Keep financial/commercial operations in external SaaS. | Active / Future integration only | Prevents the LMS from becoming billing, CRM, checkout, or financial operations software. |
+| Avoid core modifications. | Active | Extension over core modification keeps Frappe and Frappe LMS upgrade-friendly. |
 
-### Aula ao vivo
+## 18. Related Documents
 
-1. Professor ou administrador agenda aula no LMS customizado.
-2. Backend gera `roomName` seguro e registra a aula.
-3. Sistema cria ou monta o link Jitsi conforme configuração.
-4. Alunos visualizam a aula no LMS quando ela estiver disponível.
-5. Professor inicia a aula pelo painel.
-6. Status e metadados operacionais são atualizados.
-
-### Envio de WhatsApp
-
-1. Evento acadêmico gera necessidade de comunicação, como aula agendada ou link disponível.
-2. Backend cria solicitação de envio.
-3. Integração chama n8n ou Evolution API.
-4. Resultado é registrado em log.
-5. Falhas ficam disponíveis para reenvio manual.
-
-### KPIs administrativos básicos
-
-1. Backend consulta dados do LMS e DocTypes customizados.
-2. Métricas são agregadas para painel administrativo.
-3. A interface mostra apenas indicadores operacionais do LMS.
-4. Demandas financeiras completas são encaminhadas para sistema/processo externo.
-
-## Segurança e configuração
-
-- Não versionar `.env`, `site_config.json`, `common_site_config.json`, tokens, senhas ou API keys.
-- Não enviar API keys para componentes Vue ou páginas públicas.
-- Preferir APIs backend com checagem de permissão.
-- Registrar logs suficientes para auditoria operacional sem armazenar dados sensíveis desnecessários.
-- Validar permissões em toda ação de iniciar aula, gerar link, enviar WhatsApp e reenviar mensagem.
-
-## Estratégia de evolução
-
-O projeto deve evoluir em camadas pequenas:
-
-1. documentação e decisões de arquitetura;
-2. modelos de dados customizados;
-3. integração Jitsi mínima;
-4. logs e envio WhatsApp;
-5. painel do professor;
-6. KPIs administrativos básicos;
-7. refinamento de UX, permissões, testes e observabilidade.
+- `README.md`
+- `README.en.md`
+- `AGENTS.md`
+- `ROADMAP.md`
+- `SECURITY.md`
+- `docs/design-system.md`
+- `docs/roles-permissions.md`
+- `docs/student-access-integration.md`
+- `docs/jitsi-integration.md`
+- `docs/ux-flows.md`
+- `docs/testing-checklist.md`
+- `docs/kpis-admin.md`
