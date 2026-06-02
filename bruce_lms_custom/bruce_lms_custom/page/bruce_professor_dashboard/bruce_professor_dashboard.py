@@ -1,5 +1,5 @@
 # Copyright (c) 2026, Estevão Oliveira Portes and contributors
-# For license information, please see license.txt
+# For license information, please see LICENSE
 
 import frappe
 from frappe.utils import add_to_date, now_datetime
