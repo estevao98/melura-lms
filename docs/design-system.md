@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-The Bruce SaaS Design System is the product design layer for `bruce_lms_custom`.
+The Bruce SaaS Design System is the product design layer for `zuno_lms`.
 It defines how custom interfaces should look, behave, communicate, and scale
 inside a Frappe LMS ecosystem for an online Humanities/ENEM course with live
 classes, educational materials, exercise lists, student progress, WhatsApp
@@ -343,7 +343,7 @@ Central rule:
 Tokens are conceptual values that can later become CSS variables. Do not create
 CSS files in this task. These references are future implementation guidance for:
 
-`bruce_lms_custom/public/css/bruce_tokens.css`
+`zuno_lms/public/css/bruce_tokens.css`
 
 Future token categories:
 
@@ -1365,7 +1365,7 @@ Future:
 Future token file:
 
 ```text
-bruce_lms_custom/public/css/bruce_tokens.css
+zuno_lms/public/css/bruce_tokens.css
 ```
 
 Future context-specific CSS files:

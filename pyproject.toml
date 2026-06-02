@@ -1,5 +1,5 @@
 [project]
-name = "bruce_lms_custom"
+name = "zuno_lms"
 authors = [
     { name = "Estevão Oliveira Portes", email = "estevao.opmg2@gmail.com"}
 ]

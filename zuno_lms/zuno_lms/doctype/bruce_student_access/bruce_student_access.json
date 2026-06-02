@@ -1,0 +1,163 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:BSA-{YYYY}-{#####}",
+ "creation": "2026-06-01 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "student",
+  "access_status",
+  "section_scope",
+  "course",
+  "batch",
+  "column_break_dates",
+  "starts_on",
+  "expires_on",
+  "section_integration",
+  "source",
+  "external_reference",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Aluno",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "default": "Pendente",
+   "fieldname": "access_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status de acesso",
+   "options": "Pendente\nAtivo\nBloqueado\nExpirado",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_scope",
+   "fieldtype": "Section Break",
+   "label": "Escopo pedagógico"
+  },
+  {
+   "description": "Curso liberado para o aluno. Quando a turma estiver preenchida, a liberação fica restrita à turma.",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Curso",
+   "options": "LMS Course"
+  },
+  {
+   "description": "Turma liberada para o aluno. Use este campo sempre que a aula estiver vinculada a uma turma específica.",
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Turma",
+   "options": "LMS Batch"
+  },
+  {
+   "fieldname": "column_break_dates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "starts_on",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Início do acesso"
+  },
+  {
+   "fieldname": "expires_on",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Expiração do acesso"
+  },
+  {
+   "fieldname": "section_integration",
+   "fieldtype": "Section Break",
+   "label": "Integração externa"
+  },
+  {
+   "default": "Manual",
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Origem",
+   "options": "Manual\nIntegração financeira"
+  },
+  {
+   "description": "Referência opaca enviada pelo SaaS financeiro externo. Não salvar tokens, dados de cartão ou payloads sensíveis.",
+   "fieldname": "external_reference",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Referência externa"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Observações"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-06-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Zuno LMS",
+ "name": "Bruce Student Access",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "student",
+ "track_changes": 1
+}

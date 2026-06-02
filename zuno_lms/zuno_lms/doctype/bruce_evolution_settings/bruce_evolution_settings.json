@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "creation": "2026-05-30 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "provider_mode",
+  "api_url",
+  "instance_name",
+  "n8n_webhook_url",
+  "api_key_note"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Ativo"
+  },
+  {
+   "default": "Evolution API",
+   "fieldname": "provider_mode",
+   "fieldtype": "Select",
+   "label": "Modo do provedor",
+   "options": "Evolution API\nn8n",
+   "reqd": 1
+  },
+  {
+   "description": "URL base da Evolution API. Não inclua token ou API key neste campo.",
+   "fieldname": "api_url",
+   "fieldtype": "Data",
+   "label": "URL da API"
+  },
+  {
+   "description": "Nome da instância configurada no provedor.",
+   "fieldname": "instance_name",
+   "fieldtype": "Data",
+   "label": "Nome da instância"
+  },
+  {
+   "description": "Usado somente quando o modo do provedor for n8n.",
+   "fieldname": "n8n_webhook_url",
+   "fieldtype": "Small Text",
+   "label": "URL do webhook n8n"
+  },
+  {
+   "fieldname": "api_key_note",
+   "fieldtype": "HTML",
+   "label": "Observação sobre credenciais",
+   "options": "<div class=\"alert alert-warning\">A EVOLUTION_API_KEY não deve ser salva em campo aberto. Configure a chave em variável de ambiente ou no site_config.json do site. O frontend não deve receber essa credencial.</div>"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-05-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Zuno LMS",
+ "name": "Bruce Evolution Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

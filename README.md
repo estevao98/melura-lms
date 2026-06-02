@@ -4,11 +4,11 @@
 
 Zuno é uma camada educacional construída sobre o Frappe LMS para aulas ao vivo, controle de acesso, materiais, exercícios, progresso e visibilidade operacional.
 
-Aplicativo atual do repositório: `bruce_lms_custom`.
+Aplicativo atual do repositório: `zuno_lms`.
 
 ## Visão geral
 
-Zuno customiza o Frappe LMS para o curso online de ENEM / Ciências Humanas do Professor Bruce. Neste repositório, Zuno é o produto educacional; `bruce_lms_custom` é a app Frappe customizada que implementa as regras, telas, DocTypes, permissões e integrações específicas.
+Zuno customiza o Frappe LMS para o curso online de ENEM / Ciências Humanas do Professor Bruce. Neste repositório, Zuno é o produto educacional; `zuno_lms` é a app Frappe customizada que implementa as regras, telas, DocTypes, permissões e integrações específicas.
 
 A app é focada na operação pedagógica: alunos, professor, conteúdos, aulas ao vivo, exercícios, progresso e administração operacional. Ela não é o SaaS financeiro/comercial. A experiência visível ao usuário final permanece em português brasileiro, e a customização deve continuar sem modificar diretamente o core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
 
@@ -45,14 +45,14 @@ A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sem
 
 ## Arquitetura em resumo
 
-Zuno usa o Frappe Framework e o Frappe LMS / Frappe Learning como base. A app `bruce_lms_custom` concentra as customizações pedagógicas. Jitsi atende aulas ao vivo, Evolution API / n8n prepara comunicação via WhatsApp, e um SaaS externo fica responsável por operações financeiras e comerciais.
+Zuno usa o Frappe Framework e o Frappe LMS / Frappe Learning como base. A app `zuno_lms` concentra as customizações pedagógicas. Jitsi atende aulas ao vivo, Evolution API / n8n prepara comunicação via WhatsApp, e um SaaS externo fica responsável por operações financeiras e comerciais.
 
 ```mermaid
 flowchart TD
   Aluno[Aluno] --> LMS[Frappe LMS]
   Professor[Professor] --> LMS
   Admin[Admin operacional] --> LMS
-  LMS --> CustomApp[bruce_lms_custom]
+  LMS --> CustomApp[zuno_lms]
   CustomApp --> Jitsi[Aulas ao vivo via Jitsi]
   CustomApp --> WhatsApp[Evolution API / n8n]
   SaaSExterno[SaaS financeiro externo] -. status de acesso futuro .-> CustomApp
@@ -73,7 +73,7 @@ flowchart TD
 - `docs/ux-flows.md`: fluxos de professor, aluno, admin, Jitsi, WhatsApp e progresso.
 - `docs/testing-checklist.md`: checklist de validação manual e futura automação.
 - `docs/kpis-admin.md`: reservado para orientação de KPIs administrativos quando preenchido.
-- `bruce_lms_custom/`: código da app Frappe customizada.
+- `zuno_lms/`: código da app Frappe customizada.
 
 ## Desenvolvimento local
 
@@ -86,14 +86,14 @@ cd ~/Projetos/frappe-bench
 Validação Python:
 
 ```bash
-./env/bin/python -m compileall apps/bruce_lms_custom/bruce_lms_custom
+./env/bin/python -m compileall apps/zuno_lms/zuno_lms
 ```
 
 Testes unitários:
 
 ```bash
 ./env/bin/python -m unittest discover \
-  -s apps/bruce_lms_custom/bruce_lms_custom/bruce_lms_custom \
+  -s apps/zuno_lms/zuno_lms/zuno_lms \
   -p "test_*.py"
 ```
 
@@ -102,7 +102,7 @@ Cache e build:
 ```bash
 bench --site curso.localhost clear-cache
 bench --site curso.localhost clear-website-cache
-bench build --app bruce_lms_custom
+bench build --app zuno_lms
 ```
 
 Migração deve ser usada apenas quando houver mudança de schema, DocType, fixtures ou patches:
@@ -169,7 +169,7 @@ Esta app Frappe LMS customizada não deve incluir por padrão:
 - app mobile nativo antes de mobile web/PWA estar estável;
 - modificações diretas no core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
 
-Essas responsabilidades podem pertencer a outro repositório ou a um SaaS externo, não ao core pedagógico `bruce_lms_custom`.
+Essas responsabilidades podem pertencer a outro repositório ou a um SaaS externo, não ao core pedagógico `zuno_lms`.
 
 ## Documentação
 
