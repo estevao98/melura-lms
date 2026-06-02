@@ -1,138 +1,193 @@
-# bruce_lms_custom
+# Zuno
 
-Customizações do Frappe LMS para o curso online de Ciências Humanas/ENEM do professor Bruce.
+[English version: README.en.md](README.en.md)
 
-O objetivo deste app é manter o Frappe LMS limpo e atualizável, concentrando as regras específicas do curso, integrações e telas operacionais dentro de `bruce_lms_custom`.
+Zuno é uma camada educacional construída sobre o Frappe LMS para aulas ao vivo, controle de acesso, materiais, exercícios, progresso e visibilidade operacional.
 
-## Escopo do projeto
+Aplicativo atual do repositório: `bruce_lms_custom`.
 
-O projeto deve apoiar:
+## Visão geral
 
-- aulas ao vivo via Jitsi;
-- envio de avisos e links por WhatsApp via backend, Evolution API ou n8n;
-- painel simples para o professor;
-- experiência do aluno em português brasileiro;
-- KPIs administrativos básicos do LMS;
-- logs operacionais para suporte e reenvio de mensagens com falha.
+Zuno customiza o Frappe LMS para o curso online de ENEM / Ciências Humanas do Professor Bruce. Neste repositório, Zuno é o produto educacional; `bruce_lms_custom` é a app Frappe customizada que implementa as regras, telas, DocTypes, permissões e integrações específicas.
 
-O projeto não deve virar uma secretaria financeira completa. Cobrança recorrente, conciliação bancária, emissão fiscal, contratos financeiros e inadimplência detalhada ficam fora do escopo inicial.
+A app é focada na operação pedagógica: alunos, professor, conteúdos, aulas ao vivo, exercícios, progresso e administração operacional. Ela não é o SaaS financeiro/comercial. A experiência visível ao usuário final permanece em português brasileiro, e a customização deve continuar sem modificar diretamente o core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
 
-## Regra principal
+## Problema
 
-Não modificar diretamente o core do Frappe, Frappe LMS, Frappe UI ou Jitsi Meet sem justificativa técnica explícita.
+Professores e pequenas operações educacionais frequentemente dependem de WhatsApp, links manuais, materiais espalhados, controle de acesso manual e pouca visibilidade operacional. Isso cria atrito para o aluno e aumenta o trabalho do professor e da administração.
 
-Diretórios que devem permanecer limpos:
+O aluno precisa de um lugar simples para encontrar a aula ao vivo, materiais, listas de exercícios e progresso. O professor e a operação precisam controlar aulas, acessos, comunicação e indicadores sem complexidade técnica.
 
-- `frappe/`
-- `lms/`
-- `frappe-ui/`
-- `jitsi-meet/`
+## Solução
 
-Customizações devem ser feitas dentro desta app usando hooks, DocTypes próprios, permissões, páginas, componentes, APIs backend e configurações por site.
+Zuno centraliza a experiência pedagógica em torno do Frappe LMS. Aulas ao vivo, acesso do aluno, materiais, questões ENEM, listas de exercícios, respostas, progresso e painéis ficam na camada LMS.
 
-## Estrutura esperada
+A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sempre por backend ou fluxo protegido. Fluxos comerciais e financeiros ficam fora desta app e podem integrar no futuro apenas para atualizar status pedagógico de acesso.
 
-- `bruce_lms_custom/`: código da app customizada.
-- `bruce_lms_custom/hooks.py`: pontos de integração com o Frappe.
-- `bruce_lms_custom/config/`: configurações de módulo e navegação.
-- `bruce_lms_custom/public/`: assets públicos da app.
-- `bruce_lms_custom/templates/`: templates web quando necessários.
-- `docs/`: documentação funcional, técnica, UX, segurança e testes.
-- `ARCHITECTURE.md`: visão arquitetural e limites do projeto.
-- `ROADMAP.md`: fases de evolução.
+## Funcionalidades principais
+
+- Controle de acesso do aluno com `Bruce Student Access` - Concluído / quase concluído.
+- Página do aluno / `Minha Aula` - Concluído / quase concluído.
+- Registros de aulas ao vivo - Concluído / quase concluído.
+- Sala ao vivo Jitsi embutida - Funcional, precisa de hardening.
+- `Painel do Professor` - Concluído / quase concluído.
+- `Painel Operacional` - Concluído / quase concluído.
+- Materiais educacionais - Concluído / quase concluído.
+- Banco de questões ENEM - Concluído / quase concluído.
+- Listas de exercícios - Concluído / quase concluído.
+- Respostas dos alunos - Concluído / quase concluído.
+- Progresso do aluno - Concluído / quase concluído.
+- Preparação, logs e teste de WhatsApp/Evolution API - Funcional, precisa de hardening.
+- Documentação de segurança e permissões - Concluído / quase concluído.
+- Documentação de design system - Concluído / quase concluído.
+- Integração externa de status de acesso - Planejado.
+- Shell PWA e portal mobile refinado - Futuro.
+
+## Arquitetura em resumo
+
+Zuno usa o Frappe Framework e o Frappe LMS / Frappe Learning como base. A app `bruce_lms_custom` concentra as customizações pedagógicas. Jitsi atende aulas ao vivo, Evolution API / n8n prepara comunicação via WhatsApp, e um SaaS externo fica responsável por operações financeiras e comerciais.
+
+```mermaid
+flowchart TD
+  Aluno[Aluno] --> LMS[Frappe LMS]
+  Professor[Professor] --> LMS
+  Admin[Admin operacional] --> LMS
+  LMS --> CustomApp[bruce_lms_custom]
+  CustomApp --> Jitsi[Aulas ao vivo via Jitsi]
+  CustomApp --> WhatsApp[Evolution API / n8n]
+  SaaSExterno[SaaS financeiro externo] -. status de acesso futuro .-> CustomApp
+```
+
+## Estrutura do repositório
+
 - `AGENTS.md`: regras operacionais para agentes e contribuidores.
-- `.env.example`: exemplo de variáveis esperadas para integrações locais.
+- `README.md`: README principal em português brasileiro.
+- `README.en.md`: versão em inglês deste README.
+- `ROADMAP.md`: direção do produto, fases e limites de escopo.
+- `SECURITY.md`: política de segurança, segredos e autorização.
+- `LICENSE`: licença MIT.
+- `docs/design-system.md`: regras de UI, UX, linguagem e consistência.
+- `docs/roles-permissions.md`: papéis, permissões e separação de contas.
+- `docs/student-access-integration.md`: regras de `Bruce Student Access` e integração externa futura.
+- `docs/jitsi-integration.md`: regras e implementação da integração Jitsi.
+- `docs/ux-flows.md`: fluxos de professor, aluno, admin, Jitsi, WhatsApp e progresso.
+- `docs/testing-checklist.md`: checklist de validação manual e futura automação.
+- `docs/kpis-admin.md`: reservado para orientação de KPIs administrativos quando preenchido.
+- `bruce_lms_custom/`: código da app Frappe customizada.
 
-## Como rodar localmente
+## Desenvolvimento local
 
-Pré-requisitos:
-
-- bench do Frappe instalado;
-- ambiente Frappe/Frappe LMS funcional;
-- site local criado no bench;
-- app `lms` instalada no site antes ou junto desta customização.
-
-Exemplo de instalação em um bench local:
-
-```bash
-cd /caminho/para/frappe-bench
-bench get-app URL_DO_REPOSITORIO --branch develop
-bench --site nome-do-site install-app bruce_lms_custom
-bench --site nome-do-site migrate
-bench start
-```
-
-Em um ambiente onde a app já está dentro de `apps/bruce_lms_custom`, normalmente basta instalar no site e migrar:
+Use um bench Frappe local com Frappe LMS instalado. Exemplo de diretório usado neste ambiente:
 
 ```bash
-cd /caminho/para/frappe-bench
-bench --site nome-do-site install-app bruce_lms_custom
-bench --site nome-do-site migrate
-bench start
+cd ~/Projetos/frappe-bench
 ```
 
-Configurações sensíveis devem ser definidas por variável de ambiente ou `site_config.json`, nunca em arquivos versionados. Use `.env.example` apenas como referência de nomes.
-
-## Configuração de integrações
-
-Jitsi:
-
-- `JITSI_DOMAIN`
-- `JITSI_ROOM_PREFIX`
-
-WhatsApp/Evolution API:
-
-- `EVOLUTION_API_URL`
-- `EVOLUTION_API_KEY`
-- `EVOLUTION_INSTANCE_NAME`
-- `WHATSAPP_DEFAULT_COUNTRY_CODE`
-
-Tokens, senhas e API keys não devem ser expostos no frontend. Chamadas para Jitsi, WhatsApp, n8n ou Evolution API devem passar por backend com validação de permissão.
-
-## Papéis principais
-
-- Root Técnico: manutenção técnica e configuração sensível.
-- Professor: inicia aulas, acompanha turmas e consulta avisos operacionais.
-- Aluno: acessa cursos, conteúdos e aulas ao vivo.
-- Administrador LMS: acompanha KPIs básicos, logs e configurações operacionais.
-- Integração/Bot: usuário técnico para automações e integrações.
-
-O usuário `Administrator` não deve ser usado como usuário operacional do professor.
-
-## Documentação relacionada
-
-- `ARCHITECTURE.md`: arquitetura e limites.
-- `ROADMAP.md`: fases de implementação.
-- `docs/ux-flows.md`: fluxos de professor, aluno e administração.
-- `docs/design-system.md`: padrões simples de UI.
-- `docs/roles-permissions.md`: papéis e permissões.
-- `docs/testing-checklist.md`: validações manuais e futuras automações.
-- `SECURITY.md`: práticas de segurança e gestão de segredos.
-
-## Desenvolvimento
-
-Antes de qualquer mudança:
-
-1. confirme que a alteração pertence à app `bruce_lms_custom`;
-2. evite mudanças diretas em core;
-3. mantenha textos de interface em português brasileiro;
-4. valide permissões em ações críticas;
-5. não versione segredos.
-
-O projeto usa `pre-commit` para formatação e lint quando houver implementação de código:
+Validação Python:
 
 ```bash
-cd apps/bruce_lms_custom
-pre-commit install
+./env/bin/python -m compileall apps/bruce_lms_custom/bruce_lms_custom
 ```
 
-Ferramentas configuradas:
+Testes unitários:
 
-- ruff
-- eslint
-- prettier
-- pyupgrade
+```bash
+./env/bin/python -m unittest discover \
+  -s apps/bruce_lms_custom/bruce_lms_custom/bruce_lms_custom \
+  -p "test_*.py"
+```
+
+Cache e build:
+
+```bash
+bench --site curso.localhost clear-cache
+bench --site curso.localhost clear-website-cache
+bench build --app bruce_lms_custom
+```
+
+Migração deve ser usada apenas quando houver mudança de schema, DocType, fixtures ou patches:
+
+```bash
+bench --site curso.localhost migrate
+```
+
+## Configuração
+
+Segredos devem ficar fora do Git. Use variáveis de ambiente, `site_config.json` fora do repositório, segredos de deploy ou mecanismo equivalente.
+
+Exemplos de valores sensíveis:
+
+- chave da Evolution API;
+- segredos de webhook;
+- segredo futuro de webhook do SaaS externo;
+- credenciais futuras de Jitsi/JaaS.
+
+Credenciais de provedores nunca devem ser expostas no frontend, renderizadas em HTML, retornadas por APIs de navegador ou registradas integralmente em logs.
+
+## Segurança
+
+Veja [SECURITY.md](SECURITY.md) para a política completa.
+
+Autorização backend é obrigatória. Visibilidade no frontend não é autorização. `Bruce Student Access` controla o acesso pedagógico: somente `Ativo` desbloqueia conteúdo, aulas, materiais, questões, listas, respostas e progresso. Alunos não devem acessar conteúdo fora do curso ou turma permitidos.
+
+Leituras relacionadas:
+
+- [SECURITY.md](SECURITY.md)
+- [docs/roles-permissions.md](docs/roles-permissions.md)
+- [docs/student-access-integration.md](docs/student-access-integration.md)
+
+## Roadmap
+
+O core MVP pedagógico está em grande parte construído, mas ainda existem frentes de hardening e preparação operacional:
+
+- auditoria de permissões;
+- fundamentos de cache e performance;
+- prontidão de deploy;
+- validação de backup e restore;
+- integração externa de status do aluno;
+- fluxo real de envio/retry de WhatsApp;
+- decisão de Jitsi para produção;
+- portal mobile do aluno pausado para refinamento;
+- shell PWA futuro.
+
+Veja [ROADMAP.md](ROADMAP.md).
+
+## Fora de escopo
+
+Esta app Frappe LMS customizada não deve incluir por padrão:
+
+- checkout;
+- cobrança de assinatura;
+- split payment;
+- conciliação bancária;
+- recursos fiscais/contábeis;
+- CRM completo;
+- blog;
+- newsletter;
+- captação de leads;
+- automação avançada de marketing;
+- app mobile nativo antes de mobile web/PWA estar estável;
+- modificações diretas no core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
+
+Essas responsabilidades podem pertencer a outro repositório ou a um SaaS externo, não ao core pedagógico `bruce_lms_custom`.
+
+## Documentação
+
+- [AGENTS.md](AGENTS.md): instruções obrigatórias para agentes e contribuições.
+- [SECURITY.md](SECURITY.md): política de segurança, segredos, autorização e vulnerabilidades.
+- [ROADMAP.md](ROADMAP.md): direção do produto, fases, backlog e limites.
+- [docs/design-system.md](docs/design-system.md): UI, UX, linguagem, acessibilidade e padrões visuais.
+- [docs/roles-permissions.md](docs/roles-permissions.md): papéis, permissões e separação de contas.
+- [docs/student-access-integration.md](docs/student-access-integration.md): fonte de acesso pedagógico e integração externa futura.
+- [docs/jitsi-integration.md](docs/jitsi-integration.md): aulas ao vivo, sala embutida e regras de Jitsi.
+- [docs/ux-flows.md](docs/ux-flows.md): fluxos operacionais de aluno, professor, admin, WhatsApp e progresso.
+- [docs/testing-checklist.md](docs/testing-checklist.md): validações manuais e futuras automações.
+- [docs/kpis-admin.md](docs/kpis-admin.md): reservado para KPIs administrativos quando preenchido.
 
 ## Licença
 
-MIT.
+Este projeto é licenciado sob a licença MIT. Veja [LICENSE](LICENSE).
+
+## Mantenedor
+
+Estevão Oliveira Portes
