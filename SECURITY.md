@@ -1,266 +1,675 @@
-# Segurança
+# Security Policy
 
-Este projeto customiza o Frappe LMS para operação acadêmica do curso do professor Bruce. A regra de segurança principal é simples: segredos ficam fora do repositório e operações sensíveis passam pelo backend com validação de permissão.
+## 1. Security Overview
 
-## Arquivos que não devem ser commitados
+This project customizes Frappe LMS for the academic operation of Professor
+Bruce's Humanities/ENEM online course. Frappe LMS remains the pedagogical core.
+Billing, subscriptions, lead capture, blog, newsletter, CRM, and financial
+operations are intentionally outside this Frappe app and belong to an external
+SaaS.
 
-Nunca versionar:
+The main security rule is simple:
 
-- `.env` real de ambiente;
+> Secrets stay out of the repository, and sensitive operations are validated
+> server-side.
+
+Frontend visibility is not authorization. Hiding a button in Vue, Desk, or a
+custom page does not protect the action. Every sensitive operation must be
+protected by backend checks, and student access must be controlled through
+`Bruce Student Access`.
+
+Core principles:
+
+- Never commit secrets.
+- Never trust the frontend for authorization.
+- Never expose API keys to the browser.
+- Never let user-controlled parameters decide student, course, batch, or access
+  scope.
+- Every query that returns student content must be scoped to the authenticated
+  user and the allowed course or batch.
+- Logs must help debugging without becoming a sensitive data dump.
+
+Project examples:
+
+- `Minha Aula` must show only content allowed for the logged-in student.
+- `Painel do Professor` and `Painel Operacional` must use backend permission
+  checks before returning operational data.
+- `Bruce Live Class` and the embedded live room must validate access before
+  returning Jitsi room data.
+- `Bruce Educational Material`, `Bruce ENEM Question`, `Bruce Exercise List`,
+  `Bruce Student Answer`, and student progress APIs must be scoped by
+  `Bruce Student Access`.
+
+## 2. Supported Versions
+
+| Version / Branch | Supported |
+| ---------------- | --------- |
+| main / production | Yes |
+| development branches | Limited |
+| old local branches | No |
+
+Only the latest production or `main` version receives security fixes by default.
+Development branches may receive fixes while they are active. Abandoned feature
+branches and old local branches are not security-supported.
+
+## 3. Reporting a Vulnerability
+
+Do not open a public GitHub issue for security vulnerabilities.
+
+Use a private contact channel instead:
+
+- `security@example.com`
+- `contact@example.com`
+
+These addresses are placeholders and must be replaced before public production
+use.
+
+Please include:
+
+- vulnerability description;
+- steps to reproduce;
+- affected route, endpoint, DocType, API method, page, or package;
+- expected behavior;
+- actual behavior;
+- potential impact;
+- screenshots, logs, request/response examples, or proof of concept when safe;
+- reporter contact information if follow-up is desired.
+
+Response targets:
+
+| Stage | Target |
+| ----- | ------ |
+| Acknowledge report | Within 48 hours |
+| Initial assessment | Within 5 business days |
+| Critical fixes | As soon as possible |
+| High severity fixes | Within 7-14 days when feasible |
+| Medium severity fixes | Within 30 days when feasible |
+| Low severity fixes | Best effort |
+
+## 4. Vulnerability Scope
+
+Valid vulnerability categories include:
+
+- authentication bypass;
+- authorization flaws;
+- access to another user's student data;
+- access to another course or batch without permission;
+- insecure direct object references;
+- privilege escalation;
+- server-side permission bypass;
+- SQL injection;
+- command injection;
+- cross-site scripting;
+- CSRF on sensitive actions;
+- SSRF;
+- sensitive data exposure;
+- API keys or secrets committed to the repository;
+- insecure API endpoints;
+- file upload vulnerabilities;
+- private file exposure;
+- broken student access control;
+- Jitsi room access bypass;
+- WhatsApp/Evolution API secret exposure;
+- webhook spoofing;
+- external financial SaaS webhook bypass;
+- dependency vulnerabilities with real impact.
+
+## 5. Out of Scope
+
+Reports are usually out of scope unless real impact is demonstrated:
+
+- automated scanner output without explanation;
+- missing security headers without exploitability;
+- clickjacking on pages with no sensitive action;
+- unrealistic denial-of-service claims;
+- social engineering;
+- physical attacks;
+- self-XSS;
+- issues affecting outdated browsers only;
+- vulnerabilities in third-party services outside this project's control;
+- rate limiting suggestions without an abuse scenario;
+- reports requiring access to accounts or infrastructure not owned by the
+  project.
+
+## 6. Severity Classification
+
+| Severity | Examples |
+| -------- | -------- |
+| Critical | Remote code execution, authentication bypass, full database exposure, cross-student or cross-batch data exposure at scale, exposed production secrets, arbitrary file read/write, unauthorized admin access |
+| High | Privilege escalation, student accessing another student's data, student accessing another batch/course, payment/access bypass from external SaaS integration, account takeover, Jitsi room access without authorization, sensitive logs exposed |
+| Medium | Stored XSS with limited scope, CSRF on sensitive academic actions, IDOR with limited data exposure, private file exposure with limited scope, webhook validation weakness without confirmed exploitation |
+| Low | Minor information disclosure, missing headers with limited impact, low-risk misconfiguration, non-sensitive verbose errors in admin-only views |
+
+CVSS may be used as a reference when appropriate, but this project prioritizes
+practical impact and exploitability.
+
+## 7. Disclosure Policy and Safe Harbor
+
+Reporters should give the project reasonable time to fix a vulnerability before
+public disclosure.
+
+When testing or reporting:
+
+- do not access, modify, delete, or exfiltrate real student data;
+- do not disrupt availability;
+- do not perform high-volume automated scanning;
+- do not use the vulnerability for extortion, financial gain, or unauthorized
+  access.
+
+After a fix, the project may publish an advisory or changelog entry when
+appropriate.
+
+## 8. Repository Security Rules
+
+The following must never be committed:
+
+- real `.env` files;
 - `site_config.json`;
 - `common_site_config.json`;
-- tokens;
-- senhas;
 - API keys;
-- dumps de banco;
-- backups de sites;
-- arquivos com dados reais de alunos;
-- payloads completos de integrações contendo dados sensíveis.
+- tokens;
+- passwords;
+- private certificates;
+- OAuth client secrets;
+- webhook secrets;
+- database dumps;
+- Frappe site backups;
+- files with real student data;
+- complete integration payloads containing personal or sensitive data;
+- production logs with secrets.
 
-O arquivo `.env.example` pode existir no repositório porque deve conter apenas nomes de variáveis e exemplos não sensíveis.
+`.env.example` may exist only with non-sensitive placeholder values.
 
-## Segredos e configuração
+Removing a secret from Git history is not enough. If a secret was exposed, revoke
+and rotate it immediately.
 
-Valores sensíveis devem ser configurados por:
+## 9. Secrets and Configuration
 
-- variáveis de ambiente;
-- `site_config.json` do site;
-- mecanismo seguro equivalente aprovado para o ambiente.
+Sensitive values must be configured through:
 
-Exemplos de valores sensíveis:
+- environment variables;
+- `site_config.json` outside Git;
+- secure deployment secret manager;
+- equivalent approved secure mechanism.
+
+Examples of sensitive values:
 
 - `EVOLUTION_API_KEY`;
-- tokens de webhook;
-- credenciais de provedores;
-- URLs internas protegidas;
-- chaves de assinatura;
-- senhas de usuários técnicos.
+- webhook secrets;
+- provider credentials;
+- internal protected URLs;
+- signing keys;
+- technical user passwords;
+- future external SaaS webhook secrets;
+- future Jitsi/JaaS credentials.
 
-Valores não sensíveis, como domínio público do Jitsi ou prefixo de sala, podem ser documentados, mas ainda devem ser configuráveis por ambiente.
+Rules:
 
-## API keys no frontend
+- never send secrets to Vue components;
+- never render secrets in HTML;
+- never return secrets through browser APIs;
+- never log full secrets;
+- mask secrets if they must be referenced.
 
-API keys nunca devem ser enviadas para:
+Safe masking example:
 
-- componentes Vue;
-- páginas públicas;
-- HTML renderizado para aluno ou professor;
-- respostas de APIs usadas pelo navegador;
-- logs acessíveis por usuários sem permissão técnica.
+```text
+EVOLUTION_API_KEY=ev_************9f2a
+```
 
-O frontend pode acionar uma ação, como `Enviar aviso` ou `Reenviar WhatsApp`, mas a chamada ao provedor deve acontecer no backend ou em fluxo n8n protegido.
+Unsafe example:
 
-## Jitsi
+```text
+EVOLUTION_API_KEY=real-production-secret-value
+```
 
-As salas Jitsi devem usar `roomName` único e não previsível.
+## 10. Authentication and Authorization
 
-Boas práticas:
+Every sensitive route must verify authentication and authorization on the
+backend.
 
-- gerar o nome da sala no backend;
-- salvar curso, turma, professor, data, link e status;
-- validar permissão antes de iniciar aula;
-- validar matrícula antes de liberar entrada do aluno;
-- validar no backend qualquer abertura da sala interna antes de retornar
-  `domain`, `room_name` ou link externo;
-- evitar expor configurações internas desnecessárias ao navegador;
-- não reutilizar nomes previsíveis como turma, curso ou data pura.
+Rules:
 
-## WhatsApp, Evolution API e n8n
+- admin-only actions must be protected server-side;
+- frontend-hidden buttons are not security;
+- IDs in URLs must be checked against the authenticated user's allowed scope;
+- backend must decide `student_user`, course, batch, and permission scope;
+- students cannot provide another user ID to view progress or answers.
 
-O envio deve ocorrer no backend ou por webhook n8n protegido.
+Relevant Frappe and project-specific roles include:
 
-Boas práticas:
+- `Administrator`;
+- `System Manager`;
+- `Administrador LMS`;
+- `Admin operacional`;
+- `LMS Admin`;
+- `LMS Instructor` or teacher role if used;
+- `LMS Student`.
 
-- guardar token da Evolution API fora do repositório;
-- não exibir endpoint sensível para professor ou aluno;
-- registrar tentativa de envio com status, data/hora e erro resumido;
-- evitar salvar conteúdo sensível desnecessário no log;
-- permitir reenvio manual apenas para usuário autorizado;
-- preservar histórico da falha original.
+`Administrator` must not be used as the normal teacher account.
 
-## Usuários e permissões
+Accounts should be separated by responsibility:
 
-O usuário `Administrator` não deve ser usado como conta operacional do professor.
+- technical root/admin;
+- teacher;
+- operational admin;
+- integration/bot user;
+- student.
 
-Contas devem ser separadas por responsabilidade:
+## 11. Student Access Security
 
-- Root Técnico para manutenção e configuração sensível;
-- Professor para operação acadêmica;
-- Administrador LMS para KPIs, logs e configurações operacionais;
-- Integração/Bot para automações.
+`Bruce Student Access` is the source of pedagogical access inside this Frappe
+app.
 
-Ações críticas devem validar permissão no backend:
+User-facing statuses must stay in Brazilian Portuguese:
 
-- iniciar aula;
-- cancelar aula;
-- gerar ou recriar link;
-- enviar WhatsApp;
-- reenviar mensagem;
-- consultar logs detalhados;
-- alterar configurações de integração.
+- `Pendente`
+- `Ativo`
+- `Bloqueado`
+- `Expirado`
 
-## Onboarding e acesso pedagógico de alunos
+Rules:
 
-O Frappe LMS não deve implementar cobrança, assinatura, captação, blog,
-newsletter ou CRM. Esses fluxos pertencem ao SaaS externo definido para a
-operação financeira/comercial.
+- only `Ativo` unlocks pedagogical content;
+- `Pendente`, `Bloqueado`, and `Expirado` do not unlock live classes,
+  materials, questions, exercise lists, or progress metrics;
+- student pages must validate the logged-in user on the backend;
+- student pages must not accept user, course, or batch from the frontend as
+  authorization;
+- student access must be scoped to course and/or batch;
+- future financial SaaS integration must update only pedagogical status and
+  opaque references, not card data or full financial payloads.
 
-Dentro do Frappe, o acesso pedagógico do aluno é controlado pela camada
-customizada `Bruce Student Access`, com os status:
+## 12. Live Class and Jitsi Security
 
-- `Pendente`;
-- `Ativo`;
-- `Bloqueado`;
-- `Expirado`.
+`Bruce Live Class` and Jitsi must be protected as live classroom access, not as
+public links.
 
-Regras de segurança:
+Rules:
 
-- páginas customizadas do aluno devem validar o usuário logado no backend;
-- aluno só pode ver aulas vinculadas ao curso ou turma liberados em
-  `Bruce Student Access`;
-- parâmetros vindos do frontend não podem definir aluno, turma, curso ou
-  escopo de acesso;
-- `Bruce Live Class` usa permissões scripted para impedir leitura ampla por
-  `LMS Student`;
-- o link Jitsi só deve ser retornado por APIs que validem status permitido e
-  vínculo pedagógico;
-- a página `/app/bruce-live-room/<aula>` deve validar usuário logado, aula
-  disponível, `Bruce Student Access` ativo e escopo de curso/turma no backend;
-- `Pendente`, `Bloqueado` e `Expirado` não liberam aula.
+- Jitsi room names must be generated server-side;
+- room names must be unique and not predictable;
+- do not use plain course names, batch names, or dates as room names;
+- backend must validate permission before returning domain, `room_name`,
+  `meeting_url`, or embedded room data;
+- external Jitsi link must be explicit fallback only;
+- do not automatically open `meet.jit.si` in another tab;
+- do not expose unnecessary internal settings to the browser.
 
-## Materiais educacionais
+The embedded live room route must validate:
 
-`Bruce Educational Material` segue a mesma fonte segura de acesso pedagógico:
-`Bruce Student Access`.
+- logged-in user;
+- live class exists;
+- class has `room_name` and `meeting_url`;
+- student has `Bruce Student Access` with status `Ativo` for the correct course
+  or batch;
+- teacher/admin has the correct role;
+- class status allows access.
 
-Regras de segurança:
+`meet.jit.si` embedded is acceptable for development and testing.
 
-- materiais para aluno devem estar publicados e com visibilidade `Aluno`;
-- `published_at` é preenchido no backend quando o material é publicado;
-- páginas e APIs do aluno não recebem aluno, curso ou turma como parâmetros de
-  liberação;
-- aluno só recebe materiais compatíveis com seu acesso ativo por turma ou curso;
-- materiais com visibilidade `Professor` ou `Interno` não são retornados para
-  `LMS Student`;
-- `Pendente`, `Bloqueado` e `Expirado` não liberam materiais.
+Future:
 
-## Banco de questões ENEM
+- production should evaluate a self-hosted Jitsi domain or Jitsi as a
+  Service/JaaS;
+- production Jitsi should use stronger access controls when available, such as
+  JWT or provider-supported authentication.
 
-`Bruce ENEM Question` segue a mesma fonte segura de acesso pedagógico:
-`Bruce Student Access`.
+## 13. WhatsApp, Evolution API, and n8n Security
 
-Regras de segurança:
+WhatsApp operations must keep provider credentials away from the browser.
 
-- questões para aluno devem estar publicadas;
-- `published_at` é preenchido no backend quando a questão é publicada;
-- questão publicada precisa ter gabarito cadastrado;
-- a listagem de aluno é feita por API backend, a partir do usuário logado;
-- parâmetros do frontend não podem definir aluno, curso, turma ou escopo de
-  liberação;
-- aluno só recebe questões compatíveis com seu acesso ativo por turma ou curso;
-- a API inicial de aluno não retorna gabarito nem resolução comentada;
-- `Pendente`, `Bloqueado` e `Expirado` não liberam questões.
+Rules:
 
-## Listas de exercícios
+- Evolution API keys must stay outside Git;
+- WhatsApp sending must happen in backend or a protected n8n flow;
+- frontend can request an action, but provider calls must happen
+  server-side/protected;
+- do not expose sensitive endpoints to teacher/student UI;
+- log attempts with status, date/time, short error summary, and reference to
+  class/course/batch;
+- avoid saving full payloads when a summary is enough;
+- manual resend must require an authorized user;
+- preserve original failure history;
+- never log authentication headers or provider tokens.
 
-`Bruce Exercise List` segue a mesma fonte segura de acesso pedagógico:
-`Bruce Student Access`. As respostas são registradas em `Bruce Student Answer`.
+User-facing examples such as `Enviar aviso`, `Pré-visualizar WhatsApp`,
+`Reenviar aviso`, `Pendente`, `Enviado`, `Falhou`, and `Reenviado` must remain
+in Brazilian Portuguese.
 
-Regras de segurança:
+## 14. Educational Materials Security
 
-- listas para aluno devem estar publicadas;
-- lista publicada precisa ter pelo menos uma questão;
-- `published_at` é preenchido no backend quando a lista é publicada;
-- páginas e APIs do aluno não recebem aluno, curso ou turma como parâmetros de
-  liberação;
-- aluno só recebe listas compatíveis com seu acesso ativo por turma ou curso;
-- aluno só pode buscar questões de lista publicada e permitida;
-- a API de questões da lista não retorna gabarito nem resolução comentada;
-- resposta de aluno é salva sempre para `frappe.session.user`;
-- `selected_option` pode vir do frontend, mas `student_user`, acesso e
-  `is_correct` são definidos no backend;
-- `Pendente`, `Bloqueado` e `Expirado` não liberam listagem, leitura ou resposta
-  de listas.
+Rules for `Bruce Educational Material`:
 
-## Progresso do aluno
+- student materials must be published;
+- student materials must have visibility `Aluno`;
+- `Professor` and `Interno` visibility must not be returned to `LMS Student`;
+- `published_at` is set server-side when published;
+- frontend must not define student/course/batch access;
+- student receives only materials compatible with active `Bruce Student Access`;
+- `Pendente`, `Bloqueado`, and `Expirado` do not unlock materials;
+- private file access must require authorization;
+- avoid public URLs for private student-only files unless intentionally public.
 
-O progresso inicial do aluno é calculado no backend a partir de
-`Bruce Student Access`, `Bruce Exercise List` e `Bruce Student Answer`.
+## 15. ENEM Question Bank Security
 
-Regras de segurança:
+Rules for `Bruce ENEM Question`:
 
-- o aluno não pode informar outro `student_user` no frontend para consultar
-  progresso;
-- aluno só recebe o próprio progresso e somente quando o acesso pedagógico está
-  `Ativo`;
-- `Pendente`, `Bloqueado` e `Expirado` retornam apenas estado bloqueado, sem
-  métricas pedagógicas liberadas;
-- resumo por turma exige papel operacional autorizado no backend;
-- parâmetros de curso ou turma enviados pelo frontend não liberam acesso
-  pedagógico e servem apenas para consulta autorizada de resumo;
-- a etapa não expõe gabarito, resolução comentada, dados financeiros, cobrança
-  ou segredos.
+- student-visible questions must be published;
+- published questions must have answer key configured;
+- `published_at` is set server-side;
+- student listing is generated from the authenticated user and access scope;
+- frontend must not define student/course/batch access;
+- student receives only questions compatible with active access;
+- initial student API must not return answer key or commented resolution before
+  answer flow allows it;
+- `Pendente`, `Bloqueado`, and `Expirado` do not unlock questions.
 
-Integrações futuras com SaaS financeiro externo devem atualizar apenas o status
-pedagógico e referências opacas. Não salvar tokens, dados de cartão, payloads
-financeiros completos ou segredos em `Bruce Student Access`.
+## 16. Exercise Lists and Student Answers Security
 
-## Painel operacional
+Rules for `Bruce Exercise List` and `Bruce Student Answer`:
 
-O `Painel Operacional` (`/app/bruce-operational-dashboard`) é uma tela
-administrativa de agregados acadêmicos e operacionais.
+- student-visible lists must be published;
+- published list must have at least one question;
+- `published_at` is set server-side;
+- student receives only lists compatible with active `Bruce Student Access`;
+- student can fetch only questions from allowed published lists;
+- student question API must not return answer key or commented resolution before
+  answer submission when controlled attempts are implemented;
+- `selected_option` may come from frontend;
+- `student_user` must always be `frappe.session.user`;
+- `is_correct` must be computed server-side;
+- student cannot submit answers for another student;
+- `Pendente`, `Bloqueado`, and `Expirado` cannot list, read, or answer exercise
+  lists.
 
-Regras de segurança:
+## 17. Student Progress Security
 
-- a API backend deve validar permissão antes de consultar qualquer dado;
-- somente `Administrator`, `System Manager`, `Administrador LMS`,
-  `Admin operacional` ou `LMS Admin` podem acessar os agregados;
-- alunos comuns e `LMS Student` não podem acessar o painel nem a API;
-- retornar apenas contagens, resumos e listas operacionais mínimas;
-- não retornar API keys, tokens, endpoints sensíveis, dados financeiros,
-  payloads de integração ou informações pessoais desnecessárias;
-- o frontend não deve ser tratado como fonte de autorização.
+Rules:
 
-## Logs
+- progress is calculated server-side;
+- student cannot provide another `student_user` to view progress;
+- student sees only their own progress;
+- student progress is shown only when `Bruce Student Access` is `Ativo`;
+- `Pendente`, `Bloqueado`, and `Expirado` return blocked state without
+  pedagogical metrics;
+- teacher/admin summary by class requires authorized role;
+- course/batch parameters from frontend do not grant access;
+- do not expose answer keys, commented resolutions, financial data, secrets, or
+  raw payloads through progress APIs.
 
-Logs devem ajudar na auditoria operacional sem virar depósito de dados sensíveis.
+## 18. Operational Dashboard Security
 
-Registrar:
+Rules for `Painel Operacional` / `bruce-operational-dashboard`:
 
-- origem da ação;
-- usuário responsável quando aplicável;
-- data/hora;
+- backend API must validate permission before querying data;
+- only `Administrator`, `System Manager`, `Administrador LMS`,
+  `Admin operacional`, or `LMS Admin` can access aggregates;
+- `LMS Student` must not access dashboard or API;
+- return only counts, summaries, and minimal operational lists;
+- do not return API keys, tokens, sensitive endpoints, financial data, full
+  integration payloads, or unnecessary personal data;
+- frontend is not authorization.
+
+## 19. External Financial SaaS Integration Security
+
+Future:
+
+The Frappe app should not implement billing, checkout, subscriptions, lead
+capture, newsletter, blog, or CRM. The external SaaS will eventually send access
+status updates to Frappe.
+
+Rules for future webhooks:
+
+- verify webhook signature or shared secret server-side;
+- do not trust payment/access status from frontend;
+- store only necessary pedagogical status and opaque external IDs;
+- do not store card data;
+- do not store full financial payloads unless strictly necessary;
+- log minimal webhook result and correlation ID;
+- handle replay protection when possible;
+- make activation/blocking idempotent;
+- failed webhook should not partially corrupt access state.
+
+Future data that may be received:
+
+- `external_customer_id`;
+- plan identifier;
+- pedagogical status;
+- course;
+- batch;
+- expiration date;
+- cancellation status.
+
+## 20. Multi-Tenant / Multi-Organization Security
+
+Even if the current project starts with one course, future scaling must enforce
+tenant isolation.
+
+Rules:
+
+- if multiple schools, courses, companies, creators, or organizations use the
+  system, every query must enforce tenant isolation;
+- users from tenant A must never access tenant B data;
+- IDs from URL must be checked against tenant/account/school scope;
+- background jobs must preserve tenant context;
+- webhooks must validate ownership before updating records;
+- broken tenant isolation is high or critical severity.
+
+Future multi-tenant expansion must be designed before selling to multiple
+independent operators on the same instance.
+
+## 21. File Upload and Private File Security
+
+Rules:
+
+- limit file size;
+- restrict allowed file types when possible;
+- do not trust file extension alone;
+- store sensitive files outside public paths;
+- require authorization before private file download;
+- prevent path traversal;
+- avoid exposing private files through public URLs;
+- rename files on upload when needed;
+- do not allow executable uploads;
+- consider scanning or validating files when production requires it.
+
+Apply this to:
+
+- PDFs;
+- educational materials;
+- attachments;
+- future student uploads;
+- future support files.
+
+## 22. Logging and Monitoring
+
+Logs should help audit operation without leaking sensitive data.
+
+Log:
+
+- action origin;
+- responsible user;
+- date/time;
 - status;
-- destinatário mínimo necessário;
-- erro resumido do provedor;
-- referência para aula, curso ou turma.
+- minimal recipient/reference;
+- short provider error;
+- reference to class/course/batch/material/list when useful;
+- permission failures when useful.
 
-Evitar registrar:
+Do not log:
 
 - API keys;
 - tokens;
-- senhas;
-- headers de autenticação;
-- payloads completos com dados pessoais quando um resumo bastar.
+- passwords;
+- auth headers;
+- private keys;
+- full provider payloads;
+- unnecessary personal data;
+- full student data dumps.
 
-## Revisão antes de commit
+Security-relevant events to consider:
 
-Antes de commitar, verificar:
+- login attempts;
+- failed login attempts;
+- password reset requests;
+- permission changes;
+- admin actions;
+- class start/open events;
+- WhatsApp send failures;
+- external webhook failures;
+- suspicious access denials;
+- API authentication failures;
+- changes to sensitive settings.
 
-- nenhum arquivo sensível foi adicionado;
-- `.env` real não aparece no diff;
-- `site_config.json` e `common_site_config.json` não aparecem no diff;
-- tokens não aparecem em código, documentação ou testes;
-- novas APIs validam permissão no backend;
-- textos de erro não expõem detalhes internos sensíveis;
-- usuário professor não depende de `Administrator`.
+## 23. Dependency Security
 
-## Incidente ou vazamento
+Rules:
 
-Se uma credencial for commitada ou exposta:
+- dependencies must be necessary and trusted;
+- security updates should be prioritized;
+- dependency changes should be reviewed carefully.
 
-1. revogar ou rotacionar a credencial imediatamente;
-2. remover o segredo do código e da configuração versionada;
-3. revisar logs e acessos relacionados;
-4. registrar a decisão de correção;
-5. evitar reutilizar a credencial antiga.
+Prioritize vulnerabilities that:
+
+- are remotely exploitable;
+- have a proof of concept;
+- affect authentication/authorization;
+- affect file upload;
+- affect server-side rendering or request handling;
+- affect data access;
+- are actively exploited.
+
+Use GitHub security alerts or dependency alerts when available. Production
+deployments should have a process for security updates.
+
+## 24. Cache and Performance Security
+
+This project may add cache later. Cache must never weaken access control.
+
+Rules:
+
+- cache must never bypass permissions;
+- cache keys for student data must include user and access scope;
+- do not use generic keys like `student_home` or `progress` for user-specific
+  data;
+- operational aggregates can use short TTL cache;
+- access status should be treated carefully and invalidated quickly;
+- when in doubt, prefer correctness and access control over speed.
+
+Safe example:
+
+```text
+student_progress:<user>:<course_or_batch>
+```
+
+Unsafe example:
+
+```text
+student_progress
+```
+
+## 25. Deployment Security
+
+Future production deployment must ensure:
+
+- HTTPS enabled;
+- secure database credentials;
+- Redis services protected;
+- workers running with least required privilege;
+- scheduler running intentionally;
+- backups configured;
+- logs monitored;
+- production secrets outside Git;
+- debug mode disabled;
+- admin credentials rotated from defaults;
+- system users separated by responsibility;
+- private files not exposed by Nginx unintentionally;
+- security headers considered where appropriate.
+
+## 26. Backup and Restore Security
+
+Rules:
+
+- backups may contain sensitive data;
+- backups must not be committed to Git;
+- backups must be protected at rest;
+- backups should be stored outside the application repository;
+- production backups should be encrypted or access-controlled;
+- restore process must be tested;
+- old backups should have retention rules;
+- backup filenames/logs should not expose unnecessary sensitive data.
+
+## 27. Incident Response
+
+When a security incident is suspected:
+
+1. Confirm the issue.
+2. Assess impact.
+3. Contain the problem.
+4. Revoke or rotate exposed credentials if needed.
+5. Patch the vulnerability.
+6. Review logs.
+7. Identify affected users/data.
+8. Notify affected users when necessary.
+9. Document root cause.
+10. Add tests or controls to prevent recurrence.
+
+If a secret was committed:
+
+1. Revoke it immediately.
+2. Generate a new secret.
+3. Remove it from code/configuration.
+4. Review logs for misuse.
+5. Document the incident.
+6. Do not reuse the old secret.
+
+## 28. Security Checklist for Contributors
+
+- [ ] No real secrets were committed.
+- [ ] `.env` real files are not in the diff.
+- [ ] `site_config.json` is not in the diff.
+- [ ] `common_site_config.json` is not in the diff.
+- [ ] No API keys, tokens, passwords, or private certificates appear in
+      code/docs/tests.
+- [ ] New endpoints validate authentication.
+- [ ] New endpoints validate authorization server-side.
+- [ ] Student data queries are scoped to `frappe.session.user` and
+      `Bruce Student Access`.
+- [ ] Course/batch parameters from frontend do not grant access.
+- [ ] Admin-only APIs reject `LMS Student`.
+- [ ] Teacher/admin actions validate role.
+- [ ] Sensitive actions are logged safely.
+- [ ] Errors do not expose stack traces or secrets to users.
+- [ ] File uploads/downloads are protected when private.
+- [ ] Webhooks are verified server-side.
+- [ ] Payment/access status is not trusted from frontend.
+- [ ] Cache does not bypass permissions.
+- [ ] Logs do not contain secrets or full sensitive payloads.
+- [ ] New dependencies are necessary and trusted.
+- [ ] Tests cover important permission checks when code changes.
+
+## 29. Project-Specific Security Rules Summary
+
+| Area | Main Rule | Risk if Broken |
+| ---- | --------- | -------------- |
+| Student access | `Bruce Student Access` controls pedagogical access. | Blocked or unauthorized students may access protected content. |
+| Live class/Jitsi | Room data is returned only after backend permission checks. | Unauthorized users may enter live classes. |
+| Materials | Student materials must be published and allowed for the user scope. | Private or internal materials may leak. |
+| ENEM questions | Student APIs must not expose answer keys too early. | Students may see answers before attempting questions. |
+| Exercise lists | Answers are tied to `frappe.session.user` and validated server-side. | Students may submit or view answers for others. |
+| Student answers | `is_correct` is computed server-side. | Frontend may manipulate results. |
+| Student progress | Progress is calculated server-side for the authenticated user. | Student metrics may leak across users. |
+| Operational dashboard | Only authorized operational roles can access aggregates. | Students may access admin data. |
+| WhatsApp/Evolution | Provider secrets stay backend/protected. | API keys or endpoints may leak. |
+| External financial SaaS | Future webhooks must be verified server-side. | Payment/access status may be spoofed. |
+| Logs | Logs must be useful but minimal. | Sensitive data may be stored unnecessarily. |
+| Backups | Backups must stay outside Git and be protected. | Full data exposure. |
+| Cache | Cache must include permission scope. | Cached private data may leak. |
+
+## 30. Contact
+
+- `security@example.com`
+- `contact@example.com`
+
+Replace these placeholders before public production use.
