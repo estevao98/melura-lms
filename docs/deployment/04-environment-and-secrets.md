@@ -79,6 +79,17 @@ It must not be:
 key belongs in environment configuration, `site_config.json`, or a secret
 manager.
 
+For real live-class sending, production must provide the key using one of the
+supported names:
+
+- `evolution_api_key` in site config;
+- `EVOLUTION_API_KEY` in site config;
+- `EVOLUTION_API_KEY` as an environment variable.
+
+The key is required only for `Evolution API` provider mode. Missing keys must
+fail closed before any external call. Configuration tests must report only that
+the key was found or missing, never its value.
+
 ## n8n Webhook URL Handling
 
 An n8n webhook URL can be sensitive if possession of the URL allows triggering
@@ -88,6 +99,27 @@ an action. Treat protected webhook URLs like secrets:
 - do not expose to students or teachers;
 - do not log full URLs if they include tokens or unguessable paths;
 - validate backend permission before calling the webhook.
+
+For real sending through n8n, configure `Bruce Evolution Settings` with a
+protected webhook URL only in the target environment. Avoid hardcoding webhook
+URLs in fixtures, scripts, tests, docs, or frontend code. If the webhook URL is
+rotated, update the deployment secret/config and verify that old URLs no longer
+trigger sends.
+
+## WhatsApp Sending And Retry Safety
+
+Real sends and manual retry must run through backend methods only. Production
+operators should verify:
+
+- provider mode is intentionally enabled;
+- preview works without provider calls;
+- disabled or incomplete configuration creates failed logs without external
+  calls;
+- provider responses are redacted before storage;
+- `Enviado` and `Reenviado` logs do not resend on retry;
+- retry is limited to `Pendente` and `Falhou` live-class notification logs;
+- provider secrets are absent from browser responses, Frappe logs, notification
+  logs, tests, and committed files.
 
 ## Jitsi Domain And Config Handling
 

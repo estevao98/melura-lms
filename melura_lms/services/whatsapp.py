@@ -32,6 +32,9 @@ TEST_MESSAGE = (
 LOG_STATUS_PENDING = "Pendente"
 LOG_STATUS_SENT = "Enviado"
 LOG_STATUS_FAILED = "Falhou"
+LOG_STATUS_RESENT = "Reenviado"
+LOG_SUCCESS_STATUSES = {LOG_STATUS_SENT, LOG_STATUS_RESENT}
+LOG_RETRYABLE_STATUSES = {LOG_STATUS_PENDING, LOG_STATUS_FAILED}
 CONFIG_STATUS_VALID = "valid"
 CONFIG_STATUS_MISSING_SETTINGS = "missing_settings"
 CONFIG_STATUS_DISABLED = "disabled"
@@ -129,8 +132,8 @@ def send_evolution_test_message(phone):
 
 	try:
 		provider_response = call_evolution_api(settings, recipient["phone"], TEST_MESSAGE)
-	except Exception:
-		frappe.log_error(frappe.get_traceback(), _("Falha ao enviar mensagem de teste pela Evolution API"))
+	except Exception as error:
+		log_safe_provider_error(error, _("Falha ao enviar mensagem de teste pela Evolution API"))
 		return summarize_single_test_result(
 			mark_log_failed(
 				log,
@@ -139,6 +142,76 @@ def send_evolution_test_message(phone):
 		)
 
 	return summarize_single_test_result(mark_log_sent(log, provider_response))
+
+
+@frappe.whitelist()
+def retry_live_class_notification(log_name):
+	"""Retry a failed or pending live-class WhatsApp notification log."""
+	log = frappe.get_doc("Bruce WhatsApp Notification Log", log_name)
+	live_class = get_retry_live_class(log)
+	check_retry_permission(log, live_class)
+
+	if not is_retryable_notification_log(log):
+		return {
+			"status": "not_retryable",
+			"sent": False,
+			"log": log.name,
+			"message": _("Esta notificação não pode ser reenviada pelo estado atual."),
+		}
+
+	recipient = {
+		"user": None,
+		"recipient_name": log.recipient_name,
+		"phone": normalize_phone(log.phone),
+	}
+	result = send_logged_message(live_class, recipient, log.message, log, retry=True)
+	update_live_class_whatsapp_status(live_class, [result], retry=True)
+
+	if result["status"] == "sent":
+		return {
+			"status": "sent",
+			"sent": True,
+			"log": log.name,
+			"message": _("Mensagem reenviada por WhatsApp."),
+		}
+
+	return {
+		"status": "failed",
+		"sent": False,
+		"log": log.name,
+		"message": result.get("error_message") or _("Não foi possível reenviar a mensagem pelo WhatsApp."),
+	}
+
+
+def retry_failed_live_class_link(log_name):
+	return retry_live_class_notification(log_name)
+
+
+def get_retry_live_class(log):
+	if not getattr(log, "related_live_class", None):
+		frappe.throw(_("Somente notificações vinculadas a uma aula ao vivo podem ser reenviadas."))
+
+	return frappe.get_doc("Bruce Live Class", log.related_live_class)
+
+
+def check_retry_permission(log, live_class):
+	if frappe.has_permission("Bruce WhatsApp Notification Log", "write", doc=log):
+		return
+
+	if live_class and frappe.has_permission("Bruce Live Class", "write", doc=live_class):
+		return
+
+	frappe.throw(_("Você não tem permissão para reenviar esta notificação de WhatsApp."))
+
+
+def is_retryable_notification_log(log_doc):
+	if getattr(log_doc, "status", None) in LOG_SUCCESS_STATUSES:
+		return False
+
+	if getattr(log_doc, "status", None) not in LOG_RETRYABLE_STATUSES:
+		return False
+
+	return bool(getattr(log_doc, "related_live_class", None) and normalize_phone(getattr(log_doc, "phone", "")))
 
 
 def validate_evolution_configuration(settings=USE_STORED_SETTINGS):
@@ -274,7 +347,7 @@ def build_live_class_link_preview(live_class):
 	}
 
 
-def send_logged_message(live_class, recipient, message, log):
+def send_logged_message(live_class, recipient, message, log, retry=False):
 	settings = get_settings()
 	error_message = validate_send_request(live_class, recipient, settings)
 
@@ -283,14 +356,14 @@ def send_logged_message(live_class, recipient, message, log):
 
 	try:
 		provider_response = call_provider(settings, recipient["phone"], message, live_class)
-	except Exception:
-		frappe.log_error(frappe.get_traceback(), _("Falha ao enviar link de aula por WhatsApp"))
+	except Exception as error:
+		log_safe_provider_error(error, _("Falha ao enviar link de aula por WhatsApp"))
 		return mark_log_failed(
 			log,
 			_("Não foi possível falar com o provedor de WhatsApp. Tente novamente mais tarde."),
 		)
 
-	return mark_log_sent(log, provider_response)
+	return mark_log_sent(log, provider_response, retry=retry)
 
 
 def get_settings():
@@ -379,9 +452,11 @@ def call_n8n(settings, phone, message, live_class):
 
 def safe_response_json(response):
 	try:
-		return response.json()
+		payload = response.json()
 	except ValueError:
-		return {"status_code": response.status_code, "text": response.text[:500]}
+		payload = {"status_code": response.status_code, "text": response.text[:500]}
+
+	return normalize_provider_response(payload)
 
 
 def get_live_class_recipients(live_class):
@@ -535,11 +610,11 @@ def create_notification_log(live_class, recipient, message):
 	return log
 
 
-def mark_log_sent(log, provider_response):
-	log.status = LOG_STATUS_SENT
+def mark_log_sent(log, provider_response, retry=False):
+	log.status = LOG_STATUS_RESENT if retry else LOG_STATUS_SENT
 	log.sent_at = now_datetime()
 	log.error_message = ""
-	log.provider_response = json.dumps(redact_sensitive_values(provider_response), ensure_ascii=False, default=str)
+	log.provider_response = json.dumps(normalize_provider_response(provider_response), ensure_ascii=False, default=str)
 	log.save(ignore_permissions=True)
 	return {"status": "sent", "log": log.name}
 
@@ -547,13 +622,18 @@ def mark_log_sent(log, provider_response):
 def mark_log_failed(log, error_message):
 	log.status = LOG_STATUS_FAILED
 	log.sent_at = now_datetime()
-	log.error_message = error_message
+	log.error_message = get_safe_provider_error(error_message)
+	log.provider_response = json.dumps(
+		normalize_provider_response({"error": log.error_message}), ensure_ascii=False, default=str
+	)
 	log.save(ignore_permissions=True)
-	return {"status": "failed", "log": log.name, "error_message": error_message}
+	return {"status": "failed", "log": log.name, "error_message": log.error_message}
 
 
-def update_live_class_whatsapp_status(live_class, results):
-	status = "Enviado" if results and all(result["status"] == "sent" for result in results) else "Falhou"
+def update_live_class_whatsapp_status(live_class, results, retry=False):
+	status = LOG_STATUS_RESENT if retry and results and all(result["status"] == "sent" for result in results) else "Enviado"
+	if not (results and all(result["status"] == "sent" for result in results)):
+		status = "Falhou"
 	frappe.db.set_value("Bruce Live Class", live_class.name, "whatsapp_status", status, update_modified=True)
 
 
@@ -601,6 +681,35 @@ def normalize_phone(phone):
 	return phone
 
 
+def redact_provider_payload(payload):
+	return redact_sensitive_values(payload)
+
+
+def normalize_provider_response(response):
+	return redact_provider_payload(response)
+
+
+def get_safe_provider_error(error):
+	if isinstance(error, str):
+		message = error
+	else:
+		message = error.__class__.__name__
+
+	return strip_sensitive_text(message)[:500]
+
+
+def log_safe_provider_error(error, title):
+	frappe.log_error(get_safe_provider_error(error), title)
+
+
+def strip_sensitive_text(message):
+	message = str(message or "")
+	message = re.sub(r"(?i)(authorization\s*[=:]\s*)(bearer\s+)?\S+", r"\1***", message)
+	message = re.sub(r"(?i)(apikey|api_key|token|password|secret)(\s*[=:]\s*)\S+", r"\1\2***", message)
+	message = re.sub(r"(?i)bearer\s+\S+", "Bearer ***", message)
+	return message
+
+
 def redact_sensitive_values(value):
 	if isinstance(value, dict):
 		return {
@@ -615,4 +724,5 @@ def redact_sensitive_values(value):
 
 
 def is_sensitive_key(key):
-	return str(key).lower() in {"apikey", "api_key", "authorization", "token", "password", "secret"}
+	key = str(key).lower()
+	return any(part in key for part in ("apikey", "api_key", "authorization", "token", "password", "secret"))

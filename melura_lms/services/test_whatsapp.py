@@ -13,16 +13,28 @@ from melura_lms.services.whatsapp import (
 	CONFIG_STATUS_MISSING_SETTINGS,
 	CONFIG_STATUS_VALID,
 	LOG_STATUS_FAILED,
+	LOG_STATUS_PENDING,
+	LOG_STATUS_RESENT,
 	LOG_STATUS_SENT,
 	build_live_class_link_preview,
 	build_live_class_message,
+	get_safe_provider_error,
 	get_live_class_batch_recipient_candidates,
 	get_live_class_recipients,
+	is_retryable_notification_log,
+	mark_log_failed,
+	normalize_provider_response,
 	normalize_phone,
+	redact_provider_payload,
 	redact_sensitive_values,
+	retry_live_class_notification,
 	send_evolution_test_message,
 	send_live_class_link_for_doc,
 	validate_evolution_configuration,
+)
+
+retry_live_class_notification_without_frappe_wrapper = getattr(
+	retry_live_class_notification, "__wrapped__", retry_live_class_notification
 )
 
 
@@ -302,6 +314,57 @@ class TestWhatsAppService(unittest.TestCase):
 		self.assertNotIn("secret-api-key", str(result))
 		self.assertNotIn("secret-token", str(result))
 
+	def test_provider_response_redaction_handles_mixed_sensitive_key_aliases(self):
+		response = {
+			"clientSecret": "client-secret-value",
+			"access_token": "access-token-value",
+			"headers": {"authorization": "Bearer secret-token"},
+			"safe": {"status": "ok"},
+		}
+
+		result = redact_provider_payload(response)
+
+		self.assertEqual(result["clientSecret"], "***")
+		self.assertEqual(result["access_token"], "***")
+		self.assertEqual(result["headers"]["authorization"], "***")
+		self.assertEqual(result["safe"]["status"], "ok")
+		self.assertEqual(normalize_provider_response(response), result)
+		self.assertNotIn("client-secret-value", str(result))
+		self.assertNotIn("access-token-value", str(result))
+		self.assertNotIn("secret-token", str(result))
+
+	def test_safe_provider_error_redacts_secret_like_text(self):
+		error = "Falha authorization=Bearer secret-token api_key=secret-api-key"
+
+		result = get_safe_provider_error(error)
+
+		self.assertIn("authorization=***", result)
+		self.assertIn("api_key=***", result)
+		self.assertNotIn("secret-token", result)
+		self.assertNotIn("secret-api-key", result)
+
+	def test_failed_log_stores_redacted_error_provider_response(self):
+		log = FakeLog(
+			{
+				"status": LOG_STATUS_PENDING,
+				"related_live_class": "BLC-2026-00001",
+				"provider_response": "",
+			}
+		)
+
+		with (
+			patch("melura_lms.services.whatsapp.now_datetime", return_value="2026-05-30 12:00:00"),
+			patch("melura_lms.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = mark_log_failed(log, "Falha token=secret-token")
+
+		self.assertEqual(result["status"], "failed")
+		self.assertEqual(log.status, LOG_STATUS_FAILED)
+		self.assertIn("token=***", log.error_message)
+		self.assertNotIn("secret-token", log.error_message)
+		self.assertIn("token=***", log.provider_response)
+		self.assertNotIn("secret-token", log.provider_response)
+
 	def test_disabled_settings_registers_failed_log_without_external_call(self):
 		live_class = self.make_live_class()
 		settings = Mock(enabled=0, provider_mode="Evolution API")
@@ -331,6 +394,105 @@ class TestWhatsAppService(unittest.TestCase):
 		self.assertEqual(result["failed_count"], 1)
 		self.assertEqual(logs[0].status, LOG_STATUS_FAILED)
 		self.assertIn("desativada", logs[0].error_message)
+
+	def test_successful_notification_log_is_not_retryable(self):
+		log = FakeLog(
+			{
+				"status": LOG_STATUS_SENT,
+				"related_live_class": "BLC-2026-00001",
+				"phone": "5511999999999",
+			}
+		)
+
+		self.assertFalse(is_retryable_notification_log(log))
+
+	def test_failed_notification_log_is_retryable(self):
+		log = FakeLog(
+			{
+				"status": LOG_STATUS_FAILED,
+				"related_live_class": "BLC-2026-00001",
+				"phone": "5511999999999",
+			}
+		)
+
+		self.assertTrue(is_retryable_notification_log(log))
+
+	def test_retry_requires_backend_permission(self):
+		log = FakeLog(
+			{
+				"status": LOG_STATUS_FAILED,
+				"related_live_class": "BLC-2026-00001",
+				"phone": "5511999999999",
+				"recipient_name": "Ana",
+				"message": "Mensagem",
+			}
+		)
+		live_class = self.make_live_class()
+
+		with (
+			patch("melura_lms.services.whatsapp.frappe.get_doc", side_effect=[log, live_class]),
+			patch("melura_lms.services.whatsapp.frappe.has_permission", return_value=False),
+			patch("melura_lms.services.whatsapp.frappe.throw", side_effect=Exception("sem permissão")),
+			patch("melura_lms.services.whatsapp.requests.post") as post,
+			patch("melura_lms.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			with self.assertRaisesRegex(Exception, "sem permissão"):
+				retry_live_class_notification_without_frappe_wrapper(log.name)
+
+		post.assert_not_called()
+
+	def test_retry_does_not_duplicate_send_for_successful_log(self):
+		log = FakeLog(
+			{
+				"status": LOG_STATUS_SENT,
+				"related_live_class": "BLC-2026-00001",
+				"phone": "5511999999999",
+				"recipient_name": "Ana",
+				"message": "Mensagem",
+			}
+		)
+		live_class = self.make_live_class()
+
+		with (
+			patch("melura_lms.services.whatsapp.frappe.get_doc", side_effect=[log, live_class]),
+			patch("melura_lms.services.whatsapp.frappe.has_permission", return_value=True),
+			patch("melura_lms.services.whatsapp.requests.post") as post,
+			patch("melura_lms.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = retry_live_class_notification_without_frappe_wrapper(log.name)
+
+		post.assert_not_called()
+		self.assertEqual(result["status"], "not_retryable")
+
+	def test_retry_failed_live_class_notification_marks_log_as_resent(self):
+		log = FakeLog(
+			{
+				"status": LOG_STATUS_FAILED,
+				"related_live_class": "BLC-2026-00001",
+				"phone": "(11) 99999-9999",
+				"recipient_name": "Ana",
+				"message": "Mensagem da aula",
+			}
+		)
+		live_class = self.make_live_class()
+		settings = Mock(enabled=1, provider_mode="n8n", n8n_webhook_url="https://n8n.example/webhook")
+
+		with (
+			patch("melura_lms.services.whatsapp.frappe.get_doc", side_effect=[log, live_class]),
+			patch("melura_lms.services.whatsapp.frappe.has_permission", return_value=True),
+			patch("melura_lms.services.whatsapp.get_settings", return_value=settings),
+			patch("melura_lms.services.whatsapp.frappe.db", Mock()),
+			patch("melura_lms.services.whatsapp.now_datetime", return_value="2026-05-30 12:00:00"),
+			patch("melura_lms.services.whatsapp.requests.post", return_value=FakeResponse()) as post,
+			patch("melura_lms.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+		):
+			result = retry_live_class_notification_without_frappe_wrapper(log.name)
+
+		self.assertTrue(result["sent"])
+		self.assertEqual(log.status, LOG_STATUS_RESENT)
+		self.assertNotIn("apikey", log.provider_response)
+		post.assert_called_once()
+		self.assertEqual(post.call_args.kwargs["json"]["phone"], "5511999999999")
 
 	def test_n8n_provider_sends_message_and_marks_log_as_sent(self):
 		live_class = self.make_live_class()

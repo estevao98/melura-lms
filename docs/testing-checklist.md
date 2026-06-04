@@ -96,6 +96,31 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Reenvio manual preserva histórico da falha original.
 - Reenvio em lote exige confirmação quando houver risco operacional.
 
+## WhatsApp real sending and retry validation
+
+- Confirm preview does not call Evolution API or n8n and does not create
+  `Bruce WhatsApp Notification Log`.
+- Confirm disabled provider mode creates a safe failed log and makes no external
+  provider call.
+- Confirm missing `EVOLUTION_API_KEY` fails safely without exposing the missing
+  value or any configured secret.
+- Confirm mocked provider success returns only minimal status, counts, log name,
+  and Portuguese user-facing message.
+- Confirm mocked provider failure stores only a short redacted error and
+  redacted `provider_response`.
+- Confirm nested API keys, tokens, authorization headers, passwords, and
+  secrets are redacted recursively before storage.
+- Confirm `Enviado` and `Reenviado` logs are not retryable and do not trigger a
+  duplicate provider call.
+- Confirm `Pendente` and `Falhou` live-class logs are retryable only when the
+  backend permission check allows the user.
+- Confirm retry failure does not expose provider secrets in the response, log,
+  or exception summary.
+- Confirm retry tests mock provider calls and never call a real external API.
+- Confirm current retry history limitation is understood: the existing log is
+  updated because there is no retry count, attempt table, provider message ID,
+  or idempotency key field yet.
+
 ## External student status integration
 
 - Confirmar que o segredo do webhook fica fora do Git, em ambiente ou

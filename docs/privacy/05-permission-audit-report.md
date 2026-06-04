@@ -65,6 +65,7 @@ WhatsApp:
 - `melura_lms.services.whatsapp.preview_live_class_link`
 - `melura_lms.services.whatsapp.test_evolution_configuration`
 - `melura_lms.services.whatsapp.send_evolution_test_message`
+- `melura_lms.services.whatsapp.retry_live_class_notification`
 
 ## Permission Hooks Found
 
@@ -134,6 +135,9 @@ Child table sensitivity:
   status to `Ao vivo`.
 - WhatsApp preview/send loads the live class and calls
   `doc.check_permission("write")`.
+- WhatsApp retry loads the notification log, requires backend write permission
+  on the log or related live class, and only retries `Pendente` or `Falhou`
+  live-class logs.
 - Evolution configuration test requires `Bruce Evolution Settings` read
   permission.
 - Evolution test send requires `Bruce Evolution Settings` write permission.
@@ -179,6 +183,15 @@ Child table sensitivity:
   and card/customer financial payload storage are intentionally not implemented.
 - Backup, framework log, file storage, and production infrastructure retention
   were not audited in code because they are outside this app folder.
+- WhatsApp retry now refuses already successful `Enviado` or `Reenviado` logs
+  before provider calls, reducing accidental duplicate sends.
+- WhatsApp provider response storage now uses recursive redaction for broader
+  secret-like key aliases such as API keys, authorization headers, tokens,
+  passwords, and secrets before storing `provider_response`.
+- WhatsApp retry uses the existing notification log because the current schema
+  has no retry counter, attempt history child table, next retry timestamp,
+  provider message ID, or idempotency key. Exact attempt history and
+  provider-level idempotency remain open risks.
 
 ## Tests Already Existing
 
@@ -222,6 +235,10 @@ Priority coverage already present:
   the linked question has no answer key.
 - `melura_lms/services/test_whatsapp.py` now covers nested provider response
   redaction for API keys, authorization headers, and tokens.
+- `melura_lms/services/test_whatsapp.py` now covers WhatsApp retryability,
+  permission denial, no duplicate retry for already successful logs, successful
+  retry marking as `Reenviado`, broader provider secret redaction, and safe
+  provider error summaries.
 - `melura_lms/services/test_external_student_status.py` covers missing secret,
   missing signature, invalid signature, status mapping, unknown status
   rejection, financial/card-like payload rejection, allowed-field updates,
@@ -278,7 +295,10 @@ Open cache risks:
   List` in a real Frappe site.
 - Professor dashboard class scope with real instructor and non-instructor users.
 - Provider response redaction for broader mixed-case sensitive key aliases
-  beyond the nested API key, authorization, and token cases now covered.
+- Real-site permission tests for WhatsApp retry through Desk and direct API
+  calls with each operational role.
+- Provider-level delivery callbacks, retry counters, attempt history, and
+  idempotency keys once the notification log schema is intentionally extended.
 - Operational admin role matrix for each allowed admin role.
 - Future external SaaS webhook invalid signature, replay/idempotency, forbidden
   payload fields, and no financial payload persistence.
@@ -295,3 +315,6 @@ Open cache risks:
 - Minor/guardian handling is undecided.
 - Field-level exposure in Frappe Desk should be reviewed before production for
   every student-readable DocType.
+- WhatsApp retry updates the current notification log rather than preserving a
+  separate per-attempt history because no schema field currently supports that
+  history.

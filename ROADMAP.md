@@ -70,7 +70,7 @@ Needs refinement:
 
 - paused mobile student portal;
 - production Jitsi decision;
-- WhatsApp real sending/retry automation;
+- WhatsApp real sending/retry foundation;
 - permission audit;
 - cache/performance strategy;
 - deployment readiness foundation and production validation.
@@ -150,8 +150,8 @@ Definition of Done:
 Remaining work:
 
 - decide production Jitsi path: self-hosted Jitsi or Jitsi as a Service;
-- implement real WhatsApp sending/retry automation when provider configuration
-  is ready.
+- refine WhatsApp retry history, provider callbacks, and automation after the
+  real sending/retry foundation is validated.
 
 ## 8. Phase 3 — Security, Permissions, and Reliability
 
@@ -287,7 +287,7 @@ Definition of Done:
 | P0 | Backup/restore validation | Foundation added | Protects operational and student data from unrecoverable loss. | Production storage and restore process |
 | P1 | External student status integration | Future / Planned | Keeps pedagogical access synchronized with the external SaaS. | Signed webhook or protected integration endpoint |
 | P1 | Financial SaaS webhook for pedagogical access only | Future / Planned | Allows activation/block/expiration updates without importing billing logic. | External SaaS contract and webhook secret |
-| P1 | Real WhatsApp sending/retry flow | Future / Planned | Turns prepared communication flows into reliable operations. | Provider configuration and retry policy |
+| P1 | Real WhatsApp sending/retry flow | Started / Foundation added | Turns prepared communication flows into reliable operations. | Provider configuration, retry history, and provider callback policy |
 | P1 | Production Jitsi decision | Future / Planned | Chooses the right live-class hosting and access-control path. | Production requirements and budget |
 | P2 | Refactor paused mobile student portal | Future / Paused | Gives students a polished mobile-first experience. | Design system guidance and portal scope |
 | P2 | PWA shell | Future | Improves mobile access after the web portal is stable. | Stable student portal |
