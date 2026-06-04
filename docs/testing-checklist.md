@@ -18,9 +18,34 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Instalar a app em um site local com Frappe LMS.
 - Rodar migrações sem erro.
 - Confirmar que a app aparece como instalada no site.
+- Confirmar que o Workspace `Melura` é sincronizado após `migrate`.
 - Confirmar que configurações sensíveis podem ser lidas do ambiente ou site config.
 - Confirmar que valores ausentes geram erro claro para usuário autorizado.
 - Confirmar que `.env.example` não contém segredos reais.
+
+## Workspace Melura
+
+- Abrir `/app`.
+- Confirmar que o Workspace `Melura` aparece no Frappe Desk.
+- Confirmar que `Agenda de aulas ao vivo` abre o DocType `Melura Live Class Schedule`.
+- Confirmar que `Aulas ao vivo` abre o DocType técnico `Bruce Live Class`, mas
+  o rótulo visível no Workspace não expõe o nome legado.
+- Confirmar que `Minha Aula` abre `/app/minha-aula`.
+- Confirmar que `Painel do professor` abre `/app/bruce-professor-dashboard`
+  com rótulo visível neutro.
+- Confirmar que `Painel operacional` abre `/app/bruce-operational-dashboard`
+  com rótulo visível neutro.
+- Confirmar que `Configurações de WhatsApp`, `Modelos de mensagem` e
+  `Logs de WhatsApp` abrem seus DocTypes técnicos existentes sem expor o nome
+  legado no Workspace.
+- Confirmar que `Materiais didáticos`, `Questões ENEM` e `Listas de exercícios`
+  abrem os DocTypes técnicos existentes sem expor o nome legado no Workspace.
+- Confirmar que `Acessos dos alunos` e `Respostas dos alunos` abrem os DocTypes
+  técnicos existentes sem expor o nome legado no Workspace.
+- Confirmar que nenhum rótulo visível do Workspace usa o nome pessoal legado.
+- Confirmar que as rotas diretas existentes, como `/app/minha-aula`,
+  `/app/bruce-professor-dashboard`, `/app/bruce-operational-dashboard` e
+  `/app/bruce-live-room/<aula>`, continuam funcionando conforme permissões.
 
 ## Permissões e papéis
 

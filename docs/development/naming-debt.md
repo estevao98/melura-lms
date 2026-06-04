@@ -30,3 +30,9 @@ For this phase, keep those internal identifiers for compatibility. Do not expose
 legacy personal names or old video-provider names in new visible product copy.
 A future migration can rename technical DocTypes and routes with patches,
 redirects, fixture updates, and regression tests.
+
+The `Melura` Workspace intentionally links to some legacy technical DocTypes
+and routes while displaying neutral labels such as `Aulas ao vivo`,
+`Configurações de WhatsApp`, `Acessos dos alunos`, `Painel do professor`, and
+`Painel operacional`. This avoids a risky technical rename while giving users a
+Melura-branded navigation entry in Frappe Desk.

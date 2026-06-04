@@ -6,6 +6,19 @@ A interface final deve estar em português brasileiro, usar Frappe UI sempre que
 
 O usuário deve encontrar ações operacionais sem precisar entender Google Meet, Evolution API, n8n ou detalhes internos do Frappe. Termos técnicos devem aparecer apenas em telas administrativas ou logs.
 
+## Entrada principal no Desk
+
+Usuários operacionais devem acessar as funcionalidades customizadas pelo
+Workspace `Melura` em `/app`. O Workspace mostra atalhos e cards com rótulos
+neutros em português brasileiro para agenda de aulas ao vivo, aulas ao vivo,
+`Minha Aula`, `Painel do professor`, `Painel operacional`, WhatsApp, conteúdo
+pedagógico e acessos dos alunos.
+
+Alguns destinos ainda apontam para rotas ou DocTypes técnicos com nomes legados,
+como `bruce-professor-dashboard` ou `Bruce Student Access`. Esses nomes devem
+permanecer internos nesta etapa; o usuário deve ver `Melura` ou nomes neutros,
+não os identificadores legados.
+
 ## Papéis
 
 ### Professor
@@ -46,6 +59,8 @@ Necessidades principais:
 ## Fluxo: professor agenda ou prepara aula ao vivo
 
 1. Professor acessa o painel.
+   Preferencialmente, o professor entra pelo Workspace `Melura` no Frappe Desk
+   e abre `Painel do professor` ou `Agenda de aulas ao vivo`.
 2. Seleciona curso ou turma.
 3. Informa título, data, horário e duração prevista da aula.
 4. Sistema usa o link do Google Meet configurado para a agenda, turma ou aula.
@@ -79,6 +94,8 @@ Regras de UX:
 ## Fluxo: aluno entra na aula ao vivo
 
 1. Aluno acessa o LMS.
+   Quando estiver no Desk, o caminho esperado é abrir o Workspace `Melura` e
+   clicar em `Minha Aula`.
 2. Entra no curso ou na área de próximas aulas.
 3. Visualiza aula disponível.
 4. Clica em `Entrar na aula`.

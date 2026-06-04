@@ -25,6 +25,12 @@ Melura centraliza a experiência pedagógica em torno do Frappe LMS. Aulas ao vi
 
 A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sempre por backend ou fluxo protegido. Fluxos comerciais e financeiros ficam fora desta app e podem integrar no futuro apenas para atualizar status pedagógico de acesso.
 
+No Frappe Desk, o Workspace `Melura` centraliza os atalhos operacionais da app.
+Usuários devem acessar aulas, painéis, WhatsApp, conteúdos e acessos por esse
+Workspace em `/app`, sem precisar digitar rotas diretas. Algumas rotas e
+DocTypes internos ainda mantêm nomes técnicos legados para compatibilidade, mas
+os rótulos visíveis devem usar Melura ou nomes neutros em português brasileiro.
+
 ## Funcionalidades principais
 
 - Controle de acesso pedagógico do aluno - Concluído / quase concluído.
@@ -32,6 +38,7 @@ A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sem
 - Registros de aulas ao vivo - Concluído / quase concluído.
 - Aula ao vivo com link externo do Google Meet - Funcional.
 - Geração automática de aulas por agenda recorrente - Fundação adicionada.
+- Workspace `Melura` no Frappe Desk para navegação central - Funcional.
 - `Painel do Professor` - Concluído / quase concluído.
 - `Painel Operacional` - Concluído / quase concluído.
 - Materiais educacionais - Concluído / quase concluído.
@@ -116,6 +123,9 @@ Migração deve ser usada apenas quando houver mudança de schema, DocType, fixt
 ```bash
 bench --site curso.localhost migrate
 ```
+
+Mudanças em Workspaces padrão, como `melura_lms/melura_lms/workspace/melura/melura.json`,
+também exigem `migrate` para sincronizar o registro no site.
 
 ## Configuração
 

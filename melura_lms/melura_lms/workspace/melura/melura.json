@@ -1,0 +1,234 @@
+{
+ "app": "melura_lms",
+ "charts": [],
+ "content": "[{\"id\":\"melura-header-main\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Operação principal</b></span>\",\"col\":12}},{\"id\":\"melura-shortcut-schedule\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Agenda de aulas ao vivo\",\"col\":3}},{\"id\":\"melura-shortcut-live-classes\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Aulas ao vivo\",\"col\":3}},{\"id\":\"melura-shortcut-minha-aula\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Minha Aula\",\"col\":3}},{\"id\":\"melura-shortcut-professor\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Painel do professor\",\"col\":3}},{\"id\":\"melura-shortcut-operational\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Painel operacional\",\"col\":3}},{\"id\":\"melura-spacer-main\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"melura-header-sections\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Áreas Melura</b></span>\",\"col\":12}},{\"id\":\"melura-card-main\",\"type\":\"card\",\"data\":{\"card_name\":\"Operação principal\",\"col\":4}},{\"id\":\"melura-card-whatsapp\",\"type\":\"card\",\"data\":{\"card_name\":\"WhatsApp\",\"col\":4}},{\"id\":\"melura-card-content\",\"type\":\"card\",\"data\":{\"card_name\":\"Conteúdo pedagógico\",\"col\":4}},{\"id\":\"melura-card-access\",\"type\":\"card\",\"data\":{\"card_name\":\"Alunos e acesso\",\"col\":4}}]",
+ "creation": "2026-06-04 00:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "education",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Melura",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Operação principal",
+   "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Agenda de aulas ao vivo",
+   "link_count": 0,
+   "link_to": "Melura Live Class Schedule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Aulas ao vivo",
+   "link_count": 0,
+   "link_to": "Bruce Live Class",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Minha Aula",
+   "link_count": 0,
+   "link_to": "minha-aula",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Painel do professor",
+   "link_count": 0,
+   "link_to": "bruce-professor-dashboard",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Painel operacional",
+   "link_count": 0,
+   "link_to": "bruce-operational-dashboard",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "WhatsApp",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Configurações de WhatsApp",
+   "link_count": 0,
+   "link_to": "Bruce Evolution Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Modelos de mensagem",
+   "link_count": 0,
+   "link_to": "Bruce WhatsApp Message Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Logs de WhatsApp",
+   "link_count": 0,
+   "link_to": "Bruce WhatsApp Notification Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Conteúdo pedagógico",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Materiais didáticos",
+   "link_count": 0,
+   "link_to": "Bruce Educational Material",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Questões ENEM",
+   "link_count": 0,
+   "link_to": "Bruce ENEM Question",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Listas de exercícios",
+   "link_count": 0,
+   "link_to": "Bruce Exercise List",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Alunos e acesso",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Acessos dos alunos",
+   "link_count": 0,
+   "link_to": "Bruce Student Access",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Respostas dos alunos",
+   "link_count": 0,
+   "link_to": "Bruce Student Answer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-04 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Melura LMS",
+ "name": "Melura",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 20.0,
+ "shortcuts": [
+  {
+   "doc_view": "List",
+   "label": "Agenda de aulas ao vivo",
+   "link_to": "Melura Live Class Schedule",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Aulas ao vivo",
+   "link_to": "Bruce Live Class",
+   "type": "DocType"
+  },
+  {
+   "label": "Minha Aula",
+   "link_to": "minha-aula",
+   "type": "Page"
+  },
+  {
+   "label": "Painel do professor",
+   "link_to": "bruce-professor-dashboard",
+   "type": "Page"
+  },
+  {
+   "label": "Painel operacional",
+   "link_to": "bruce-operational-dashboard",
+   "type": "Page"
+  }
+ ],
+ "title": "Melura"
+}

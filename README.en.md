@@ -25,6 +25,13 @@ Melura centralizes the pedagogical experience around Frappe LMS. Live classes, s
 
 Communication can be prepared through WhatsApp using Evolution API or n8n, always through backend logic or a protected flow. Commercial and financial workflows stay outside this app and may integrate later only to update pedagogical access status.
 
+In Frappe Desk, the `Melura` Workspace centralizes operational navigation for
+this app. Users should access classes, dashboards, WhatsApp records, content,
+and student access from this Workspace at `/app` instead of typing direct
+routes. Some internal routes and DocTypes still keep legacy technical names for
+compatibility, but visible labels should use Melura or neutral Brazilian
+Portuguese names.
+
 ## Core Features
 
 - Pedagogical student access control - Done / mostly done.
@@ -32,6 +39,7 @@ Communication can be prepared through WhatsApp using Evolution API or n8n, alway
 - Live class records - Done / mostly done.
 - Live classes with external Google Meet links - Functional.
 - Automatic class generation from recurring schedules - Foundation added.
+- `Melura` Workspace in Frappe Desk for central navigation - Functional.
 - `Painel do Professor` - Done / mostly done.
 - `Painel Operacional` - Done / mostly done.
 - Educational materials - Done / mostly done.
@@ -116,6 +124,9 @@ Migration should be used only when schema, DocType, fixture, or patch changes re
 ```bash
 bench --site curso.localhost migrate
 ```
+
+Standard Workspace changes, such as `melura_lms/melura_lms/workspace/melura/melura.json`,
+also require `migrate` to sync the record into the site.
 
 ## Configuration
 
