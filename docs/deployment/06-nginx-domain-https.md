@@ -42,6 +42,12 @@ Nginx or an equivalent reverse proxy should handle:
 Private files must not become publicly accessible through reverse proxy
 misconfiguration.
 
+The Jitsi launch path is recorded in
+`docs/decisions/ADR-0001-jitsi-launch-path.md`. Managed Jitsi/JaaS and
+self-hosted Jitsi have different domain, reverse proxy, WebSocket, firewall,
+media, and support requirements; validate the selected path separately from the
+Frappe LMS domain.
+
 If the selected production Jitsi path uses a self-hosted Jitsi endpoint behind
 a reverse proxy, validate the Jitsi web frontend, `external_api.js`, WebSocket
 upgrade behavior, XMPP/WebSocket paths, media connectivity, and timeouts in

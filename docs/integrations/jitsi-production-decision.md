@@ -5,6 +5,11 @@ Melura LMS. It compares self-hosted Jitsi, Jitsi as a Service, and the current
 public `meet.jit.si` fallback, and it sets the boundaries for safe production
 implementation.
 
+The concrete launch-path selection is recorded in
+`docs/decisions/ADR-0001-jitsi-launch-path.md`: early production should follow
+a managed Jitsi / Jitsi as a Service style path while keeping `melura_lms`
+provider-neutral and preserving self-hosted Jitsi as a future option.
+
 It does not implement a paid provider integration, Docker/Jitsi automation,
 schema changes, or final production domains.
 

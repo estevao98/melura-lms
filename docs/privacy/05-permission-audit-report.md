@@ -125,6 +125,10 @@ Child table sensitivity:
   permission foundation. `docs/integrations/jitsi-production-decision.md`
   defines the boundary between self-hosted Jitsi, Jitsi as a Service, and the
   public `meet.jit.si` development/demo fallback.
+- The Jitsi launch-path decision is now recorded in
+  `docs/decisions/ADR-0001-jitsi-launch-path.md`. Early production should use a
+  managed Jitsi/JaaS-style path while preserving provider-neutral code and a
+  future self-hosted option.
 
 ## Admin / Teacher-Only Flows
 
@@ -326,8 +330,10 @@ Open cache risks:
 - WhatsApp retry updates the current notification log rather than preserving a
   separate per-attempt history because no schema field currently supports that
   history.
-- Production Jitsi provider/domain is not yet selected. Until that decision is
-  made, remaining privacy/security risks include provider subprocessor review,
-  data location and international transfer, meeting metadata retention,
-  recording consent/storage, and stronger Jitsi-side admission controls such as
-  provider-supported JWT or equivalent backend-generated credentials.
+- Production Jitsi launch path is selected at ADR level, but the concrete
+  provider/domain and final configuration are not committed here. Remaining
+  privacy/security risks include provider subprocessor review, data location
+  and international transfer, meeting metadata retention, recording
+  consent/storage, support access to meeting metadata, public fallback risk,
+  leaked external meeting URLs, and stronger Jitsi-side admission controls such
+  as provider-supported JWT or equivalent backend-generated credentials.

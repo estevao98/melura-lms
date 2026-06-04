@@ -65,11 +65,12 @@ Done / mostly done:
 - design system documentation;
 - security policy;
 - `AGENTS.md` instructions.
+- Jitsi launch-path selection ADR.
 
 Needs refinement:
 
 - paused mobile student portal;
-- production Jitsi decision validation after the decision foundation;
+- production Jitsi provider/configuration validation after the launch-path ADR;
 - WhatsApp real sending/retry foundation;
 - permission audit;
 - cache/performance strategy;
@@ -149,8 +150,10 @@ Definition of Done:
 
 Remaining work:
 
-- validate the production Jitsi decision foundation and choose the launch path:
-  self-hosted Jitsi or Jitsi as a Service;
+- validate the production Jitsi launch-path ADR in staging and configure the
+  selected managed Jitsi/JaaS-style endpoint without hard-coding a provider;
+- track self-hosted Jitsi as future implementation work if cost, privacy,
+  customization, or scale require it;
 - refine WhatsApp retry history, provider callbacks, and automation after the
   real sending/retry foundation is validated.
 

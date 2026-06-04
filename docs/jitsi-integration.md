@@ -7,7 +7,9 @@ de aula ao vivo dentro da app `melura_lms`.
 
 Para a decisão de produção entre Jitsi auto-hospedado, Jitsi as a Service e o
 fallback público de desenvolvimento, veja
-`docs/integrations/jitsi-production-decision.md`.
+`docs/integrations/jitsi-production-decision.md`. O caminho de lançamento
+selecionado para produção inicial está registrado em
+`docs/decisions/ADR-0001-jitsi-launch-path.md`.
 
 Não foram implementados nesta etapa:
 
@@ -82,7 +84,9 @@ Se `Bruce Jitsi Settings` não estiver disponível, a geração usa fallback seg
 Esse fallback é local/dev/demo. Ele não deve ser tratado como decisão final de
 produção sem aceite explícito dos riscos operacionais, de privacidade e de
 controle de acesso descritos em
-`docs/integrations/jitsi-production-decision.md`.
+`docs/integrations/jitsi-production-decision.md`. Produção inicial deve seguir
+o caminho de lançamento registrado em
+`docs/decisions/ADR-0001-jitsi-launch-path.md`.
 
 O backend não sobrescreve `room_name` nem `meeting_url` quando esses campos já
 possuem valor. Uma alteração futura que regenere esses campos deve documentar o
@@ -115,8 +119,10 @@ o Jitsi com a Jitsi IFrame API carregada por `https://<domínio>/external_api.js
 
 O domínio vem de `Bruce Jitsi Settings.domain`. Para `meet.jit.si`, manter
 `meet.jit.si` configurado nas settings apenas em desenvolvimento, testes, demos
-ou fallback temporário aprovado. Produção deve escolher e validar Jitsi
-auto-hospedado ou Jitsi as a Service antes de liberar acesso real.
+ou fallback temporário aprovado. Produção deve validar o caminho de lançamento
+do ADR antes de liberar acesso real e não pode depender de `curso.localhost`,
+localhost, domínio local, proxy local ou qualquer outra suposição exclusiva de
+desenvolvimento.
 
 A API backend
 `melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`

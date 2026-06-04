@@ -14,6 +14,12 @@ operations.
 - [ ] Smoke tests pass for student, teacher, and operational admin flows.
 - [ ] Production Jitsi path is selected and documented for launch using
       `docs/integrations/jitsi-production-decision.md`.
+- [ ] Jitsi launch path in
+      `docs/decisions/ADR-0001-jitsi-launch-path.md` is accepted by the
+      decision owner before go-live.
+- [ ] Production Jitsi configuration is tested with a real class flow:
+      teacher opens/starts the class, active student enters, blocked/out-of-scope
+      student is rejected, and explicit fallback behavior is verified.
 - [ ] Public `meet.jit.si` is limited to development/demo or explicitly
       accepted as a temporary production risk.
 - [ ] WhatsApp sending is disabled, test-only, or explicitly approved for real
@@ -88,5 +94,6 @@ operations.
 - [ ] Support process for blocked/expired access is documented.
 - [ ] Runbook owner knows deploy, rollback, backup, and restore steps.
 - [ ] Incident contact path is known.
-- [ ] Future work is tracked for production Jitsi decision, backup automation
+- [ ] Future work is tracked for Jitsi provider integration or self-hosted
+      implementation when needed, backup automation
       hardening, CI, and any Docker evaluation.

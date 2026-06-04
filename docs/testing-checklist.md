@@ -82,16 +82,22 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Aula cancelada não pode ser iniciada sem regra explícita.
 - Nenhuma credencial sensível aparece no HTML, JS ou resposta da API.
 
-## Jitsi production readiness validation
+## Jitsi launch-path validation
 
 - Confirmar que `docs/integrations/jitsi-production-decision.md` foi revisado
   antes de liberar produção.
-- Confirmar que a decisão de produção escolhe Jitsi auto-hospedado ou Jitsi as
-  a Service; `meet.jit.si` fica restrito a local/dev/demo ou fallback
-  temporário aprovado.
+- Confirmar que `docs/decisions/ADR-0001-jitsi-launch-path.md` foi aceito pelo
+  responsável pela decisão antes do go-live.
+- Confirmar que a produção inicial segue o caminho de Jitsi gerenciado / Jitsi
+  as a Service definido no ADR, mantendo Jitsi auto-hospedado como opção futura;
+  `meet.jit.si` fica restrito a local/dev/demo ou fallback temporário aprovado.
 - Confirmar que `Bruce Jitsi Settings` contém apenas domínio/prefixo públicos e
   nenhum segredo, JWT signing key, API key, token, credencial de provedor,
   domínio real sensível ou IP.
+- Confirmar que o fluxo do professor abre/inicia a aula com conta operacional
+  não-`Administrator`.
+- Confirmar que o fluxo do aluno `Ativo` entra na sala correta a partir de
+  `Minha Aula` ou `/app/bruce-live-room/<aula>`.
 - Confirmar que `/app/bruce-live-room/<aula>` continua retornando contexto
   Jitsi somente após validação backend de usuário, status da aula, escopo
   curso/turma e `Bruce Student Access`.
@@ -100,8 +106,13 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
   ou sala embutida.
 - Confirmar que professor/admin autorizado consegue abrir a sala sem usar
   `Administrator` como conta operacional.
+- Confirmar que `Abrir em nova aba` continua sendo fallback explícito e que a
+  app não abre automaticamente `meet.jit.si` ou outro endpoint externo.
 - Confirmar que HTTPS, reverse proxy, WebSocket, firewall e carregamento de
   `external_api.js` funcionam para o caminho Jitsi escolhido.
+- Confirmar que HTML, JS, respostas de API, logs, fixtures e testes não expõem
+  segredo, token, API key, JWT signing key, credencial de provedor ou dado real
+  de aluno.
 - Confirmar que gravação está desabilitada ou aprovada em documento separado
   com consentimento, armazenamento, retenção e exclusão definidos.
 
