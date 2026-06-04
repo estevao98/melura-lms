@@ -73,6 +73,7 @@ flowchart TD
 - `docs/jitsi-integration.md`: Jitsi integration rules and implementation.
 - `docs/ux-flows.md`: teacher, student, admin, Jitsi, WhatsApp, and progress flows.
 - `docs/testing-checklist.md`: manual validation and future automation checklist.
+- `docs/deployment/`: deployment and production-readiness documentation.
 - `docs/kpis-admin.md`: reserved for admin KPI guidance when populated.
 - `melura_lms/`: custom Frappe app code.
 
@@ -184,6 +185,7 @@ These responsibilities may belong to another repository or an external SaaS, not
 - [docs/jitsi-integration.md](docs/jitsi-integration.md): live classes, embedded room, and Jitsi rules.
 - [docs/ux-flows.md](docs/ux-flows.md): operational flows for student, teacher, admin, WhatsApp, and progress.
 - [docs/testing-checklist.md](docs/testing-checklist.md): manual validation and future automation.
+- [docs/deployment/00-overview.md](docs/deployment/00-overview.md): deployment and production-readiness overview.
 - [docs/kpis-admin.md](docs/kpis-admin.md): reserved for admin KPIs when populated.
 
 ## License

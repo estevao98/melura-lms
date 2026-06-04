@@ -73,7 +73,7 @@ Needs refinement:
 - WhatsApp real sending/retry automation;
 - permission audit;
 - cache/performance strategy;
-- deployment readiness.
+- deployment readiness foundation and production validation.
 
 ## 5. Phase 0 — Foundation
 
@@ -182,7 +182,7 @@ Definition of Done:
 
 ## 9. Phase 4 — External Access Integration
 
-Status: Future / Planned.
+Status: Started / Foundation added.
 
 Goal: allow the external financial/commercial SaaS to update pedagogical access
 safely.
@@ -229,6 +229,7 @@ Priority work:
 - dependency update process;
 - security checklist;
 - deployment documentation.
+- repository-only deployment documentation validation helper.
 
 Definition of Done:
 
@@ -273,7 +274,7 @@ Definition of Done:
 | -------- | ---- | ------ | -------------- | ------------ |
 | P0 | Permission audit | Planned | Confirms students, teachers, and admins only access their allowed scope. | Current DocTypes, pages, and APIs |
 | P0 | Cache/performance basics | Planned | Improves reliability without weakening access control. | Permission model and cache key plan |
-| P0 | Deployment readiness | Planned | Removes local-only assumptions before production use. | Production bench checklist |
+| P0 | Deployment readiness | Foundation added | Removes local-only assumptions before production use. | Production bench checklist |
 | P0 | Backup/restore validation | Planned | Protects operational and student data from unrecoverable loss. | Production storage and restore process |
 | P1 | External student status integration | Future / Planned | Keeps pedagogical access synchronized with the external SaaS. | Signed webhook or protected integration endpoint |
 | P1 | Financial SaaS webhook for pedagogical access only | Future / Planned | Allows activation/block/expiration updates without importing billing logic. | External SaaS contract and webhook secret |
@@ -331,4 +332,5 @@ implemented inside `melura_lms` by default.
 - `docs/jitsi-integration.md`
 - `docs/ux-flows.md`
 - `docs/testing-checklist.md`
+- `docs/deployment/00-overview.md`
 - `docs/kpis-admin.md`

@@ -137,6 +137,18 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que respostas para frontend não incluem API keys.
 - Confirmar que endpoints de integração rejeitam chamadas sem autenticação ou escopo válido.
 
+## Deployment readiness validation
+
+- Confirmar que `docs/deployment/` contém os documentos exigidos de prontidão
+  de deploy e produção.
+- Rodar `python3 scripts/check_deployment_readiness.py` a partir da raiz da app.
+- Confirmar que os docs mencionam segredos fora do Git, Redis, workers,
+  scheduler, backup, restore, HTTPS e rollback.
+- Confirmar que os exemplos usam placeholders, sem domínio, IP, credencial,
+  telefone, e-mail ou dado real de aluno.
+- Confirmar que `migrate` não é necessário quando a mudança for apenas
+  documentação ou script de validação de repositório.
+
 ## Futuras validações automatizadas
 
 ### Testes unitários
