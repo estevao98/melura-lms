@@ -69,7 +69,7 @@ Done / mostly done:
 Needs refinement:
 
 - paused mobile student portal;
-- production Jitsi decision;
+- production Jitsi decision validation after the decision foundation;
 - WhatsApp real sending/retry foundation;
 - permission audit;
 - cache/performance strategy;
@@ -149,7 +149,8 @@ Definition of Done:
 
 Remaining work:
 
-- decide production Jitsi path: self-hosted Jitsi or Jitsi as a Service;
+- validate the production Jitsi decision foundation and choose the launch path:
+  self-hosted Jitsi or Jitsi as a Service;
 - refine WhatsApp retry history, provider callbacks, and automation after the
   real sending/retry foundation is validated.
 
@@ -288,7 +289,7 @@ Definition of Done:
 | P1 | External student status integration | Future / Planned | Keeps pedagogical access synchronized with the external SaaS. | Signed webhook or protected integration endpoint |
 | P1 | Financial SaaS webhook for pedagogical access only | Future / Planned | Allows activation/block/expiration updates without importing billing logic. | External SaaS contract and webhook secret |
 | P1 | Real WhatsApp sending/retry flow | Started / Foundation added | Turns prepared communication flows into reliable operations. | Provider configuration, retry history, and provider callback policy |
-| P1 | Production Jitsi decision | Future / Planned | Chooses the right live-class hosting and access-control path. | Production requirements and budget |
+| P1 | Production Jitsi decision | Started / Foundation added | Chooses the right live-class hosting and access-control path. | Production requirements, budget, and privacy review |
 | P2 | Refactor paused mobile student portal | Future / Paused | Gives students a polished mobile-first experience. | Design system guidance and portal scope |
 | P2 | PWA shell | Future | Improves mobile access after the web portal is stable. | Stable student portal |
 | P2 | User documentation with screenshots | Future | Helps teacher/admin operate the product consistently. | Stable screens |
@@ -329,6 +330,7 @@ implemented inside `melura_lms` by default.
 | 2026-06-02 | Keep internal docs in English. | English documentation improves maintainability for future contributors and agents. |
 | 2026-06-02 | Pause mobile portal until design system is stronger. | The mobile student experience needs stronger visual/menu guidance before continuing. |
 | 2026-06-02 | Use `meet.jit.si` for development/testing, evaluate production Jitsi later. | Development can move with a safe default while production access control is decided separately. |
+| 2026-06-03 | Add production Jitsi decision foundation. | Early production should compare self-hosted Jitsi and Jitsi as a Service before treating public `meet.jit.si` as anything beyond development/demo fallback. |
 
 ## 15. Related Documents
 
@@ -339,6 +341,7 @@ implemented inside `melura_lms` by default.
 - `docs/roles-permissions.md`
 - `docs/student-access-integration.md`
 - `docs/jitsi-integration.md`
+- `docs/integrations/jitsi-production-decision.md`
 - `docs/ux-flows.md`
 - `docs/testing-checklist.md`
 - `docs/deployment/00-overview.md`

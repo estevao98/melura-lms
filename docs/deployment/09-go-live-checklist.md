@@ -12,7 +12,10 @@ operations.
 - [ ] Workers, scheduler, Redis, socketio, database, and reverse proxy are
       supervised.
 - [ ] Smoke tests pass for student, teacher, and operational admin flows.
-- [ ] Production Jitsi path is documented for launch.
+- [ ] Production Jitsi path is selected and documented for launch using
+      `docs/integrations/jitsi-production-decision.md`.
+- [ ] Public `meet.jit.si` is limited to development/demo or explicitly
+      accepted as a temporary production risk.
 - [ ] WhatsApp sending is disabled, test-only, or explicitly approved for real
       sends.
 
@@ -50,6 +53,8 @@ operations.
 - [ ] Students cannot access operational dashboard APIs.
 - [ ] Teacher/admin actions validate roles server-side.
 - [ ] Jitsi room context is returned only after backend permission checks.
+- [ ] Jitsi production provider/domain settings expose no credentials, JWT
+      signing keys, API keys, or provider secrets to frontend responses.
 - [ ] WhatsApp preview/send/test methods do not expose provider secrets.
 
 ## Backup And Restore Checklist
@@ -71,6 +76,8 @@ operations.
 - [ ] Certificate renewal is automated or operationally scheduled.
 - [ ] HTTP redirects to HTTPS where appropriate.
 - [ ] Reverse proxy handles WebSocket requirements when socketio is used.
+- [ ] Chosen Jitsi path has HTTPS, reverse proxy, WebSocket, and firewall
+      behavior validated in staging.
 - [ ] Private files are not unintentionally exposed by Nginx.
 
 ## Operational Handoff Checklist

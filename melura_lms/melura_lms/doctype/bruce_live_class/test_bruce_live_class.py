@@ -64,6 +64,8 @@ class TestBruceLiveClass(unittest.TestCase):
 
 	def test_get_jitsi_settings_caches_only_public_values(self):
 		settings = Mock(room_prefix="melura", domain="jitsi.example.com")
+		settings.jwt_secret = "nao-expor"
+		settings.provider_api_key = "nao-expor"
 
 		with (
 			patch(
@@ -82,6 +84,8 @@ class TestBruceLiveClass(unittest.TestCase):
 		get_single.assert_called_once_with("Bruce Jitsi Settings")
 		self.assertEqual(result.domain, "jitsi.example.com")
 		self.assertEqual(result.room_prefix, "melura")
+		self.assertFalse(hasattr(result, "jwt_secret"))
+		self.assertFalse(hasattr(result, "provider_api_key"))
 
 	def test_validate_does_not_overwrite_existing_meeting_url(self):
 		doc = self.make_doc(

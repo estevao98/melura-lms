@@ -5,10 +5,16 @@
 Esta etapa cria a fundação de dados da integração Jitsi e a experiência interna
 de aula ao vivo dentro da app `melura_lms`.
 
+Para a decisão de produção entre Jitsi auto-hospedado, Jitsi as a Service e o
+fallback público de desenvolvimento, veja
+`docs/integrations/jitsi-production-decision.md`.
+
 Não foram implementados nesta etapa:
 
 - envio de WhatsApp;
 - logs de WhatsApp;
+- integração paga com provedor Jitsi/JaaS;
+- automação de deploy de Jitsi;
 - alterações em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`.
 
 ## DocTypes criados
@@ -73,6 +79,11 @@ Se `Bruce Jitsi Settings` não estiver disponível, a geração usa fallback seg
 - domínio: `meet.jit.si`;
 - prefixo da sala: `bruce`.
 
+Esse fallback é local/dev/demo. Ele não deve ser tratado como decisão final de
+produção sem aceite explícito dos riscos operacionais, de privacidade e de
+controle de acesso descritos em
+`docs/integrations/jitsi-production-decision.md`.
+
 O backend não sobrescreve `room_name` nem `meeting_url` quando esses campos já
 possuem valor. Uma alteração futura que regenere esses campos deve documentar o
 motivo e tratar o impacto para alunos, professor e avisos enviados.
@@ -103,7 +114,9 @@ A página Desk `Aula ao vivo` usa a rota `/app/bruce-live-room/<aula>` e incorpo
 o Jitsi com a Jitsi IFrame API carregada por `https://<domínio>/external_api.js`.
 
 O domínio vem de `Bruce Jitsi Settings.domain`. Para `meet.jit.si`, manter
-`meet.jit.si` configurado nas settings.
+`meet.jit.si` configurado nas settings apenas em desenvolvimento, testes, demos
+ou fallback temporário aprovado. Produção deve escolher e validar Jitsi
+auto-hospedado ou Jitsi as a Service antes de liberar acesso real.
 
 A API backend
 `melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`

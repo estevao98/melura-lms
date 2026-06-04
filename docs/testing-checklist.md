@@ -82,6 +82,29 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Aula cancelada não pode ser iniciada sem regra explícita.
 - Nenhuma credencial sensível aparece no HTML, JS ou resposta da API.
 
+## Jitsi production readiness validation
+
+- Confirmar que `docs/integrations/jitsi-production-decision.md` foi revisado
+  antes de liberar produção.
+- Confirmar que a decisão de produção escolhe Jitsi auto-hospedado ou Jitsi as
+  a Service; `meet.jit.si` fica restrito a local/dev/demo ou fallback
+  temporário aprovado.
+- Confirmar que `Bruce Jitsi Settings` contém apenas domínio/prefixo públicos e
+  nenhum segredo, JWT signing key, API key, token, credencial de provedor,
+  domínio real sensível ou IP.
+- Confirmar que `/app/bruce-live-room/<aula>` continua retornando contexto
+  Jitsi somente após validação backend de usuário, status da aula, escopo
+  curso/turma e `Bruce Student Access`.
+- Confirmar em staging que aluno `Pendente`, `Bloqueado`, `Expirado`, sem
+  acesso ou de outra turma/curso não recebe domínio, `room_name`, `meeting_url`
+  ou sala embutida.
+- Confirmar que professor/admin autorizado consegue abrir a sala sem usar
+  `Administrator` como conta operacional.
+- Confirmar que HTTPS, reverse proxy, WebSocket, firewall e carregamento de
+  `external_api.js` funcionam para o caminho Jitsi escolhido.
+- Confirmar que gravação está desabilitada ou aprovada em documento separado
+  com consentimento, armazenamento, retenção e exclusão definidos.
+
 ## WhatsApp
 
 - Configurar provedor por ambiente ou site config.

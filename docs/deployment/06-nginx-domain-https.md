@@ -42,6 +42,12 @@ Nginx or an equivalent reverse proxy should handle:
 Private files must not become publicly accessible through reverse proxy
 misconfiguration.
 
+If the selected production Jitsi path uses a self-hosted Jitsi endpoint behind
+a reverse proxy, validate the Jitsi web frontend, `external_api.js`, WebSocket
+upgrade behavior, XMPP/WebSocket paths, media connectivity, and timeouts in
+staging before go-live. Keep exact production domains, IPs, ports, and firewall
+rules in private deployment notes.
+
 ## WebSocket Considerations
 
 Frappe/socketio may require WebSocket upgrade headers. If socketio is used,
@@ -51,6 +57,11 @@ validate:
 - browser console has no repeated socket connection failures;
 - process manager supervises socketio;
 - Redis socketio service is running where required.
+
+Jitsi may also require WebSocket support depending on the selected deployment
+or provider. Do not assume that a reverse proxy working for Frappe/socketio is
+automatically sufficient for self-hosted Jitsi; validate browser console logs,
+Jitsi connection state, and mobile network behavior separately.
 
 ## Why Production Must Not Rely On Localhost
 

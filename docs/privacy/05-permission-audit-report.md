@@ -121,6 +121,10 @@ Child table sensitivity:
   question membership, and computes correctness server-side.
 - Live-room context validates login, class status, room data, and staff/student
   permission before returning Jitsi domain, room name, and fallback URL.
+- Production Jitsi provider choice is intentionally separated from the current
+  permission foundation. `docs/integrations/jitsi-production-decision.md`
+  defines the boundary between self-hosted Jitsi, Jitsi as a Service, and the
+  public `meet.jit.si` development/demo fallback.
 
 ## Admin / Teacher-Only Flows
 
@@ -302,6 +306,10 @@ Open cache risks:
 - Operational admin role matrix for each allowed admin role.
 - Future external SaaS webhook invalid signature, replay/idempotency, forbidden
   payload fields, and no financial payload persistence.
+- Production Jitsi path tests after the provider/domain is selected, including
+  public-settings-only responses, no frontend secrets, mobile browser behavior,
+  WebSocket/reverse-proxy behavior, and rejected access for blocked/expired or
+  out-of-scope students.
 
 ## Open Risks
 
@@ -318,3 +326,8 @@ Open cache risks:
 - WhatsApp retry updates the current notification log rather than preserving a
   separate per-attempt history because no schema field currently supports that
   history.
+- Production Jitsi provider/domain is not yet selected. Until that decision is
+  made, remaining privacy/security risks include provider subprocessor review,
+  data location and international transfer, meeting metadata retention,
+  recording consent/storage, and stronger Jitsi-side admission controls such as
+  provider-supported JWT or equivalent backend-generated credentials.
