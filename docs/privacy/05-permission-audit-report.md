@@ -212,6 +212,43 @@ Priority coverage already present:
 - `melura_lms/services/test_whatsapp.py` now covers nested provider response
   redaction for API keys, authorization headers, and tokens.
 
+## Cache Safety Update
+
+The `feat/cache-and-performance-basics` foundation adds a small cache helper in
+`melura_lms.services.cache` and documents cache rules in
+`docs/performance/cache-and-performance-basics.md`.
+
+Implemented cache behavior:
+
+- cache keys use the `melura_lms:v1` namespace;
+- user-scoped key construction requires `frappe.session.user`;
+- obvious sensitive key token names such as `api_key`, `token`, `password`,
+  `authorization`, and `secret` are rejected;
+- only non-secret Jitsi public settings (`domain` and `room_prefix`) are cached
+  globally for a short TTL;
+- saving `Bruce Jitsi Settings` invalidates the Jitsi settings cache key.
+
+Intentionally uncached permission-sensitive paths:
+
+- `Minha Aula` dashboard context;
+- student access status;
+- student progress;
+- student answers;
+- exercise list context for a student;
+- live-room context and Jitsi room payloads for a student;
+- WhatsApp recipient resolution, previews, provider configuration, sends, and
+  notification logs;
+- operational dashboard aggregates that include inactive student identity.
+
+Open cache risks:
+
+- any future student-specific cache must include `frappe.session.user` and the
+  resolved backend permission scope in the cache key;
+- admin aggregate caching still needs a separate privacy review before it can
+  include anything beyond anonymous counts;
+- production Redis inspection and retention controls remain environment tasks
+  outside this repository.
+
 ## Recommended Next Tests
 
 - Expired access windows specifically for materials, questions, lists,

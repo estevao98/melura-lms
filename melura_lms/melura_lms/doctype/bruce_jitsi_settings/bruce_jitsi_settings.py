@@ -7,10 +7,14 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class import JITSI_SETTINGS_CACHE_KEY
+from melura_lms.services.cache import delete_cached_value
+
 
 class BruceJitsiSettings(Document):
 	def validate(self):
 		self.domain = self.normalize_domain(self.domain)
+		delete_cached_value(JITSI_SETTINGS_CACHE_KEY)
 
 	@staticmethod
 	def normalize_domain(domain):

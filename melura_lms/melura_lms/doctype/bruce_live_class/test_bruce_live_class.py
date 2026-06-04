@@ -8,6 +8,7 @@ import frappe
 
 from melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class import (
 	BruceLiveClass,
+	JITSI_SETTINGS_CACHE_KEY,
 	start_live_class,
 )
 
@@ -60,6 +61,27 @@ class TestBruceLiveClass(unittest.TestCase):
 			meeting_url = doc.build_meeting_url()
 
 		self.assertEqual(meeting_url, "https://meet.jit.si/bruce-token-seguro")
+
+	def test_get_jitsi_settings_caches_only_public_values(self):
+		settings = Mock(room_prefix="melura", domain="jitsi.example.com")
+
+		with (
+			patch(
+				"melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class.frappe.get_single",
+				return_value=settings,
+			) as get_single,
+			patch(
+				"melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class.get_or_set_cached_value",
+				side_effect=lambda key, factory, expires_in_sec=None: factory(),
+			) as get_or_set,
+		):
+			result = BruceLiveClass.get_jitsi_settings()
+
+		get_or_set.assert_called_once()
+		self.assertEqual(get_or_set.call_args.args[0], JITSI_SETTINGS_CACHE_KEY)
+		get_single.assert_called_once_with("Bruce Jitsi Settings")
+		self.assertEqual(result.domain, "jitsi.example.com")
+		self.assertEqual(result.room_prefix, "melura")
 
 	def test_validate_does_not_overwrite_existing_meeting_url(self):
 		doc = self.make_doc(

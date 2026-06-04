@@ -11,6 +11,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import get_datetime
 
+from melura_lms.services.cache import build_cache_key, get_or_set_cached_value
 from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log import (
 	EVENT_CLASS_STARTED,
 	STATUS_SUCCESS,
@@ -22,6 +23,10 @@ from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_
 class JitsiSettings:
 	domain: str = "meet.jit.si"
 	room_prefix: str = "bruce"
+
+
+JITSI_SETTINGS_CACHE_KEY = build_cache_key("jitsi-settings", "public")
+JITSI_SETTINGS_CACHE_TTL_SECONDS = 300
 
 
 class BruceLiveClass(Document):
@@ -76,10 +81,26 @@ class BruceLiveClass(Document):
 
 	@staticmethod
 	def get_jitsi_settings():
+		values = get_or_set_cached_value(
+			JITSI_SETTINGS_CACHE_KEY,
+			BruceLiveClass._load_jitsi_settings_values,
+			expires_in_sec=JITSI_SETTINGS_CACHE_TTL_SECONDS,
+		)
+		return JitsiSettings(**values)
+
+	@staticmethod
+	def _load_jitsi_settings_values():
 		try:
-			return frappe.get_single("Bruce Jitsi Settings")
+			settings = frappe.get_single("Bruce Jitsi Settings")
+			return {
+				"domain": settings.domain or JitsiSettings.domain,
+				"room_prefix": settings.room_prefix or JitsiSettings.room_prefix,
+			}
 		except frappe.DoesNotExistError:
-			return JitsiSettings()
+			return {
+				"domain": JitsiSettings.domain,
+				"room_prefix": JitsiSettings.room_prefix,
+			}
 
 	@staticmethod
 	def room_name_exists(room_name):

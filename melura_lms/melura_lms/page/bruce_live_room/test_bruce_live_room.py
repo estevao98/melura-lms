@@ -210,3 +210,37 @@ class TestBruceLiveRoom(unittest.TestCase):
 			result = get_live_room_context_without_frappe_wrapper("BLC-2026-00001")
 
 		self.assertEqual(result["external_url"], "https://meet.jit.si/bruce-token-seguro")
+
+	def test_live_room_context_is_not_globally_cached(self):
+		doc = self.make_live_class()
+
+		with (
+			patch(
+				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.session",
+				Mock(user="aluno@example.com"),
+			),
+			patch(
+				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.get_doc",
+				return_value=doc,
+			) as get_doc,
+			patch(
+				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.get_roles",
+				return_value=["LMS Student"],
+			),
+			patch(
+				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.assert_current_student_can_access_live_class"
+			) as assert_student_can_access,
+			patch(
+				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.BruceLiveClass.get_jitsi_settings",
+				return_value=Mock(domain="meet.jit.si"),
+			),
+			patch(
+				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.db",
+				Mock(get_value=Mock(return_value=None)),
+			),
+		):
+			get_live_room_context_without_frappe_wrapper("BLC-2026-00001")
+			get_live_room_context_without_frappe_wrapper("BLC-2026-00001")
+
+		self.assertEqual(get_doc.call_count, 2)
+		self.assertEqual(assert_student_can_access.call_count, 2)

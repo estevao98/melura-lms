@@ -266,6 +266,20 @@ class TestWhatsAppService(unittest.TestCase):
 		self.assertEqual(result["status"], CONFIG_STATUS_VALID)
 		self.assertNotIn("secret-value", result["message"])
 
+	def test_whatsapp_configuration_validation_does_not_cache_provider_secret(self):
+		settings = self.make_settings()
+
+		with (
+			patch("melura_lms.services.whatsapp.get_evolution_api_key", return_value="secret-value"),
+			patch("melura_lms.services.whatsapp._", side_effect=lambda message, *args, **kwargs: message),
+			patch("melura_lms.services.cache.set_cached_value") as set_cached_value,
+		):
+			result = validate_evolution_configuration(settings=settings)
+
+		self.assertTrue(result["valid"])
+		set_cached_value.assert_not_called()
+		self.assertNotIn("secret-value", str(result))
+
 	def test_provider_response_redaction_removes_nested_secrets(self):
 		response = {
 			"ok": True,

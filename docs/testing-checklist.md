@@ -50,6 +50,23 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - WhatsApp preview/send/test responses and logs do not expose API keys, tokens,
   authorization headers, webhook secrets, or raw provider secret values.
 
+## Cache and performance validation
+
+- Confirm cache keys use the `melura_lms:v1` namespace.
+- Confirm user-scoped cache keys include `frappe.session.user` and the resolved
+  backend scope, not frontend-provided student/course/batch parameters.
+- Confirm `Minha Aula`, student progress, student answers, student access
+  status, exercise list context, and live-room context are not cached globally.
+- Confirm WhatsApp provider secrets, recipient phone, recipient name, message
+  body, provider response, and notification logs are not cached.
+- Confirm the Jitsi settings cache contains only non-secret `domain` and
+  `room_prefix` values.
+- After changing `Bruce Jitsi Settings`, confirm the Jitsi settings cache key is
+  invalidated or expires within the documented TTL.
+- In development and production, confirm Redis is running for Frappe cache APIs;
+  if Redis is unavailable, pages must compute normally instead of bypassing
+  permission checks.
+
 ## Aula ao vivo com Jitsi
 
 - Criar aula vinculada a curso ou turma.

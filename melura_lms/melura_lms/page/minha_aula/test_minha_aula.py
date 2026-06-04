@@ -101,6 +101,40 @@ class TestMinhaAula(unittest.TestCase):
 		get_recent_materials.assert_not_called()
 		get_exercise_lists.assert_not_called()
 
+	def test_student_dashboard_data_is_not_globally_cached(self):
+		with (
+			patch(
+				"melura_lms.melura_lms.page.minha_aula.minha_aula.get_current_student_access_status",
+				return_value="Ativo",
+			) as get_access_status,
+			patch(
+				"melura_lms.melura_lms.page.minha_aula.minha_aula.is_current_student_active",
+				return_value=True,
+			),
+			patch(
+				"melura_lms.melura_lms.page.minha_aula.minha_aula._get_next_visible_live_class",
+				return_value={"name": "BLC-2026-00001"},
+			) as get_next_visible_live_class,
+			patch(
+				"melura_lms.melura_lms.page.minha_aula.minha_aula._get_recent_materials",
+				return_value=[],
+			),
+			patch(
+				"melura_lms.melura_lms.page.minha_aula.minha_aula._get_exercise_lists",
+				return_value=[],
+			),
+			patch(
+				"melura_lms.melura_lms.page.minha_aula.minha_aula.get_progress_for_current_student",
+				return_value={"access_status": "Ativo", "locked": False},
+			) as get_progress,
+		):
+			get_student_dashboard_data()
+			get_student_dashboard_data()
+
+		self.assertEqual(get_access_status.call_count, 2)
+		self.assertEqual(get_next_visible_live_class.call_count, 2)
+		self.assertEqual(get_progress.call_count, 2)
+
 	def test_get_next_visible_live_class_prefers_live_class(self):
 		live_class = {
 			"name": "BLC-2026-00001",
