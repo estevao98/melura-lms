@@ -98,12 +98,16 @@ values, real domains, IP addresses, and secrets outside Git.
 
 ## Backups And Restore
 
+- [ ] Backup and restore docs have been reviewed:
+      `docs/backup-restore/00-overview.md`.
 - [ ] Database backups are configured outside Git.
 - [ ] Private files are included in backup strategy when needed.
 - [ ] Public files are included when needed.
 - [ ] Backup storage is access-controlled.
 - [ ] Restore test has been performed on a non-production site.
 - [ ] Retention rules are documented.
+- [ ] Repository-only backup/restore docs validation passes with
+      `python3 scripts/check_backup_restore_readiness.py`.
 
 ## Secrets Outside Git
 

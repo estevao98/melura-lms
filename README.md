@@ -74,6 +74,7 @@ flowchart TD
 - `docs/ux-flows.md`: fluxos de professor, aluno, admin, Jitsi, WhatsApp e progresso.
 - `docs/testing-checklist.md`: checklist de validação manual e futura automação.
 - `docs/deployment/`: documentação de prontidão de deploy e produção.
+- `docs/backup-restore/`: política, runbooks e checklist de validação segura de backup e restore.
 - `docs/kpis-admin.md`: reservado para orientação de KPIs administrativos quando preenchido.
 - `melura_lms/`: código da app Frappe customizada.
 
@@ -186,6 +187,7 @@ Essas responsabilidades podem pertencer a outro repositório ou a um SaaS extern
 - [docs/ux-flows.md](docs/ux-flows.md): fluxos operacionais de aluno, professor, admin, WhatsApp e progresso.
 - [docs/testing-checklist.md](docs/testing-checklist.md): validações manuais e futuras automações.
 - [docs/deployment/00-overview.md](docs/deployment/00-overview.md): visão geral de prontidão de deploy e produção.
+- [docs/backup-restore/00-overview.md](docs/backup-restore/00-overview.md): visão geral de backup, restore, retenção e validação segura.
 - [docs/kpis-admin.md](docs/kpis-admin.md): reservado para KPIs administrativos quando preenchido.
 
 ## Licença

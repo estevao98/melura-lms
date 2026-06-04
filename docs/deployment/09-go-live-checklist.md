@@ -54,12 +54,15 @@ operations.
 
 ## Backup And Restore Checklist
 
+- [ ] Dedicated backup/restore docs have been reviewed:
+      `docs/backup-restore/00-overview.md`.
 - [ ] Pre-go-live backup is created.
 - [ ] Scheduled backups are configured.
 - [ ] Private files are covered when needed.
 - [ ] Backup storage is outside Git and access-controlled.
 - [ ] Restore test has been completed on non-production.
 - [ ] Restore owner and procedure are known.
+- [ ] Restore test follows `docs/backup-restore/04-restore-test-plan.md`.
 
 ## Domain And HTTPS Checklist
 

@@ -168,7 +168,7 @@ Priority work:
 - operational dashboard access review;
 - log safety review;
 - cache safety plan;
-- backup/restore process;
+- backup/restore process foundation;
 - production configuration checklist.
 
 Definition of Done:
@@ -178,7 +178,7 @@ Definition of Done:
 - teacher/admin actions are role-checked server-side;
 - blocked/expired users cannot access pedagogical content;
 - logs do not expose secrets or unnecessary personal data;
-- backup and restore flow is documented and tested.
+- backup and restore flow is documented and tested in staging/test.
 
 ## 9. Phase 4 — External Access Integration
 
@@ -275,7 +275,7 @@ Definition of Done:
 | P0 | Permission audit | Planned | Confirms students, teachers, and admins only access their allowed scope. | Current DocTypes, pages, and APIs |
 | P0 | Cache/performance basics | Planned | Improves reliability without weakening access control. | Permission model and cache key plan |
 | P0 | Deployment readiness | Foundation added | Removes local-only assumptions before production use. | Production bench checklist |
-| P0 | Backup/restore validation | Planned | Protects operational and student data from unrecoverable loss. | Production storage and restore process |
+| P0 | Backup/restore validation | Foundation added | Protects operational and student data from unrecoverable loss. | Production storage and restore process |
 | P1 | External student status integration | Future / Planned | Keeps pedagogical access synchronized with the external SaaS. | Signed webhook or protected integration endpoint |
 | P1 | Financial SaaS webhook for pedagogical access only | Future / Planned | Allows activation/block/expiration updates without importing billing logic. | External SaaS contract and webhook secret |
 | P1 | Real WhatsApp sending/retry flow | Future / Planned | Turns prepared communication flows into reliable operations. | Provider configuration and retry policy |
@@ -333,4 +333,5 @@ implemented inside `melura_lms` by default.
 - `docs/ux-flows.md`
 - `docs/testing-checklist.md`
 - `docs/deployment/00-overview.md`
+- `docs/backup-restore/00-overview.md`
 - `docs/kpis-admin.md`

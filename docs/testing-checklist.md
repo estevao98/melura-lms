@@ -149,6 +149,22 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que `migrate` não é necessário quando a mudança for apenas
   documentação ou script de validação de repositório.
 
+## Backup/restore validation
+
+- Confirmar que `docs/backup-restore/` contém overview, policy, backup
+  runbook, restore runbook, restore test plan, disaster recovery checklist e
+  security/retention guidance.
+- Rodar `python3 scripts/check_backup_restore_readiness.py` a partir da raiz da
+  app.
+- Confirmar que os docs mencionam backup, restore, staging/test, retention,
+  encryption, secrets, personal data, rollback e smoke tests.
+- Confirmar que todos os comandos usam placeholders e não incluem domínio, IP,
+  credencial, caminho sensível, telefone, e-mail, backup real ou dado real de
+  aluno.
+- Confirmar que nenhum restore real foi executado contra produção.
+- Confirmar que restore real, quando necessário, é tratado como procedimento
+  manual de staging/test antes de qualquer uso em produção.
+
 ## Futuras validações automatizadas
 
 ### Testes unitários
