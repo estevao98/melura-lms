@@ -1,14 +1,15 @@
-# Zuno
+# Melura
 
 [English version: README.en.md](README.en.md)
 
-Zuno é uma camada educacional construída sobre o Frappe LMS para aulas ao vivo, controle de acesso, materiais, exercícios, progresso e visibilidade operacional.
+Melura é uma camada educacional construída sobre o Frappe LMS para aulas ao vivo, controle de acesso, materiais, exercícios, progresso e visibilidade operacional.
 
-Aplicativo atual do repositório: `zuno_lms`.
+Aplicativo atual do repositório: `melura_lms`.
+Nome esperado do repositório GitHub: `melura-lms`.
 
 ## Visão geral
 
-Zuno customiza o Frappe LMS para o curso online de ENEM / Ciências Humanas do Professor Bruce. Neste repositório, Zuno é o produto educacional; `zuno_lms` é a app Frappe customizada que implementa as regras, telas, DocTypes, permissões e integrações específicas.
+Melura customiza o Frappe LMS para o curso online de ENEM / Ciências Humanas do Professor Bruce. Neste repositório, Melura é o produto educacional; `melura_lms` é a app Frappe customizada que implementa as regras, telas, DocTypes, permissões e integrações específicas.
 
 A app é focada na operação pedagógica: alunos, professor, conteúdos, aulas ao vivo, exercícios, progresso e administração operacional. Ela não é o SaaS financeiro/comercial. A experiência visível ao usuário final permanece em português brasileiro, e a customização deve continuar sem modificar diretamente o core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
 
@@ -20,7 +21,7 @@ O aluno precisa de um lugar simples para encontrar a aula ao vivo, materiais, li
 
 ## Solução
 
-Zuno centraliza a experiência pedagógica em torno do Frappe LMS. Aulas ao vivo, acesso do aluno, materiais, questões ENEM, listas de exercícios, respostas, progresso e painéis ficam na camada LMS.
+Melura centraliza a experiência pedagógica em torno do Frappe LMS. Aulas ao vivo, acesso do aluno, materiais, questões ENEM, listas de exercícios, respostas, progresso e painéis ficam na camada LMS.
 
 A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sempre por backend ou fluxo protegido. Fluxos comerciais e financeiros ficam fora desta app e podem integrar no futuro apenas para atualizar status pedagógico de acesso.
 
@@ -45,14 +46,14 @@ A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sem
 
 ## Arquitetura em resumo
 
-Zuno usa o Frappe Framework e o Frappe LMS / Frappe Learning como base. A app `zuno_lms` concentra as customizações pedagógicas. Jitsi atende aulas ao vivo, Evolution API / n8n prepara comunicação via WhatsApp, e um SaaS externo fica responsável por operações financeiras e comerciais.
+Melura usa o Frappe Framework e o Frappe LMS / Frappe Learning como base. A app `melura_lms` concentra as customizações pedagógicas. Jitsi atende aulas ao vivo, Evolution API / n8n prepara comunicação via WhatsApp, e um SaaS externo fica responsável por operações financeiras e comerciais.
 
 ```mermaid
 flowchart TD
   Aluno[Aluno] --> LMS[Frappe LMS]
   Professor[Professor] --> LMS
   Admin[Admin operacional] --> LMS
-  LMS --> CustomApp[zuno_lms]
+  LMS --> CustomApp[melura_lms]
   CustomApp --> Jitsi[Aulas ao vivo via Jitsi]
   CustomApp --> WhatsApp[Evolution API / n8n]
   SaaSExterno[SaaS financeiro externo] -. status de acesso futuro .-> CustomApp
@@ -73,7 +74,7 @@ flowchart TD
 - `docs/ux-flows.md`: fluxos de professor, aluno, admin, Jitsi, WhatsApp e progresso.
 - `docs/testing-checklist.md`: checklist de validação manual e futura automação.
 - `docs/kpis-admin.md`: reservado para orientação de KPIs administrativos quando preenchido.
-- `zuno_lms/`: código da app Frappe customizada.
+- `melura_lms/`: código da app Frappe customizada.
 
 ## Desenvolvimento local
 
@@ -86,14 +87,15 @@ cd ~/Projetos/frappe-bench
 Validação Python:
 
 ```bash
-./env/bin/python -m compileall apps/zuno_lms/zuno_lms
+./env/bin/python -m compileall apps/melura_lms/melura_lms
 ```
 
 Testes unitários:
 
 ```bash
 ./env/bin/python -m unittest discover \
-  -s apps/zuno_lms/zuno_lms/zuno_lms \
+  -s apps/melura_lms/melura_lms \
+  -t apps/melura_lms \
   -p "test_*.py"
 ```
 
@@ -102,7 +104,7 @@ Cache e build:
 ```bash
 bench --site curso.localhost clear-cache
 bench --site curso.localhost clear-website-cache
-bench build --app zuno_lms
+bench build --app melura_lms
 ```
 
 Migração deve ser usada apenas quando houver mudança de schema, DocType, fixtures ou patches:
@@ -169,7 +171,7 @@ Esta app Frappe LMS customizada não deve incluir por padrão:
 - app mobile nativo antes de mobile web/PWA estar estável;
 - modificações diretas no core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
 
-Essas responsabilidades podem pertencer a outro repositório ou a um SaaS externo, não ao core pedagógico `zuno_lms`.
+Essas responsabilidades podem pertencer a outro repositório ou a um SaaS externo, não ao core pedagógico `melura_lms`.
 
 ## Documentação
 

@@ -11,7 +11,7 @@
 
 ## Resumo curto
 
-Para Zuno, a LGPD deve ser traduzida em regras de produto, arquitetura e operação. O ponto central não é apenas ter uma política de privacidade, mas conseguir demonstrar finalidade, minimização, segurança, transparência, atendimento aos direitos dos titulares e governança.
+Para Melura, a LGPD deve ser traduzida em regras de produto, arquitetura e operação. O ponto central não é apenas ter uma política de privacidade, mas conseguir demonstrar finalidade, minimização, segurança, transparência, atendimento aos direitos dos titulares e governança.
 
 ## Dados pessoais prováveis no produto
 
@@ -48,7 +48,7 @@ Para Zuno, a LGPD deve ser traduzida em regras de produto, arquitetura e operaç
 - Mapa de suboperadores/provedores externos.
 - Retenção de dados por tipo: conta, progresso, logs, respostas, comunicações e backups.
 
-## Riscos prioritários para Zuno
+## Riscos prioritários para Melura
 
 - Aluno acessar dados, progresso ou respostas de outro aluno.
 - Aluno bloqueado/expirado acessar conteúdo.
@@ -75,7 +75,7 @@ Para Zuno, a LGPD deve ser traduzida em regras de produto, arquitetura e operaç
 
 ## Pendências ou decisões humanas
 
-- Definir papéis jurídicos: Zuno, Professor Bruce, SaaS financeiro e provedores.
+- Definir papéis jurídicos: Melura, Professor Bruce, SaaS financeiro e provedores.
 - Definir se o produto atenderá menores de idade e como coletará autorização de responsáveis.
 - Definir canal público de privacidade.
 - Definir quais dados podem ser anonimizados e quais precisam ser retidos.

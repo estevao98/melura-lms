@@ -43,8 +43,8 @@ docs/knowledge/lgpd/
 | `topics/09-sancoes-administrativas.md` | Sanções administrativas | 52, 53, 54 | risco regulatório e priorização de controles |
 | `topics/10-anpd-conselho-nacional.md` | ANPD e Conselho Nacional de Proteção de Dados | 55, 55-A, 55-B, 55-C, 55-D, 55-E, 55-F, 55-G, 55-H, 55-I, 55-J, 55-K, 55-L, 55-M, 56, 58, 58-A, 58-B | competências da ANPD, guias, normas e procedimentos simplificados |
 | `topics/11-disposicoes-finais-vigencia.md` | Disposições finais e vigência | 59, 60, 61, 62, 63, 64, 65 | fechamento normativo e revisão de outras normas |
-| `topics/12-implicacoes-para-saas-educacional.md` | Implicações da LGPD para um SaaS educacional | 1-65 | tradução operacional para Zuno/Frappe LMS |
-| `topics/13-checklist-lgpd-zuno.md` | Checklist LGPD para Zuno / Frappe LMS | 1-65 | checklist prático de implementação e governança |
+| `topics/12-implicacoes-para-saas-educacional.md` | Implicações da LGPD para um SaaS educacional | 1-65 | tradução operacional para Melura/Frappe LMS |
+| `topics/13-checklist-lgpd-melura.md` | Checklist LGPD para Melura / Frappe LMS | 1-65 | checklist prático de implementação e governança |
 
 ## Regra de ouro
 

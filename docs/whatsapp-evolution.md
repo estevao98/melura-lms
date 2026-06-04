@@ -3,7 +3,7 @@
 ## Escopo atual
 
 Esta etapa implementa o envio manual de link de aula por WhatsApp dentro da app
-`zuno_lms`, usando backend Python.
+`melura_lms`, usando backend Python.
 
 Implementado:
 
@@ -113,7 +113,7 @@ Mensagens possíveis para o administrador:
 - `Bruce Evolution Settings não foi encontrado. Revise a instalação da app.`
 
 O resultado do teste é mostrado no Desk e registrado no logger
-`zuno_lms.whatsapp` apenas com o status técnico, sem credenciais.
+`melura_lms.whatsapp` apenas com o status técnico, sem credenciais.
 
 A ação `Enviar mensagem de teste` envia uma mensagem real e única pela Evolution
 API para um telefone informado manualmente. Antes do envio, o Desk solicita o

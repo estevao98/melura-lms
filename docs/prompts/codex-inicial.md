@@ -1,6 +1,6 @@
 Leia AGENTS.md.
 
-Crie os arquivos ARCHITECTURE.md, ROADMAP.md e docs/ux-flows.md para o projeto zuno_lms.
+Crie os arquivos ARCHITECTURE.md, ROADMAP.md e docs/ux-flows.md para o projeto melura_lms.
 
 Contexto:
 O projeto customiza Frappe LMS para um curso de Ciências Humanas/ENEM do professor Bruce, com Jitsi para aulas ao vivo, Evolution API/n8n para WhatsApp, painel simples para o professor e painel administrativo básico de KPIs.

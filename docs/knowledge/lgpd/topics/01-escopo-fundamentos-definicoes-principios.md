@@ -183,5 +183,5 @@ Dos Requisitos para o Tratamento de Dados Pessoais
 ## Pendências ou decisões humanas
 
 - Definir publicamente quem será controlador e, quando aplicável, operador.
-- Criar política de privacidade específica para Zuno/LMS.
+- Criar política de privacidade específica para Melura/LMS.
 - Definir mapa de dados pessoais tratado pelo Frappe LMS e pelo SaaS externo.

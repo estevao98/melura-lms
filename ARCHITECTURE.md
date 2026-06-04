@@ -1,10 +1,10 @@
-# Architecture — Zuno / zuno_lms
+# Architecture — Melura / melura_lms
 
 ## 1. System Overview
 
-Zuno is a focused education platform layer built on top of Frappe LMS for
+Melura is a focused education platform layer built on top of Frappe LMS for
 Professor Bruce's ENEM / Ciências Humanas course context.
-`zuno_lms` is the custom Frappe app that contains the
+`melura_lms` is the custom Frappe app that contains the
 project-specific LMS behavior.
 
 The system supports students, Professor Bruce, and operational/admin users. It
@@ -17,7 +17,7 @@ Financial and commercial operations are outside this repository.
 ## 2. Architecture Goals
 
 - Preserve upgradeability of Frappe and Frappe LMS.
-- Keep custom logic isolated in `zuno_lms`.
+- Keep custom logic isolated in `melura_lms`.
 - Enforce backend permissions for sensitive behavior.
 - Keep the student experience simple.
 - Keep teacher/admin workflows operationally clear.
@@ -32,7 +32,7 @@ flowchart TD
   Student[Student] --> LMS[Frappe LMS]
   Teacher[Teacher] --> LMS
   Admin[Operational Admin] --> LMS
-  LMS --> CustomApp[zuno_lms]
+  LMS --> CustomApp[melura_lms]
   CustomApp --> Access[Bruce Student Access]
   CustomApp --> Content[Materials, Questions, Lists, Answers, Progress]
   CustomApp --> Jitsi[Jitsi Live Classes]
@@ -40,7 +40,7 @@ flowchart TD
   ExternalSaaS[External Financial SaaS] -. future access status only .-> Access
 ```
 
-Frappe LMS remains the LMS base. `zuno_lms` adds the
+Frappe LMS remains the LMS base. `melura_lms` adds the
 project-specific layer through Frappe extension points, custom DocTypes, pages,
 backend methods, hooks, fixtures, patches, and scoped assets.
 
@@ -89,14 +89,14 @@ Outside this app:
 
 ## 6. Custom App Structure
 
-`zuno_lms` is the customization layer. Custom DocTypes, pages,
+`melura_lms` is the customization layer. Custom DocTypes, pages,
 whitelisted methods, hooks, fixtures, patches, and assets should live in this
 app.
 
 Core apps must remain untouched: do not modify Frappe, Frappe LMS, Frappe UI,
 or Jitsi core directly.
 
-Before adding new code, search existing patterns in `zuno_lms` and
+Before adding new code, search existing patterns in `melura_lms` and
 extend them when they fit.
 
 ## 7. Core Domains
@@ -307,7 +307,7 @@ Production deployment still needs hardening.
 | Decision | Status | Reason |
 | -------- | ------ | ------ |
 | Use Frappe LMS as base. | Active | Keeps the project aligned with LMS-native course, Desk, DocType, permission, and learning patterns. |
-| Keep custom behavior in `zuno_lms`. | Active | Preserves upgradeability and avoids core modification. |
+| Keep custom behavior in `melura_lms`. | Active | Preserves upgradeability and avoids core modification. |
 | Keep user-facing UI in Brazilian Portuguese. | Active | Matches the product audience and existing labels/statuses. |
 | Keep internal docs in English. | Active | Gives future developers and AI agents one documentation language. |
 | Use Jitsi for live classes. | Active | Supports embedded live classes through a known provider/API. |

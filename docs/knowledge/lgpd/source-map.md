@@ -16,7 +16,7 @@ Este arquivo relaciona artigos/seções da LGPD aos chunks temáticos gerados.
 | Art. 55, Art. 55-A, Art. 55-B, Art. 55-C, Art. 55-D, Art. 55-E, Art. 55-F, Art. 55-G, Art. 55-H, Art. 55-I, Art. 55-J, Art. 55-K, Art. 55-L, Art. 55-M, Art. 56, Art. 58, Art. 58-A, Art. 58-B | ANPD e Conselho Nacional de Proteção de Dados | `topics/10-anpd-conselho-nacional.md` |
 | Art. 59, Art. 60, Art. 61, Art. 62, Art. 63, Art. 64, Art. 65 | Disposições finais e vigência | `topics/11-disposicoes-finais-vigencia.md` |
 | Art. 1º ao Art. 65 | Síntese operacional para SaaS educacional | `topics/12-implicacoes-para-saas-educacional.md` |
-| Art. 1º ao Art. 65 | Checklist operacional LGPD para Zuno | `topics/13-checklist-lgpd-zuno.md` |
+| Art. 1º ao Art. 65 | Checklist operacional LGPD para Melura | `topics/13-checklist-lgpd-melura.md` |
 
 ## Artigos brutos
 

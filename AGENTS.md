@@ -1,8 +1,8 @@
-# AGENTS.md — zuno_lms
+# AGENTS.md — melura_lms
 
 ## 1. Mission
 
-`zuno_lms` customizes Frappe Learning/LMS for Professor Bruce's online
+`melura_lms` customizes Frappe Learning/LMS for Professor Bruce's online
 ENEM / Ciências Humanas pedagogical operation. AI coding agents must preserve
 architecture, security, maintainability, and product consistency while keeping
 the app upgrade-friendly.
@@ -36,7 +36,7 @@ must not turn this app into the financial system.
 ## 3. Non-Negotiable Rules
 
 - Do not modify `frappe/`, `lms/`, `frappe-ui/`, or `jitsi-meet/`.
-- Work inside `apps/zuno_lms` unless explicitly instructed otherwise.
+- Work inside `apps/melura_lms` unless explicitly instructed otherwise.
 - Do not bypass authentication or authorization.
 - Do not trust frontend data for sensitive decisions.
 - Do not expose secrets, tokens, API keys, passwords, provider credentials,
@@ -77,7 +77,7 @@ the docs are the source of detail.
 - Avoid duplicate systems that fight Frappe patterns.
 - Keep business logic out of frontend-only code.
 - Use backend methods for sensitive logic.
-- Keep custom CSS and JS scoped to `zuno_lms`.
+- Keep custom CSS and JS scoped to `melura_lms`.
 
 The preferred path is extension, not core modification.
 
@@ -193,14 +193,15 @@ Use real project commands, not generic commands copied from other stacks.
 ```bash
 cd ~/Projetos/frappe-bench
 
-./env/bin/python -m compileall apps/zuno_lms/zuno_lms
+./env/bin/python -m compileall apps/melura_lms/melura_lms
 ```
 
 ```bash
 cd ~/Projetos/frappe-bench
 
 ./env/bin/python -m unittest discover \
-  -s apps/zuno_lms/zuno_lms/zuno_lms \
+  -s apps/melura_lms/melura_lms \
+  -t apps/melura_lms \
   -p "test_*.py"
 ```
 
@@ -209,7 +210,7 @@ cd ~/Projetos/frappe-bench
 
 bench --site curso.localhost clear-cache
 bench --site curso.localhost clear-website-cache
-bench build --app zuno_lms
+bench build --app melura_lms
 ```
 
 If validation cannot run because of sandbox or environment limits, explain it

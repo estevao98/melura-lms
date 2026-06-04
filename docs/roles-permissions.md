@@ -1,11 +1,11 @@
 # Papéis e permissões
 
 Este documento define a base documental de papéis e permissões do projeto
-`zuno_lms`.
+`melura_lms`.
 
 Esta etapa é apenas documental. Ela não cria DocTypes, não cria papéis no banco,
 não altera permissões reais e não implementa código. A implementação futura deve
-acontecer dentro da app `zuno_lms`, sem modificar diretamente `frappe/`,
+acontecer dentro da app `melura_lms`, sem modificar diretamente `frappe/`,
 `lms/`, `frappe-ui/` ou `jitsi-meet/`.
 
 ## Objetivos

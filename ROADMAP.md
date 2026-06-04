@@ -1,8 +1,8 @@
-# Roadmap — zuno_lms
+# Roadmap — melura_lms
 
 ## 1. Product Direction
 
-`zuno_lms` customizes Frappe Learning/LMS for Professor Bruce's online
+`melura_lms` customizes Frappe Learning/LMS for Professor Bruce's online
 ENEM / Ciências Humanas course.
 
 The goal is to deliver a clean pedagogical LMS layer for students, Professor
@@ -93,7 +93,7 @@ Deliverables:
 
 Definition of Done:
 
-- custom work stays inside `zuno_lms`;
+- custom work stays inside `melura_lms`;
 - core Frappe/LMS/Frappe UI/Jitsi are not modified;
 - security and design rules are documented;
 - future agents know which docs to read.
@@ -306,13 +306,13 @@ Definition of Done:
 - native mobile app before the mobile web/PWA experience is stable.
 
 Some of these may exist in a separate external SaaS, but they should not be
-implemented inside `zuno_lms` by default.
+implemented inside `melura_lms` by default.
 
 ## 14. Decision Log
 
 | Date | Decision | Reason |
 | ---- | -------- | ------ |
-| 2026-06-02 | Keep `zuno_lms` as pedagogical LMS core. | The app should focus on teaching, access, materials, exercises, progress, live classes, and operation. |
+| 2026-06-02 | Keep `melura_lms` as pedagogical LMS core. | The app should focus on teaching, access, materials, exercises, progress, live classes, and operation. |
 | 2026-06-02 | Keep financial/commercial workflows in external SaaS. | Billing, checkout, subscriptions, CRM, blog, newsletter, and financial operations are outside this Frappe app. |
 | 2026-06-02 | Use Frappe extension points instead of modifying core. | Extension keeps Frappe LMS upgrade-friendly. |
 | 2026-06-02 | Keep user-facing UI in Brazilian Portuguese. | Students, teacher, and admins operate the product in Portuguese. |

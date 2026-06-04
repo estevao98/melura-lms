@@ -1,8 +1,8 @@
-# Bruce SaaS Design System
+# Melura Design System
 
 ## 1. Introduction
 
-The Bruce SaaS Design System is the product design layer for `zuno_lms`.
+The Melura Design System is the product design layer for `melura_lms`.
 It defines how custom interfaces should look, behave, communicate, and scale
 inside a Frappe LMS ecosystem for an online Humanities/ENEM course with live
 classes, educational materials, exercise lists, student progress, WhatsApp
@@ -11,11 +11,11 @@ operations, and operational dashboards.
 This is not a replacement for Frappe, Frappe LMS, or Frappe UI.
 
 - Frappe, Frappe LMS, and Frappe UI are the base layer.
-- The Bruce SaaS Design System is the product layer: product rules, UX patterns,
+- The Melura Design System is the product layer: product rules, UX patterns,
   visual rules, educational flows, status language, mobile behavior, operational
   patterns, and consistency guidance.
 - Future product-specific themes can be added on top of this layer for other
-  SaaS products, but this document focuses on the Bruce LMS product.
+  SaaS products, but this document focuses on Melura's LMS product context.
 
 Use Frappe Desk for teacher and operational admin tasks whenever it creates a
 clear and maintainable workflow. Use Frappe UI components whenever they solve
@@ -223,6 +223,11 @@ They must avoid:
 
 ## 4. Visual Personality
 
+Melura's final visual identity is TBD. The final logo, color palette,
+typography, and brand system are not selected yet. Current interface guidance
+must stay token-based and must not hard-code final Melura brand colors,
+typography, or logo choices.
+
 The product personality is:
 
 - educational;
@@ -343,7 +348,7 @@ Central rule:
 Tokens are conceptual values that can later become CSS variables. Do not create
 CSS files in this task. These references are future implementation guidance for:
 
-`zuno_lms/public/css/bruce_tokens.css`
+`melura_lms/public/css/bruce_tokens.css`
 
 Future token categories:
 
@@ -359,6 +364,9 @@ Future token categories:
 - minimum touch sizes.
 
 ### 6.1 Color Categories
+
+The categories below are semantic UI categories, not a final Melura brand
+palette.
 
 Use these categories instead of hardcoded one-off colors:
 
@@ -377,7 +385,8 @@ Use these categories instead of hardcoded one-off colors:
 
 ### 6.2 Light Theme Reference
 
-Future CSS reference only:
+Future neutral CSS reference only. These values are placeholders for UI
+consistency and must not be treated as Melura's final color palette:
 
 ```css
 :root {
@@ -405,7 +414,8 @@ Future CSS reference only:
 
 ### 6.3 Dark Theme Reference
 
-Future CSS reference only:
+Future neutral CSS reference only. These values are placeholders for UI
+consistency and must not be treated as Melura's final color palette:
 
 ```css
 [data-bruce-theme="dark"] {
@@ -425,7 +435,8 @@ Future CSS reference only:
 
 ### 6.4 Typography
 
-Use this font stack:
+Use this provisional system font stack until Melura's final typography is
+selected:
 
 ```css
 font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -439,7 +450,7 @@ Rules:
 - Do not use tiny text for critical status, access, or class information.
 - Avoid long paragraphs in mobile flows.
 
-Typography scale:
+Provisional typography scale:
 
 | Token | Size / Line height / Weight |
 | --- | --- |
@@ -1365,7 +1376,7 @@ Future:
 Future token file:
 
 ```text
-zuno_lms/public/css/bruce_tokens.css
+melura_lms/public/css/bruce_tokens.css
 ```
 
 Future context-specific CSS files:
@@ -1495,4 +1506,3 @@ Examples of data that must not appear in student/teacher UI:
 3. Future: refactor the paused mobile student portal using this design system.
 4. Future: create user documentation with screenshots.
 5. Future: add a visual checklist to the PR/commit process.
-

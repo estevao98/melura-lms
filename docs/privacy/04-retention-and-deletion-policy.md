@@ -118,7 +118,7 @@ Initial technical proposal:
 
 - retain only while needed to reconcile access status with the external SaaS;
 - do not store card data, payment payloads, subscription details, CRM notes, or
-  commercial lead data in `zuno_lms`;
+  commercial lead data in `melura_lms`;
 - document retention and deletion with the external SaaS owner before webhook
   implementation;
 - treat webhook logs as sensitive operational logs.

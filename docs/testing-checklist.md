@@ -1,6 +1,6 @@
 # Checklist de testes
 
-Este checklist orienta validações manuais e futuras validações automatizadas do `zuno_lms`.
+Este checklist orienta validações manuais e futuras validações automatizadas do `melura_lms`.
 
 O foco inicial é garantir que a customização funcione dentro da app própria, sem alterar core, com segurança básica, permissões corretas e interface em português brasileiro.
 

@@ -1,7 +1,7 @@
 # Privacy and Permission Audit Overview
 
-This folder is the working privacy and permission audit foundation for Zuno.
-It connects the current `zuno_lms` permission/security rules with the LGPD
+This folder is the working privacy and permission audit foundation for Melura.
+It connects the current `melura_lms` permission/security rules with the LGPD
 knowledge base in `docs/knowledge/lgpd/`.
 
 This is an implementation planning and audit area. It is not legal advice, and
@@ -25,10 +25,10 @@ record in `Bruce Student Access`.
 
 ## Product Boundary
 
-Zuno is the public product name. `zuno_lms` is the technical Frappe app/package
+Melura is the public product name. `melura_lms` is the technical Frappe app/package
 name. This repository is the pedagogical LMS core.
 
-In scope for `zuno_lms`:
+In scope for `melura_lms`:
 
 - student access to pedagogical content;
 - `Minha Aula`;
@@ -42,7 +42,7 @@ In scope for `zuno_lms`:
 - custom DocTypes, pages, hooks, services, fixtures, patches, and tests inside
   this app.
 
-Out of scope for `zuno_lms`:
+Out of scope for `melura_lms`:
 
 - checkout;
 - subscription billing;
@@ -55,20 +55,20 @@ Out of scope for `zuno_lms`:
 - card data or full financial payload storage.
 
 A future external financial/commercial SaaS may update only pedagogical access
-status and opaque references in Zuno. It must not turn this Frappe app into the
+status and opaque references in Melura. It must not turn this Frappe app into the
 financial system.
 
 ## System Relationships
 
-Zuno is the product experienced by students, Professor Bruce, and operational
-admins. `zuno_lms` is the custom app that implements Zuno-specific pedagogical
+Melura is the product experienced by students, Professor Bruce, and operational
+admins. `melura_lms` is the custom app that implements Melura-specific pedagogical
 features on top of Frappe LMS.
 
 Frappe LMS remains the underlying LMS base. This app should extend it through
 Frappe extension points instead of modifying `frappe/`, `lms/`, `frappe-ui/`,
 or `jitsi-meet/`.
 
-Jitsi is used for live classes. `zuno_lms` stores or derives class room data and
+Jitsi is used for live classes. `melura_lms` stores or derives class room data and
 must validate permission before returning Jitsi domain, room name, meeting URL,
 or embedded room context.
 
@@ -104,12 +104,12 @@ For this audit foundation, the most relevant chunks are:
   governance, logs, and security by design;
 - `topics/12-implicacoes-para-saas-educacional.md` for the education SaaS
   translation;
-- `topics/13-checklist-lgpd-zuno.md` for the practical checklist.
+- `topics/13-checklist-lgpd-melura.md` for the practical checklist.
 
 When using these chunks, separate:
 
 - legal source or article reference;
-- technical interpretation for Zuno;
+- technical interpretation for Melura;
 - human/legal decision still needed.
 
 ## Files In This Folder

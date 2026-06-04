@@ -11,7 +11,7 @@
 
 ## Resumo curto
 
-Este chunk cobre registro de operações de tratamento, relatório de impacto, instruções entre controlador e operador, encarregado, responsabilidade e reparação de danos. É essencial para decidir papéis entre Zuno, professor/curso, SaaS financeiro externo, provedores e eventuais clientes.
+Este chunk cobre registro de operações de tratamento, relatório de impacto, instruções entre controlador e operador, encarregado, responsabilidade e reparação de danos. É essencial para decidir papéis entre Melura, professor/curso, SaaS financeiro externo, provedores e eventuais clientes.
 
 ## Conteúdo extraído
 
@@ -102,7 +102,7 @@ Da Segurança e do Sigilo de Dados
 
 ## Implicações técnicas
 
-- Definir se o curso/professor é controlador e se Zuno atua como operador em cenários futuros.
+- Definir se o curso/professor é controlador e se Melura atua como operador em cenários futuros.
 - Manter registro das operações de tratamento dentro do produto e dos processos externos.
 - Criar contato público de privacidade/encarregado quando necessário.
 - Criar contratos/instruções para operadores: hospedagem, WhatsApp, Jitsi/JaaS, e-mail, IA, analytics, backup.
@@ -110,6 +110,6 @@ Da Segurança e do Sigilo de Dados
 
 ## Pendências ou decisões humanas
 
-- Definir papéis jurídicos de Zuno, Professor Bruce e SaaS financeiro externo.
+- Definir papéis jurídicos de Melura, Professor Bruce e SaaS financeiro externo.
 - Definir encarregado/canal oficial.
 - Criar registro de operações de tratamento simplificado.

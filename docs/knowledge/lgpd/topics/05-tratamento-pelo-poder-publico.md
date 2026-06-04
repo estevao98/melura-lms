@@ -11,7 +11,7 @@
 
 ## Resumo curto
 
-Este chunk trata principalmente de regras para tratamento de dados pelo poder público, publicidade das operações, compartilhamento de dados e responsabilidades. Para Zuno, é menos central no MVP privado, mas pode ser relevante se houver parcerias públicas, escola pública, convênios, pesquisa, bolsas ou integração com órgão público.
+Este chunk trata principalmente de regras para tratamento de dados pelo poder público, publicidade das operações, compartilhamento de dados e responsabilidades. Para Melura, é menos central no MVP privado, mas pode ser relevante se houver parcerias públicas, escola pública, convênios, pesquisa, bolsas ou integração com órgão público.
 
 ## Conteúdo extraído
 
@@ -102,6 +102,6 @@ DA TRANSFERÊNCIA INTERNACIONAL DE DADOS
 
 ## Pendências ou decisões humanas
 
-- Definir se Zuno terá clientes públicos no futuro.
+- Definir se Melura terá clientes públicos no futuro.
 - Criar regra para contratos com escolas, prefeituras ou órgãos públicos antes de aceitar dados massivos.
 - Avaliar necessidade de relatório de impacto em projetos públicos.

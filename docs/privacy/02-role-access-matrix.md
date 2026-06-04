@@ -3,7 +3,7 @@
 This matrix describes privacy and permission boundaries for the current
 pedagogical LMS core and the planned external access integration. It should be
 kept aligned with `docs/roles-permissions.md`, `SECURITY.md`, and the hooks in
-`zuno_lms/hooks.py`.
+`melura_lms/hooks.py`.
 
 ## Role Boundaries
 
@@ -20,31 +20,31 @@ kept aligned with `docs/roles-permissions.md`, `SECURITY.md`, and the hooks in
 
 Student-facing or student-reachable methods/pages:
 
-- `zuno_lms.zuno_lms.page.minha_aula.minha_aula.get_student_dashboard_data`
-- `zuno_lms.zuno_lms.page.minha_aula.minha_aula.get_student_materials`
-- `zuno_lms.zuno_lms.page.minha_aula.minha_aula.get_student_exercise_lists`
-- `zuno_lms.services.student_access.get_progress_for_current_student`
-- `zuno_lms.services.student_access.get_permitted_enem_questions_for_current_student`
-- `zuno_lms.services.student_access.get_exercise_list_for_current_student`
-- `zuno_lms.services.student_access.save_student_answer`
-- `zuno_lms.zuno_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`
+- `melura_lms.melura_lms.page.minha_aula.minha_aula.get_student_dashboard_data`
+- `melura_lms.melura_lms.page.minha_aula.minha_aula.get_student_materials`
+- `melura_lms.melura_lms.page.minha_aula.minha_aula.get_student_exercise_lists`
+- `melura_lms.services.student_access.get_progress_for_current_student`
+- `melura_lms.services.student_access.get_permitted_enem_questions_for_current_student`
+- `melura_lms.services.student_access.get_exercise_list_for_current_student`
+- `melura_lms.services.student_access.save_student_answer`
+- `melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`
 
 Teacher/admin methods/pages:
 
-- `zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_next_live_class`
-- `zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_dashboard_data`
-- `zuno_lms.zuno_lms.page.bruce_operational_dashboard.bruce_operational_dashboard.get_dashboard_data`
-- `zuno_lms.zuno_lms.doctype.bruce_live_class.bruce_live_class.start_live_class`
-- `zuno_lms.services.student_access.get_class_progress_summary`
-- `zuno_lms.services.whatsapp.preview_live_class_link`
-- `zuno_lms.services.whatsapp.send_live_class_link`
-- `zuno_lms.zuno_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event`
-- `zuno_lms.zuno_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.get_live_class_notice_logs`
+- `melura_lms.melura_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_next_live_class`
+- `melura_lms.melura_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_dashboard_data`
+- `melura_lms.melura_lms.page.bruce_operational_dashboard.bruce_operational_dashboard.get_dashboard_data`
+- `melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class.start_live_class`
+- `melura_lms.services.student_access.get_class_progress_summary`
+- `melura_lms.services.whatsapp.preview_live_class_link`
+- `melura_lms.services.whatsapp.send_live_class_link`
+- `melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event`
+- `melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.get_live_class_notice_logs`
 
 Settings/test methods:
 
-- `zuno_lms.services.whatsapp.test_evolution_configuration`
-- `zuno_lms.services.whatsapp.send_evolution_test_message`
+- `melura_lms.services.whatsapp.test_evolution_configuration`
+- `melura_lms.services.whatsapp.send_evolution_test_message`
 
 ## Protected DocTypes
 

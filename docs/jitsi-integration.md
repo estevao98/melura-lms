@@ -3,7 +3,7 @@
 ## Escopo desta etapa
 
 Esta etapa cria a fundação de dados da integração Jitsi e a experiência interna
-de aula ao vivo dentro da app `zuno_lms`.
+de aula ao vivo dentro da app `melura_lms`.
 
 Não foram implementados nesta etapa:
 
@@ -106,7 +106,7 @@ O domínio vem de `Bruce Jitsi Settings.domain`. Para `meet.jit.si`, manter
 `meet.jit.si` configurado nas settings.
 
 A API backend
-`zuno_lms.zuno_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`
+`melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`
 valida usuário logado, status da aula, existência de `room_name` e
 `meeting_url`, URL externa HTTP/HTTPS, acesso ativo do aluno por
 `Bruce Student Access`, escopo de turma/curso, professor responsável ou papel

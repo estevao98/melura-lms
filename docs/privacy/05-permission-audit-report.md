@@ -1,6 +1,6 @@
 # Permission Audit Report
 
-This report is based on an implementation scan of `zuno_lms` for the
+This report is based on an implementation scan of `melura_lms` for the
 `feat/privacy-permission-audit` foundation. It is implementation-facing and
 should be updated as permissions, DocTypes, pages, or integrations change.
 
@@ -11,16 +11,16 @@ modified for this audit foundation.
 
 | Page | Files | Roles In Page JSON | Main Data Flow |
 | --- | --- | --- | --- |
-| `minha-aula` | `zuno_lms/zuno_lms/page/minha_aula/` | `LMS Student`, `System Manager`, `Moderator` | Student dashboard for next class, materials, exercise lists, progress |
-| `bruce-live-room` | `zuno_lms/zuno_lms/page/bruce_live_room/` | `LMS Student`, `Professor`, `System Manager`, `Moderator`, `Batch Evaluator`, `Course Creator`, `Administrador LMS`, `LMS Admin`, `Admin operacional` | Embedded Jitsi room context after backend authorization |
-| `bruce-professor-dashboard` | `zuno_lms/zuno_lms/page/bruce_professor_dashboard/` | `System Manager`, `Moderator`, `Batch Evaluator` | Teacher/academic operations dashboard |
-| `bruce-operational-dashboard` | `zuno_lms/zuno_lms/page/bruce_operational_dashboard/` | `System Manager`, `Administrador LMS`, `Admin operacional`, `LMS Admin` | Operational aggregates, content counts, active/inactive student indicators |
+| `minha-aula` | `melura_lms/melura_lms/page/minha_aula/` | `LMS Student`, `System Manager`, `Moderator` | Student dashboard for next class, materials, exercise lists, progress |
+| `bruce-live-room` | `melura_lms/melura_lms/page/bruce_live_room/` | `LMS Student`, `Professor`, `System Manager`, `Moderator`, `Batch Evaluator`, `Course Creator`, `Administrador LMS`, `LMS Admin`, `Admin operacional` | Embedded Jitsi room context after backend authorization |
+| `bruce-professor-dashboard` | `melura_lms/melura_lms/page/bruce_professor_dashboard/` | `System Manager`, `Moderator`, `Batch Evaluator` | Teacher/academic operations dashboard |
+| `bruce-operational-dashboard` | `melura_lms/melura_lms/page/bruce_operational_dashboard/` | `System Manager`, `Administrador LMS`, `Admin operacional`, `LMS Admin` | Operational aggregates, content counts, active/inactive student indicators |
 
 ## Current Services
 
-- `zuno_lms.services.student_access`: central student access service, student
+- `melura_lms.services.student_access`: central student access service, student
   content filters, progress, answer saving, and permission hooks.
-- `zuno_lms.services.whatsapp`: WhatsApp preview/send/test helpers, Evolution
+- `melura_lms.services.whatsapp`: WhatsApp preview/send/test helpers, Evolution
   API/n8n provider calls, recipient resolution, notification logs, provider
   response redaction.
 
@@ -28,47 +28,47 @@ modified for this audit foundation.
 
 Student access and progress:
 
-- `zuno_lms.services.student_access.get_progress_for_current_student`
-- `zuno_lms.services.student_access.get_class_progress_summary`
-- `zuno_lms.services.student_access.get_permitted_enem_questions_for_current_student`
-- `zuno_lms.services.student_access.get_exercise_list_for_current_student`
-- `zuno_lms.services.student_access.save_student_answer`
+- `melura_lms.services.student_access.get_progress_for_current_student`
+- `melura_lms.services.student_access.get_class_progress_summary`
+- `melura_lms.services.student_access.get_permitted_enem_questions_for_current_student`
+- `melura_lms.services.student_access.get_exercise_list_for_current_student`
+- `melura_lms.services.student_access.save_student_answer`
 
 Student page:
 
-- `zuno_lms.zuno_lms.page.minha_aula.minha_aula.get_student_dashboard_data`
-- `zuno_lms.zuno_lms.page.minha_aula.minha_aula.get_student_materials`
-- `zuno_lms.zuno_lms.page.minha_aula.minha_aula.get_student_exercise_lists`
+- `melura_lms.melura_lms.page.minha_aula.minha_aula.get_student_dashboard_data`
+- `melura_lms.melura_lms.page.minha_aula.minha_aula.get_student_materials`
+- `melura_lms.melura_lms.page.minha_aula.minha_aula.get_student_exercise_lists`
 
 Live room:
 
-- `zuno_lms.zuno_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`
+- `melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.get_live_room_context`
 
 Professor dashboard:
 
-- `zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_next_live_class`
-- `zuno_lms.zuno_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_dashboard_data`
+- `melura_lms.melura_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_next_live_class`
+- `melura_lms.melura_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_dashboard_data`
 
 Operational dashboard:
 
-- `zuno_lms.zuno_lms.page.bruce_operational_dashboard.bruce_operational_dashboard.get_dashboard_data`
+- `melura_lms.melura_lms.page.bruce_operational_dashboard.bruce_operational_dashboard.get_dashboard_data`
 
 Live class and notice logs:
 
-- `zuno_lms.zuno_lms.doctype.bruce_live_class.bruce_live_class.start_live_class`
-- `zuno_lms.zuno_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event`
-- `zuno_lms.zuno_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.get_live_class_notice_logs`
+- `melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class.start_live_class`
+- `melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event`
+- `melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.get_live_class_notice_logs`
 
 WhatsApp:
 
-- `zuno_lms.services.whatsapp.send_live_class_link`
-- `zuno_lms.services.whatsapp.preview_live_class_link`
-- `zuno_lms.services.whatsapp.test_evolution_configuration`
-- `zuno_lms.services.whatsapp.send_evolution_test_message`
+- `melura_lms.services.whatsapp.send_live_class_link`
+- `melura_lms.services.whatsapp.preview_live_class_link`
+- `melura_lms.services.whatsapp.test_evolution_configuration`
+- `melura_lms.services.whatsapp.send_evolution_test_message`
 
 ## Permission Hooks Found
 
-`zuno_lms/hooks.py` defines permission query conditions and `has_permission`
+`melura_lms/hooks.py` defines permission query conditions and `has_permission`
 hooks for:
 
 - `Bruce Live Class`
@@ -174,10 +174,10 @@ Child table sensitivity:
 Priority coverage already present:
 
 - LMS Student cannot access operational dashboard data:
-  `zuno_lms/zuno_lms/page/bruce_operational_dashboard/test_bruce_operational_dashboard.py`
+  `melura_lms/melura_lms/page/bruce_operational_dashboard/test_bruce_operational_dashboard.py`
   has `test_common_student_cannot_access_operational_dashboard`.
 - Blocked/pending access does not unlock protected content:
-  `zuno_lms/services/test_student_access.py` covers blocked active status,
+  `melura_lms/services/test_student_access.py` covers blocked active status,
   no materials/questions/lists for no active records, and locked progress.
 - Student identity comes from `frappe.session.user`:
   `test_active_student_progress_uses_only_current_student` asserts answer
@@ -190,26 +190,26 @@ Priority coverage already present:
   `test_validate_evolution_configuration_requires_api_key_without_exposing_value`
   and `test_validate_evolution_configuration_returns_valid_without_external_call`.
 - Live room context requires backend permission:
-  `zuno_lms/zuno_lms/page/bruce_live_room/test_bruce_live_room.py` covers
+  `melura_lms/melura_lms/page/bruce_live_room/test_bruce_live_room.py` covers
   active student access, blocked student denial, another-batch denial,
   professor own-room access, and admin access.
 - Jitsi room names are server-generated with a secure token:
-  `zuno_lms/zuno_lms/doctype/bruce_live_class/test_bruce_live_class.py`.
+  `melura_lms/melura_lms/doctype/bruce_live_class/test_bruce_live_class.py`.
 - WhatsApp disabled settings do not make external calls and create failed logs:
-  `zuno_lms/services/test_whatsapp.py`.
+  `melura_lms/services/test_whatsapp.py`.
 
 ## Tests Added Or Changed In This Feature
 
-- `zuno_lms/zuno_lms/page/bruce_professor_dashboard/test_bruce_professor_dashboard.py`
+- `melura_lms/melura_lms/page/bruce_professor_dashboard/test_bruce_professor_dashboard.py`
   now covers that `LMS Student` cannot call professor dashboard data methods
   and that `Professor` is an allowed backend role.
-- `zuno_lms/services/test_student_access.py` now covers expired access records,
+- `melura_lms/services/test_student_access.py` now covers expired access records,
   inactive answer submission blocking before protected content lookup, and the
   fact that `save_student_answer` does not accept frontend `student_user`.
-- `zuno_lms/zuno_lms/doctype/bruce_student_answer/test_bruce_student_answer.py`
+- `melura_lms/melura_lms/doctype/bruce_student_answer/test_bruce_student_answer.py`
   covers DocType-level server-computed answer correctness and rejection when
   the linked question has no answer key.
-- `zuno_lms/services/test_whatsapp.py` now covers nested provider response
+- `melura_lms/services/test_whatsapp.py` now covers nested provider response
   redaction for API keys, authorization headers, and tokens.
 
 ## Recommended Next Tests
