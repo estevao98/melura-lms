@@ -96,6 +96,26 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Reenvio manual preserva histórico da falha original.
 - Reenvio em lote exige confirmação quando houver risco operacional.
 
+## External student status integration
+
+- Confirmar que o segredo do webhook fica fora do Git, em ambiente ou
+  `site_config.json`.
+- Confirmar que segredo ausente, assinatura ausente e assinatura inválida
+  falham antes de localizar ou atualizar `Bruce Student Access`.
+- Confirmar que payload assinado e válido mapeia status externo para `Ativo`,
+  `Pendente`, `Bloqueado` ou `Expirado`.
+- Confirmar que status externo desconhecido é rejeitado.
+- Confirmar que campos de cartão, pagamento, checkout, invoice, assinatura,
+  transação ou perfil financeiro de cliente são rejeitados.
+- Confirmar que somente `access_status`, `source` e `external_reference`
+  existentes são alterados.
+- Confirmar que a mesma chamada válida pode ser processada mais de uma vez sem
+  corromper o acesso.
+- Confirmar que a resposta não expõe segredo, assinatura, payload financeiro,
+  dados de cartão ou dados privados do aluno.
+- Confirmar que nenhuma lógica de billing, checkout, assinatura, CRM, blog,
+  newsletter ou captação de leads foi adicionada ao LMS.
+
 ## Painel do professor
 
 - Próxima aula aparece em destaque.

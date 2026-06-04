@@ -56,22 +56,34 @@ Não enviar nem salvar no Frappe:
 - segredo de webhook;
 - dados comerciais desnecessários para liberar aula.
 
-## Backend esperado
+## Backend implementado
 
-A integração deve chamar endpoint backend protegido. Esse endpoint ainda será
-definido, mas deve:
+A integração deve chamar endpoint backend protegido:
+
+```text
+melura_lms.services.external_student_status.handle_external_student_status
+```
+
+Esse endpoint deve:
 
 - autenticar a origem;
+- validar assinatura HMAC antes de processar o payload;
 - validar payload mínimo;
-- resolver aluno, curso e turma no backend;
-- criar ou atualizar `Bruce Student Access`;
-- registrar erro resumido sem expor segredo;
+- localizar um registro existente de `Bruce Student Access` por referência
+  segura;
+- atualizar apenas status pedagógico e referência opaca existente;
+- rejeitar payload financeiro amplo;
+- retornar resposta mínima sem expor segredo;
 - nunca depender de parâmetros do frontend do aluno.
+
+Esta fundação não cria registros novos de acesso, não persiste histórico de
+eventos externos e não implementa lógica de cobrança, checkout, assinatura,
+CRM, blog, newsletter ou captação de leads.
 
 As APIs de aluno, como `/app/minha-aula`, a listagem inicial de questões ENEM e
 as listas de exercícios, devem consultar aulas, materiais, questões e listas a
 partir do usuário logado e do `Bruce Student Access`. O frontend não deve enviar
 escopo de curso, turma ou aluno para ampliar acesso.
 
-Até essa etapa ser implementada, o acesso pode ser mantido manualmente por
-usuários administrativos autorizados.
+O acesso também pode continuar sendo mantido manualmente por usuários
+administrativos autorizados quando a integração externa não estiver configurada.

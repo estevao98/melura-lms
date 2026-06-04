@@ -35,7 +35,8 @@ Example with placeholders only:
   "db_name": "<database-name>",
   "db_password": "<database-password>",
   "encryption_key": "<frappe-encryption-key>",
-  "evolution_api_key": "<evolution-api-key>"
+  "evolution_api_key": "<evolution-api-key>",
+  "external_student_status_webhook_secret": "<external-status-webhook-secret>"
 }
 ```
 
@@ -43,12 +44,19 @@ Use the exact key names expected by the current implementation. For Evolution
 API, the app accepts `evolution_api_key`, `EVOLUTION_API_KEY`, or the
 `EVOLUTION_API_KEY` environment variable.
 
+For the external student status webhook, the app accepts
+`external_student_status_webhook_secret`,
+`EXTERNAL_STUDENT_STATUS_WEBHOOK_SECRET`, or
+`MELURA_EXTERNAL_STUDENT_STATUS_WEBHOOK_SECRET` from site config or
+environment.
+
 ## Environment Variable Examples
 
 Use placeholders in docs and scripts:
 
 ```bash
 export EVOLUTION_API_KEY="<evolution-api-key>"
+export EXTERNAL_STUDENT_STATUS_WEBHOOK_SECRET="<external-status-webhook-secret>"
 export MELURA_N8N_WEBHOOK_URL="<protected-n8n-webhook-url>"
 export MELURA_JITSI_DOMAIN="<jitsi-domain>"
 ```
@@ -89,6 +97,21 @@ when stronger access controls are required.
 
 Any future Jitsi/JaaS credentials, JWT signing keys, app IDs, or provider
 secrets must stay outside Git and out of frontend payloads.
+
+## External Student Status Webhook Secret Handling
+
+The external student status webhook secret signs access-status updates from the
+external financial/commercial SaaS. It must stay outside Git and must not be:
+
+- sent in the webhook payload;
+- included in URLs;
+- returned by browser APIs;
+- rendered in HTML;
+- logged in full;
+- stored in a DocType field.
+
+Rotate the secret if it is exposed. Missing or invalid webhook signatures must
+fail closed before `Bruce Student Access` is located or updated.
 
 ## Database Passwords
 

@@ -164,8 +164,19 @@ Child table sensitivity:
   from the linked question's `correct_option`. This avoids trusting caller
   supplied correctness, including backend/API writes that bypass the student
   page service.
-- Future external SaaS webhook is not implemented yet. Webhook spoofing,
-  overbroad payloads, and unverified access activation remain future risks.
+- External student status foundation now includes a signed webhook service in
+  `melura_lms.services.external_student_status`. It verifies an HMAC signature
+  before parsing or updating, rejects overbroad financial payload fields, maps
+  external statuses into `Ativo`, `Pendente`, `Bloqueado`, and `Expirado`, and
+  updates only existing `Bruce Student Access` status plus existing opaque
+  integration metadata.
+- External webhook replay history is not persisted because there is no current
+  idempotency-event field or DocType. Repeated events are naturally idempotent
+  when they set the same status/reference, but exactly-once processing remains
+  future work.
+- External webhook provider-specific parsing, billing, checkout, subscriptions,
+  CRM, blog, newsletter, lead capture, invoice handling, transaction handling,
+  and card/customer financial payload storage are intentionally not implemented.
 - Backup, framework log, file storage, and production infrastructure retention
   were not audited in code because they are outside this app folder.
 
@@ -211,6 +222,12 @@ Priority coverage already present:
   the linked question has no answer key.
 - `melura_lms/services/test_whatsapp.py` now covers nested provider response
   redaction for API keys, authorization headers, and tokens.
+- `melura_lms/services/test_external_student_status.py` covers missing secret,
+  missing signature, invalid signature, status mapping, unknown status
+  rejection, financial/card-like payload rejection, allowed-field updates,
+  minimal responses, idempotent repeated updates, external-reference lookup,
+  and direct frontend-like calls without a valid signature failing before
+  access updates.
 
 ## Cache Safety Update
 

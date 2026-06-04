@@ -187,6 +187,15 @@ Status: Started / Foundation added.
 Goal: allow the external financial/commercial SaaS to update pedagogical access
 safely.
 
+Current foundation:
+
+- signed, provider-neutral status webhook service;
+- conservative external status mapping into Melura pedagogical statuses;
+- updates existing `Bruce Student Access` records only;
+- rejects overbroad financial/card/customer payload fields;
+- no billing, checkout, subscription, CRM, blog, newsletter, or lead capture
+  logic.
+
 Scope:
 
 - receive external access status updates;
