@@ -14,7 +14,7 @@ Check logs for:
 - Redis connectivity errors;
 - database errors;
 - Nginx/reverse proxy errors;
-- Jitsi live-room failures;
+- Google Meet launch failures;
 - WhatsApp/Evolution/n8n send failures;
 - permission denials and suspicious access attempts.
 
@@ -52,7 +52,7 @@ At minimum, monitor:
 - backup completion;
 - certificate expiration;
 - repeated permission failures;
-- repeated WhatsApp or Jitsi integration errors.
+- repeated WhatsApp or live-class launch errors.
 
 ## Error Triage
 
@@ -75,14 +75,13 @@ provider payloads into logs or support notes.
 Notification attempts should preserve status, timestamp, related class, and a
 short error summary.
 
-## Jitsi Safety Notes
+## Google Meet Safety Notes
 
-Jitsi room data is classroom access data. Backend permission checks must happen
-before returning domain, `room_name`, `meeting_url`, or embedded room context.
+Google Meet URLs are classroom access data. Backend permission checks must
+happen before returning `meeting_url` or `external_url`.
 
-Do not log predictable room-building inputs as a substitute for the generated
-room name. Production should evaluate stronger Jitsi access controls when the
-provider path is selected.
+The Melura MVP must not add embedded video, video SDKs, provider APIs, paid
+video infrastructure, or self-hosted video infrastructure.
 
 ## Production Incident Notes
 

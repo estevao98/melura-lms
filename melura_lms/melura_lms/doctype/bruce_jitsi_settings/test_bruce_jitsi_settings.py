@@ -18,15 +18,15 @@ class TestBruceJitsiSettings(unittest.TestCase):
 
 		return doc
 
-	def test_validate_normalizes_domain_and_invalidates_jitsi_cache(self):
-		doc = self.make_doc(domain="https://meet.jit.si/")
+	def test_validate_normalizes_domain_and_invalidates_legacy_cache(self):
+		doc = self.make_doc(domain="https://legacy-video.example.com/")
 
 		with patch(
 			"melura_lms.melura_lms.doctype.bruce_jitsi_settings.bruce_jitsi_settings.delete_cached_value"
 		) as delete_cached_value:
 			doc.validate()
 
-		self.assertEqual(doc.domain, "meet.jit.si")
+		self.assertEqual(doc.domain, "legacy-video.example.com")
 		delete_cached_value.assert_called_once_with(JITSI_SETTINGS_CACHE_KEY)
 
 

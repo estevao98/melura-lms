@@ -80,10 +80,10 @@ Git when they include infrastructure details, personal data, or secrets.
 
 ## External Provider Outage
 
-- [ ] Identify provider: Jitsi, Evolution API, n8n, storage, DNS, or HTTPS.
+- [ ] Identify provider: Google Meet, Evolution API, n8n, storage, DNS, or HTTPS.
 - [ ] Confirm Melura permissions remain enforced during outage.
 - [ ] Disable or pause risky sends if provider behavior is unstable.
-- [ ] Use explicit Jitsi fallback only when approved.
+- [ ] Use Google Meet external links only after backend access checks.
 - [ ] Log short operational summaries without provider secrets.
 - [ ] Communicate impact and workaround through approved channels.
 
@@ -106,4 +106,3 @@ Git when they include infrastructure details, personal data, or secrets.
 - [ ] Are private and public files aligned with the database backup?
 - [ ] Who approves user-visible downtime or data loss?
 - [ ] What smoke tests must pass before reopening access?
-

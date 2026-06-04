@@ -3,7 +3,7 @@ name = "melura_lms"
 authors = [
     { name = "Estevão Oliveira Portes", email = "estevao.opmg2@gmail.com"}
 ]
-description = "Customizações do Frappe LMS para Jitsi, WhatsApp, painel do professor e KPIs"
+description = "Customizações do Frappe LMS para links de aula ao vivo no Google Meet, WhatsApp, painel do professor e KPIs"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]

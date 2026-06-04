@@ -4,7 +4,7 @@
 
 A interface final deve estar em português brasileiro, usar Frappe UI sempre que possível e priorizar fluxos simples para um professor não técnico.
 
-O usuário deve encontrar ações operacionais sem precisar entender Jitsi, Evolution API, n8n ou detalhes internos do Frappe. Termos técnicos devem aparecer apenas em telas administrativas ou logs.
+O usuário deve encontrar ações operacionais sem precisar entender Google Meet, Evolution API, n8n ou detalhes internos do Frappe. Termos técnicos devem aparecer apenas em telas administrativas ou logs.
 
 ## Papéis
 
@@ -48,7 +48,7 @@ Necessidades principais:
 1. Professor acessa o painel.
 2. Seleciona curso ou turma.
 3. Informa título, data, horário e duração prevista da aula.
-4. Sistema gera a sala Jitsi no backend com `roomName` único e não previsível.
+4. Sistema usa o link do Google Meet configurado para a agenda, turma ou aula.
 5. Sistema salva aula com status `Agendada`.
 6. Tela mostra a aula na lista de próximas aulas.
 
@@ -65,16 +65,16 @@ Estados esperados:
 2. Visualiza a próxima aula em destaque.
 3. Clica em `Iniciar aula`.
 4. Backend valida permissão e status.
-5. Sistema abre ou incorpora a sala Jitsi.
+5. Sistema marca a aula como `Ao vivo` e abre a página da aula na Melura.
 6. Status muda para `Ao vivo`.
 7. Sistema registra `Aula iniciada` no histórico da aula ao vivo.
-8. Alunos autorizados passam a ver ação para entrar.
+8. Alunos autorizados passam a ver ação para entrar no Google Meet.
 
 Regras de UX:
 
 - A ação principal deve ser clara e visível.
 - Erros devem explicar o que fazer em português brasileiro.
-- O professor não deve copiar manualmente roomName ou configurar Jitsi.
+- O professor não deve preencher campo técnico de sala nem configurar provedor de vídeo.
 
 ## Fluxo: aluno entra na aula ao vivo
 
@@ -83,7 +83,7 @@ Regras de UX:
 3. Visualiza aula disponível.
 4. Clica em `Entrar na aula`.
 5. Sistema valida matrícula e disponibilidade.
-6. Aula abre em `/app/bruce-live-room/<aula>`, com Jitsi embutido no LMS.
+6. Aula abre em `/app/bruce-live-room/<aula>`, com página da Melura para abrir o Google Meet externo.
 
 Estados de tela:
 
@@ -101,8 +101,8 @@ A tela valida o aluno logado no backend e mostra a primeira `Bruce Live Class`
 permitida pelo status pedagógico e pelo vínculo de curso/turma, priorizando aula
 `Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro. Ela
 exibe título, curso, turma, data e horário, status da aula e ações `Entrar na
-aula` e `Copiar link`. `Entrar na aula` abre a sala interna do LMS, enquanto
-`Copiar link` mantém o link externo como fallback.
+aula` e `Copiar link`. `Entrar na aula` abre a página da aula na Melura, que
+valida o acesso no backend antes de mostrar o link externo do Google Meet.
 
 O status de acesso do aluno é controlado em `Bruce Student Access`:
 
@@ -282,12 +282,12 @@ Regras de UX:
 - suporte deve conseguir ver o status pedagógico sem acessar segredos ou dados
   financeiros sensíveis.
 
-## Fluxo: envio manual de link por WhatsApp
+## Fluxo: envio de aviso por WhatsApp
 
 1. Professor ou administrador abre uma aula ao vivo.
 2. Para teste ou validação inicial, pode preencher `Nome do destinatário
    WhatsApp` e `Telefone WhatsApp` na própria aula.
-3. Clica em `Enviar link por WhatsApp`.
+3. Clica em `Enviar aviso aos alunos`.
 4. Backend valida permissão e configuração.
 5. Se houver telefone manual, backend usa esse destinatário. Espaços,
    parênteses, traços e símbolos são removidos; números brasileiros com 10 ou
@@ -306,9 +306,9 @@ Regras de UX:
 14. Se a integração estiver desligada, sistema registra `Integração desativada`.
 15. Tela mostra resultado simples, sem expor detalhes técnicos sensíveis.
 
-Nesta etapa o envio é somente manual. Ainda não há automações 24h/1h antes da
-aula. O campo de telefone na aula continua sendo o fallback manual/teste e tem
-prioridade sobre os telefones dos alunos da turma.
+Na automação, o backend usa os destinatários permitidos pelas regras de acesso
+pedagógico e envia o lembrete antes da aula. O campo de telefone na aula
+continua sendo fallback manual/teste para envio acionado por usuário autorizado.
 
 ## Fluxo: pré-visualização de WhatsApp
 
@@ -438,7 +438,7 @@ em massa. O resultado fica registrado em `Bruce WhatsApp Notification Log` com
 Mensagem enviada no teste real:
 
 ```text
-Teste de integração do WhatsApp do Bruce LMS. Se você recebeu esta mensagem, a conexão está funcionando.
+Teste de integração do WhatsApp da Melura. Se você recebeu esta mensagem, a conexão está funcionando.
 ```
 
 O template ativo para o tipo `Link de aula disponível` pode usar:
@@ -545,20 +545,22 @@ permite revisar destinatários e mensagem antes de qualquer envio real. Ele aind
 não reenviará avisos a partir dos logs e não substitui os fluxos administrativos
 do Desk.
 
-### Base atual para sala ao vivo embutida
+### Base atual para sala ao vivo com Google Meet
 
 A rota `/app/bruce-live-room/<aula>` mostra uma página interna para a aula ao
-vivo. Ela carrega título, curso, turma, status e um frame grande do Jitsi.
+vivo. Ela carrega título, curso, turma, status, provedor `Google Meet` e ações
+`Entrar na aula` e `Copiar link`.
 
 O frontend informa apenas o identificador da aula na rota. A liberação real é
-feita no backend, que valida usuário logado, status da aula, existência de
-`room_name` e `meeting_url`, acesso ativo do aluno por `Bruce Student Access`,
-escopo de curso/turma, professor responsável ou papel administrativo.
+feita no backend, que valida usuário logado, status da aula, link válido do
+Google Meet, acesso ativo do aluno por `Bruce Student Access`, escopo de
+curso/turma, professor responsável ou papel administrativo.
 
 O botão `Entrar na aula` em `/app/minha-aula` abre essa rota interna. O botão
 `Abrir aula` e a ação `Iniciar aula` no `Painel do Professor` também abrem a
-rota interna. A opção de copiar o link externo continua disponível, e a sala
-interna mantém o botão `Abrir em nova aba` como fallback.
+rota interna. A página não incorpora chamada de vídeo, não carrega SDK externo
+e não cria sala automaticamente. O clique em `Entrar na aula` abre o Google Meet
+em nova aba/app.
 
 ## Fluxo: painel administrativo básico
 
@@ -634,7 +636,7 @@ Exemplos:
 
 ## Casos de erro importantes
 
-- Jitsi indisponível;
+- link do Google Meet ausente ou inválido;
 - aula sem turma vinculada;
 - aluno sem matrícula válida;
 - WhatsApp sem configuração ativa;

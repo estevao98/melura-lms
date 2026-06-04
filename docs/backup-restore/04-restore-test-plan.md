@@ -39,7 +39,7 @@ protected during the test.
 - [ ] Key DocTypes are available, including `Bruce Student Access`,
       `Bruce Live Class`, `Bruce Educational Material`,
       `Bruce ENEM Question`, `Bruce Exercise List`, `Bruce Student Answer`,
-      `Bruce Jitsi Settings`, `Bruce Evolution Settings`, and
+      live-class schedules, `Bruce Evolution Settings`, and
       `Bruce WhatsApp Notification Log`.
 - [ ] Student access records exist and statuses such as `Ativo`, `Pendente`,
       `Bloqueado`, and `Expirado` behave as expected.
@@ -48,7 +48,7 @@ protected during the test.
       records are present when expected.
 - [ ] WhatsApp settings do not expose Evolution API keys, tokens, auth headers,
       webhook secrets, or full provider credentials.
-- [ ] Jitsi settings are present and use test-safe configuration.
+- [ ] Google Meet test links are present where live-class schedules require them.
 - [ ] Privacy-sensitive logs are present only for authorized users and do not
       expose secrets or unnecessary personal data.
 - [ ] Smoke tests cover `Minha Aula`, `Painel do Professor`,
@@ -80,4 +80,3 @@ personal data:
 A future CI job may run repository-only documentation validation, but real
 restore tests should remain a controlled staging procedure because they require
 bench, database, files, and environment-specific safeguards.
-

@@ -9,7 +9,7 @@ kept aligned with `docs/roles-permissions.md`, `SECURITY.md`, and the hooks in
 
 | Role | Can Access | Must Not Access | Sensitive Assets To Protect | Backend Checks Expected | Future Tests |
 | --- | --- | --- | --- | --- | --- |
-| Student / LMS Student | Own `Minha Aula` dashboard; published materials, ENEM questions, exercise lists, own progress, and live-room context only when `Bruce Student Access` is `Ativo` and in course/batch scope | Operational dashboard; WhatsApp logs/settings; other students' answers/progress; unpublished/internal materials; answer keys in list payloads; Jitsi room data outside scope | `Bruce Student Access`; `Bruce Live Class`; `Bruce Educational Material`; `Bruce ENEM Question`; `Bruce Exercise List`; `Bruce Student Answer`; `bruce-live-room`; `minha-aula` | Use `frappe.session.user`; reject Guest; require `Ativo`; enforce course/batch scope; return locked progress for non-active status; compute answer correctness server-side | Direct API calls as LMS Student for each whitelisted method; blocked/expired/pending status matrix for live room, materials, questions, lists, answers, progress |
+| Student / LMS Student | Own `Minha Aula` dashboard; published materials, ENEM questions, exercise lists, own progress, and live-room context only when `Bruce Student Access` is `Ativo` and in course/batch scope | Operational dashboard; WhatsApp logs/settings; other students' answers/progress; unpublished/internal materials; answer keys in list payloads; Google Meet links outside scope | `Bruce Student Access`; `Bruce Live Class`; `Bruce Educational Material`; `Bruce ENEM Question`; `Bruce Exercise List`; `Bruce Student Answer`; `bruce-live-room`; `minha-aula` | Use `frappe.session.user`; reject Guest; require `Ativo`; enforce course/batch scope; return locked progress for non-active status; compute answer correctness server-side | Direct API calls as LMS Student for each whitelisted method; blocked/expired/pending status matrix for live room, materials, questions, lists, answers, progress |
 | Professor / instructor role | Professor dashboard; own or assigned live class operations; relevant class notices; progress summaries only where the role is in the progress manager set | Evolution API keys; global provider secrets; unrelated courses/batches unless explicitly authorized; operational dashboard unless also assigned admin role; financial/commercial data | `bruce-professor-dashboard`; `Bruce Live Class`; `Bruce Live Class Notice Log`; WhatsApp preview/send methods | Rely on Frappe DocType permissions for class list/read/write; use live-room staff check for instructor; keep progress summary guarded by manager roles | Test professor cannot open another instructor's room unless another permitted role grants it; test professor dashboard data respects DocType permissions in integration environment |
 | Operational admin | Operational dashboard aggregates; live class operational status; content counts; inactive student alerts; WhatsApp operational logs when allowed | Provider secrets; full financial payloads; unrestricted system maintenance; raw production dumps; student content outside operational need | `bruce-operational-dashboard`; `Bruce Student Access`; `Bruce Student Answer`; `Bruce WhatsApp Notification Log`; `Bruce Live Class Notice Log` | Explicit role gate in operational dashboard; return only needed aggregate/detail fields; avoid secrets and full provider payloads | Tests for each operational role; tests that LMS Student, Guest, and unrelated roles are denied |
 | System Manager / Administrator | Technical maintenance, migrations, app configuration, emergency recovery, high-privilege diagnostics | Routine teaching or daily operations as `Administrator`; committing secrets or dumps; using admin power to bypass product permission design without audit | All custom DocTypes, settings, logs, hooks, patches, site config outside Git | Frappe built-in permissions plus operational discipline; secrets must stay in environment/site config, not frontend or repository | Smoke tests for settings methods; manual review that `Administrator` is not required for teacher operations |
@@ -59,7 +59,8 @@ High-priority protection:
 - `Bruce WhatsApp Notification Log`
 - `Bruce Live Class Notice Log`
 - `Bruce Evolution Settings`
-- `Bruce Jitsi Settings`
+- `Bruce Jitsi Settings` legacy compatibility settings, obsolete for the MVP
+  video flow.
 - `Bruce WhatsApp Message Template`
 
 Child tables that inherit parent sensitivity:
@@ -76,7 +77,7 @@ Child tables that inherit parent sensitivity:
   questions, exercise lists, answers, or progress metrics.
 - Course/batch scope is derived from `Bruce Student Access`.
 - Live-room context validates login, class status, room data, URL shape, and
-  staff/student permission before returning Jitsi data.
+  staff/student permission before returning Google Meet link data.
 - Student question payloads exclude answer keys and commented resolutions.
 - Student answer correctness is computed server-side.
 - Operational dashboards reject normal students and guests.

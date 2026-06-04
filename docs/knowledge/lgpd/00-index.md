@@ -37,7 +37,7 @@ docs/knowledge/lgpd/
 | `topics/03-dados-sensiveis-criancas-adolescentes-termino.md` | Dados sensíveis, anonimização, crianças/adolescentes e término do tratamento | 11, 12, 13, 14, 15, 16 | dados sensíveis, menores, anonimização e retenção |
 | `topics/04-direitos-dos-titulares.md` | Direitos dos titulares | 17, 18, 19, 20, 21, 22 | processos de acesso, correção, exportação, eliminação e revisão |
 | `topics/05-tratamento-pelo-poder-publico.md` | Tratamento de dados pelo poder público | 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 | parcerias públicas e compartilhamento com órgãos públicos |
-| `topics/06-transferencia-internacional.md` | Transferência internacional de dados | 33, 34, 35, 36 | provedores internacionais, Jitsi/JaaS, IA, storage e suboperadores |
+| `topics/06-transferencia-internacional.md` | Transferência internacional de dados | 33, 34, 35, 36 | provedores internacionais, Google Meet, IA, storage e suboperadores |
 | `topics/07-agentes-encarregado-responsabilidade.md` | Controlador, operador, encarregado e responsabilidade | 37, 38, 39, 40, 41, 42, 43, 44, 45 | controlador, operador, DPO/encarregado, responsabilidade e registros |
 | `topics/08-seguranca-incidentes-governanca.md` | Segurança, incidentes e governança | 46, 47, 48, 49, 50, 51 | security by design, incident response, governança e logs |
 | `topics/09-sancoes-administrativas.md` | Sanções administrativas | 52, 53, 54 | risco regulatório e priorização de controles |

@@ -19,14 +19,15 @@ cross-student data exposure, stale access decisions, or secret exposure.
 The following data can be cached when it is non-secret and does not depend on a
 student's access scope:
 
-- non-secret Jitsi public settings such as `domain` and `room_prefix`;
+- legacy video public settings where compatibility requires them;
 - non-sensitive static configuration;
 - pure helper computations that do not depend on the logged-in user;
 - small public metadata that is the same for every permitted caller;
 - short-lived admin aggregates only after the caller role is checked and only
   when the response does not expose personal data.
 
-The current implementation caches only public Jitsi settings.
+The current implementation no longer uses cached video settings for live-class
+launch. Google Meet links must not be cached globally for students.
 
 ## Do Not Cache Globally
 
@@ -43,7 +44,7 @@ Never add a global cache for:
 - Evolution API or n8n provider configuration that includes endpoint details
   or operational secrets;
 - any response that includes phone, email, recipient, message body, access
-  status, answer data, Jitsi room access context, or private file references.
+  status, answer data, live-room access context, or private file references.
 
 `Bruce Student Access` remains the access source of truth. Its status must be
 read fresh for protected student flows unless a future cache is explicitly
@@ -119,10 +120,10 @@ Production readiness should still validate:
 
 ## Current Cached Function
 
-`BruceLiveClass.get_jitsi_settings()` caches only:
+Legacy compatibility cache used to include the old live-video settings:
 
-- `Bruce Jitsi Settings.domain`;
-- `Bruce Jitsi Settings.room_prefix`.
+- legacy video domain;
+- legacy room prefix.
 
 The key is:
 
@@ -130,8 +131,8 @@ The key is:
 melura_lms:v1:jitsi-settings:public
 ```
 
-The TTL is 300 seconds. `BruceJitsiSettings.validate()` deletes this key when
-the settings document is saved.
+This is obsolete for the Google Meet flow. The legacy settings controller deletes
+this key when the settings document is saved.
 
 ## Intentionally Not Optimized Yet
 

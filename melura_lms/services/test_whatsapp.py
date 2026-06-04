@@ -75,7 +75,7 @@ class TestWhatsAppService(unittest.TestCase):
 			course="historia-enem",
 			batch="turma-2026",
 			starts_at=None,
-			meeting_url="https://meet.jit.si/bruce-token",
+			meeting_url="https://meet.google.com/abc-defg-hij",
 			whatsapp_recipient_name="",
 			whatsapp_phone="",
 		)
@@ -177,7 +177,7 @@ class TestWhatsAppService(unittest.TestCase):
 		):
 			message = build_live_class_message(live_class, recipient)
 
-		self.assertEqual(message, "Olá Ana, entre na aula Aula de História: https://meet.jit.si/bruce-token")
+		self.assertEqual(message, "Olá Ana, entre na aula Aula de História: https://meet.google.com/abc-defg-hij")
 
 	def test_build_live_class_link_preview_resolves_recipients_and_message_without_external_call(self):
 		live_class = self.make_live_class()
@@ -206,7 +206,7 @@ class TestWhatsAppService(unittest.TestCase):
 		self.assertIn("Aula de História", result["message"])
 		self.assertIn("historia-enem", result["message"])
 		self.assertIn("turma-2026", result["message"])
-		self.assertIn("https://meet.jit.si/bruce-token", result["message"])
+		self.assertIn("https://meet.google.com/abc-defg-hij", result["message"])
 		self.assertFalse(result["integration_enabled"])
 		self.assertIn("desativada", result["integration_warning"])
 
@@ -216,7 +216,7 @@ class TestWhatsAppService(unittest.TestCase):
 
 		self.assertFalse(result["valid"])
 		self.assertEqual(result["status"], CONFIG_STATUS_MISSING_SETTINGS)
-		self.assertIn("Bruce Evolution Settings", result["message"])
+		self.assertIn("configurações de WhatsApp", result["message"])
 
 	def test_validate_evolution_configuration_requires_enabled_integration(self):
 		settings = self.make_settings(enabled=0)

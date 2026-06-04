@@ -115,7 +115,7 @@ After restore:
 - confirm `melura_lms` is installed;
 - confirm key DocTypes load;
 - confirm student access records exist as expected;
-- confirm live class records and Jitsi settings are present;
+- confirm live class records and Google Meet URLs are present;
 - confirm materials, exercises, questions, answers, and progress are usable;
 - confirm WhatsApp settings do not expose secrets;
 - inspect logs for restore errors without copying personal data into tickets.
@@ -136,4 +136,3 @@ Production restore is a high-risk operation. Before production restore:
 - document smoke tests and communication plan.
 
 Do not run production restore from this repository checklist alone.
-

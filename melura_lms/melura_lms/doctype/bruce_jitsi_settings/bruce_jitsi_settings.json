@@ -12,7 +12,7 @@
  ],
  "fields": [
   {
-   "default": "meet.jit.si",
+   "default": "legacy-video.example.com",
    "fieldname": "domain",
    "fieldtype": "Data",
    "label": "Domínio",

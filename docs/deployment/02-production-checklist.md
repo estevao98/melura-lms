@@ -9,7 +9,7 @@ values, real domains, IP addresses, and secrets outside Git.
 - [ ] `git status --short` is clean or only expected deployment-local files are
       present outside the repository.
 - [ ] No changes were made to `frappe/`, `lms/`, `frappe-ui/`, `payments/`, or
-      `jitsi-meet/`.
+      external apps.
 - [ ] No `.env`, `site_config.json`, `common_site_config.json`, database dump,
       backup, log with secrets, or real student data is in the diff.
 - [ ] Deployment docs and runbook have been reviewed by the operator.
@@ -115,7 +115,7 @@ values, real domains, IP addresses, and secrets outside Git.
 - [ ] n8n webhook URL is stored outside Git if sensitive.
 - [ ] Database passwords are outside Git.
 - [ ] Encryption keys are outside Git and backed up securely.
-- [ ] Jitsi/JaaS credentials, if any, are outside Git.
+- [ ] No video provider credentials are required or committed.
 
 ## Admin Account Hardening
 

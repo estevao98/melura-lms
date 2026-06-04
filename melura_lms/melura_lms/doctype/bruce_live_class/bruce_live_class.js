@@ -15,7 +15,7 @@ frappe.ui.form.on("Bruce Live Class", {
 				render_notice_history(frm);
 			});
 			open_live_room(frm.doc.name);
-		}, __("Jitsi"));
+		}, __("Aula ao vivo"));
 
 		frm.add_custom_button(__("Copiar link"), () => {
 			const meetingUrl = get_meeting_url(frm);
@@ -25,7 +25,7 @@ frappe.ui.form.on("Bruce Live Class", {
 			}
 
 			copy_meeting_url(frm, meetingUrl);
-		}, __("Jitsi"));
+		}, __("Aula ao vivo"));
 
 		if (frm.doc.status === "Agendada") {
 			frm.add_custom_button(__("Iniciar aula"), () => {
@@ -53,10 +53,10 @@ frappe.ui.form.on("Bruce Live Class", {
 						}
 					},
 				});
-			}, __("Jitsi")).addClass("btn-primary");
+			}, __("Aula ao vivo")).addClass("btn-primary");
 		}
 
-		frm.add_custom_button(__("Enviar link por WhatsApp"), () => {
+		frm.add_custom_button(__("Enviar aviso aos alunos"), () => {
 			frappe.call({
 				method: "melura_lms.services.whatsapp.send_live_class_link",
 				args: {
@@ -73,6 +73,25 @@ frappe.ui.form.on("Bruce Live Class", {
 						indicator,
 					});
 
+					frm.reload_doc();
+				},
+			});
+		}, __("WhatsApp"));
+
+		frm.add_custom_button(__("Enviar lembrete ao professor"), () => {
+			frappe.call({
+				method: "melura_lms.services.live_class_automation.send_professor_reminder_for_live_class",
+				args: {
+					live_class: frm.doc.name,
+				},
+				freeze: true,
+				freeze_message: __("Enviando lembrete ao professor..."),
+				callback(response) {
+					const result = response.message || {};
+					frappe.show_alert({
+						message: result.sent ? __("Lembrete enviado ao professor.") : __("Não foi possível enviar o lembrete ao professor."),
+						indicator: result.sent ? "green" : "orange",
+					});
 					frm.reload_doc();
 				},
 			});
@@ -108,7 +127,7 @@ function open_live_room(liveClass) {
 function show_missing_meeting_url() {
 	frappe.msgprint({
 		title: __("Link da aula indisponível"),
-		message: __("Esta aula ainda não tem link Jitsi. Salve a aula novamente ou revise a configuração do Jitsi."),
+		message: __("Esta aula ainda não tem link do Google Meet configurado."),
 		indicator: "orange",
 	});
 }

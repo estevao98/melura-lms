@@ -2,38 +2,24 @@
 # For license information, please see LICENSE
 
 import re
-import secrets
-from dataclasses import dataclass
-from urllib.parse import quote
 
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import get_datetime
 
-from melura_lms.services.cache import build_cache_key, get_or_set_cached_value
 from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log import (
 	EVENT_CLASS_STARTED,
 	STATUS_SUCCESS,
 	create_notice_log,
 )
+from melura_lms.services.live_class_automation import validate_google_meet_url
 
 
-@dataclass(frozen=True)
-class JitsiSettings:
-	domain: str = "meet.jit.si"
-	room_prefix: str = "bruce"
-
-
-JITSI_SETTINGS_CACHE_KEY = build_cache_key("jitsi-settings", "public")
-JITSI_SETTINGS_CACHE_TTL_SECONDS = 300
+JITSI_SETTINGS_CACHE_KEY = "melura_lms:v1:jitsi-settings:public"
 
 
 class BruceLiveClass(Document):
-	def before_insert(self):
-		if not self.room_name:
-			self.room_name = self.generate_room_name()
-
 	def validate(self):
 		if self.starts_at and self.ends_at and get_datetime(self.ends_at) <= get_datetime(self.starts_at):
 			frappe.throw(_("A data de término deve ser posterior ao início da aula."))
@@ -41,11 +27,11 @@ class BruceLiveClass(Document):
 		if getattr(self, "whatsapp_phone", None):
 			self.whatsapp_phone = self.normalize_whatsapp_phone(self.whatsapp_phone)
 
-		if not self.room_name:
-			self.room_name = self.generate_room_name()
-
 		if not self.meeting_url:
-			self.meeting_url = self.build_meeting_url()
+			self.meeting_url = self.get_default_google_meet_url()
+
+		if self.meeting_url:
+			validate_google_meet_url(self.meeting_url)
 
 	def normalize_whatsapp_phone(self, phone):
 		phone = re.sub(r"\D+", "", phone or "")
@@ -55,56 +41,15 @@ class BruceLiveClass(Document):
 
 		return phone
 
-	def generate_room_name(self):
-		settings = self.get_jitsi_settings()
-		prefix = re.sub(r"[^a-z0-9]+", "-", (settings.room_prefix or "bruce").strip().lower()).strip("-")
-		prefix = prefix or "bruce"
+	def get_default_google_meet_url(self):
+		schedule_name = getattr(self, "generated_from_schedule", None)
+		if not schedule_name:
+			return ""
 
-		for _attempt in range(5):
-			room_name = f"{prefix}-{secrets.token_urlsafe(18)}"
-			if not self.room_name_exists(room_name):
-				return room_name
-
-		frappe.throw(_("Não foi possível gerar uma sala Jitsi única. Tente novamente."))
-
-	def build_meeting_url(self):
-		if not self.room_name:
-			return self.meeting_url
-
-		settings = self.get_jitsi_settings()
-		domain = (settings.domain or "meet.jit.si").strip().rstrip("/")
-
-		if "://" not in domain:
-			domain = f"https://{domain}"
-
-		return f"{domain}/{quote(self.room_name, safe='')}"
-
-	@staticmethod
-	def get_jitsi_settings():
-		values = get_or_set_cached_value(
-			JITSI_SETTINGS_CACHE_KEY,
-			BruceLiveClass._load_jitsi_settings_values,
-			expires_in_sec=JITSI_SETTINGS_CACHE_TTL_SECONDS,
-		)
-		return JitsiSettings(**values)
-
-	@staticmethod
-	def _load_jitsi_settings_values():
 		try:
-			settings = frappe.get_single("Bruce Jitsi Settings")
-			return {
-				"domain": settings.domain or JitsiSettings.domain,
-				"room_prefix": settings.room_prefix or JitsiSettings.room_prefix,
-			}
-		except frappe.DoesNotExistError:
-			return {
-				"domain": JitsiSettings.domain,
-				"room_prefix": JitsiSettings.room_prefix,
-			}
-
-	@staticmethod
-	def room_name_exists(room_name):
-		return frappe.db.exists("Bruce Live Class", {"room_name": room_name})
+			return frappe.db.get_value("Melura Live Class Schedule", schedule_name, "google_meet_url") or ""
+		except Exception:
+			return ""
 
 
 @frappe.whitelist()
@@ -113,7 +58,9 @@ def start_live_class(name):
 	doc.check_permission("write")
 
 	if not doc.meeting_url:
-		frappe.throw(_("Esta aula ainda não tem link Jitsi. Salve a aula novamente ou revise a configuração do Jitsi."))
+		frappe.throw(_("Esta aula ainda não tem link do Google Meet configurado."))
+
+	validate_google_meet_url(doc.meeting_url)
 
 	if doc.status == "Ao vivo":
 		return {

@@ -6,7 +6,7 @@ Este documento define a base documental de papéis e permissões do projeto
 Esta etapa é apenas documental. Ela não cria DocTypes, não cria papéis no banco,
 não altera permissões reais e não implementa código. A implementação futura deve
 acontecer dentro da app `melura_lms`, sem modificar diretamente `frappe/`,
-`lms/`, `frappe-ui/` ou `jitsi-meet/`.
+`lms/` ou `frappe-ui/`.
 
 ## Objetivos
 
@@ -138,7 +138,7 @@ Permissões esperadas:
 Limites:
 
 - não inicia, agenda, cancela ou encerra aula;
-- não gera link ou `roomName` do Jitsi;
+- não gera link de aula ao vivo sem validação backend;
 - não acessa aulas de turmas sem matrícula válida;
 - não acessa logs de WhatsApp;
 - não vê dados de outros alunos;
@@ -159,7 +159,7 @@ Implementação atual:
 - a liberação é escopada por `LMS Batch` quando a turma estiver preenchida ou
   por `LMS Course` quando houver apenas curso;
 - a ação do aluno abre `/app/bruce-live-room/<aula>` e o backend valida o acesso
-  antes de retornar dados para a Jitsi IFrame API;
+  antes de retornar dados do Google Meet;
 - o link externo salvo permanece disponível apenas como cópia/fallback;
 - em materiais, o aluno só vê registros publicados, com visibilidade `Aluno` e
   compatíveis com seu curso ou turma;
@@ -207,7 +207,7 @@ Limites:
   formal;
 - não usa conta de Root Técnico para rotina administrativa;
 - não transforma o LMS em secretaria financeira completa;
-- não altera core do Frappe, Frappe LMS, Frappe UI ou Jitsi Meet.
+- não altera core do Frappe, Frappe LMS ou Frappe UI.
 
 ### Integração/Bot
 
@@ -507,7 +507,7 @@ Toda implementação futura deve validar:
 - vínculo com curso, turma, aula ou matrícula;
 - responsabilidade do professor pela aula;
 - status atual da aula;
-- existência de `room_name` e `meeting_url` antes de abrir sala Jitsi embutida;
+- existência de `meeting_url` válido antes de abrir a página da aula;
 - status atual da mensagem de WhatsApp;
 - escopo da integração ou bot;
 - ausência de segredos na resposta;

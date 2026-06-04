@@ -25,6 +25,6 @@ class BruceJitsiSettings(Document):
 		parsed = urlparse(value if "://" in value else f"https://{value}")
 
 		if not parsed.netloc:
-			frappe.throw(_("Informe um domínio Jitsi válido."))
+			frappe.throw(_("Informe um domínio válido."))
 
 		return parsed.netloc.rstrip("/")

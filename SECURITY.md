@@ -2,8 +2,8 @@
 
 ## 1. Security Overview
 
-This project customizes Frappe LMS for the academic operation of Professor
-Bruce's Humanities/ENEM online course. Frappe LMS remains the pedagogical core.
+This project customizes Frappe LMS for an academic Humanities/ENEM online
+course operation. Frappe LMS remains the pedagogical core.
 Billing, subscriptions, lead capture, blog, newsletter, CRM, and financial
 operations are intentionally outside this Frappe app and belong to an external
 SaaS.
@@ -34,8 +34,8 @@ Project examples:
 - `Minha Aula` must show only content allowed for the logged-in student.
 - `Painel do Professor` and `Painel Operacional` must use backend permission
   checks before returning operational data.
-- `Bruce Live Class` and the embedded live room must validate access before
-  returning Jitsi room data.
+- live classes and the live-room route must validate access before returning a
+  Google Meet link.
 - `Bruce Educational Material`, `Bruce ENEM Question`, `Bruce Exercise List`,
   `Bruce Student Answer`, and student progress APIs must be scoped by
   `Bruce Student Access`.
@@ -108,7 +108,7 @@ Valid vulnerability categories include:
 - file upload vulnerabilities;
 - private file exposure;
 - broken student access control;
-- Jitsi room access bypass;
+- live-class link access bypass;
 - WhatsApp/Evolution API secret exposure;
 - webhook spoofing;
 - external financial SaaS webhook bypass;
@@ -136,7 +136,7 @@ Reports are usually out of scope unless real impact is demonstrated:
 | Severity | Examples |
 | -------- | -------- |
 | Critical | Remote code execution, authentication bypass, full database exposure, cross-student or cross-batch data exposure at scale, exposed production secrets, arbitrary file read/write, unauthorized admin access |
-| High | Privilege escalation, student accessing another student's data, student accessing another batch/course, payment/access bypass from external SaaS integration, account takeover, Jitsi room access without authorization, sensitive logs exposed |
+| High | Privilege escalation, student accessing another student's data, student accessing another batch/course, payment/access bypass from external SaaS integration, account takeover, live-class link access without authorization, sensitive logs exposed |
 | Medium | Stored XSS with limited scope, CSRF on sensitive academic actions, IDOR with limited data exposure, private file exposure with limited scope, webhook validation weakness without confirmed exploitation |
 | Low | Minor information disclosure, missing headers with limited impact, low-risk misconfiguration, non-sensitive verbose errors in admin-only views |
 
@@ -201,7 +201,10 @@ Examples of sensitive values:
 - signing keys;
 - technical user passwords;
 - future external SaaS webhook secrets;
-- future Jitsi/JaaS credentials.
+No live-video credentials are expected for the Melura MVP. Google Meet links
+are configured manually as external links; do not add Google OAuth, Google
+Workspace credentials, Google Calendar API, Google Meet API, video SDK, paid
+video infrastructure, or self-hosted video infrastructure.
 
 Rules:
 
@@ -280,40 +283,37 @@ Rules:
 - future financial SaaS integration must update only pedagogical status and
   opaque references, not card data or full financial payloads.
 
-## 12. Live Class and Jitsi Security
+## 12. Live Class And Google Meet Security
 
-`Bruce Live Class` and Jitsi must be protected as live classroom access, not as
+Live-class Google Meet URLs must be protected as classroom access, not as
 public links.
 
 Rules:
 
-- Jitsi room names must be generated server-side;
-- room names must be unique and not predictable;
-- do not use plain course names, batch names, or dates as room names;
-- backend must validate permission before returning domain, `room_name`,
-  `meeting_url`, or embedded room data;
-- external Jitsi link must be explicit fallback only;
-- do not automatically open `meet.jit.si` in another tab;
+- backend must validate permission before returning `meeting_url` or
+  `external_url`;
+- Google Meet URLs must use `https://meet.google.com/...`;
+- reject `http`, `javascript:`, `data:`, `file:`, `ftp:`, and non-Google Meet
+  hosts;
+- do not iframe Google Meet;
+- do not load external video SDK scripts;
+- do not use Google OAuth, Google Workspace credentials, Google Calendar API,
+  or Google Meet API for this feature;
+- do not add paid, managed, self-hosted, or embedded video infrastructure;
 - do not expose unnecessary internal settings to the browser.
 
-The embedded live room route must validate:
+The live-room route must validate:
 
 - logged-in user;
 - live class exists;
-- class has `room_name` and `meeting_url`;
+- class has a valid Google Meet `meeting_url`;
 - student has `Bruce Student Access` with status `Ativo` for the correct course
   or batch;
 - teacher/admin has the correct role;
 - class status allows access.
 
-`meet.jit.si` embedded is acceptable for development and testing.
-
-Future:
-
-- production should evaluate a self-hosted Jitsi domain or Jitsi as a
-  Service/JaaS;
-- production Jitsi should use stronger access controls when available, such as
-  JWT or provider-supported authentication.
+The compatibility route `/app/bruce-live-room/<class>` remains for now, but it
+must render a Melura launch page and open Google Meet externally.
 
 ## 13. WhatsApp, Evolution API, and n8n Security
 
@@ -654,7 +654,7 @@ If a secret was committed:
 | Area | Main Rule | Risk if Broken |
 | ---- | --------- | -------------- |
 | Student access | `Bruce Student Access` controls pedagogical access. | Blocked or unauthorized students may access protected content. |
-| Live class/Jitsi | Room data is returned only after backend permission checks. | Unauthorized users may enter live classes. |
+| Live class/Google Meet | Google Meet links are returned only after backend permission checks. | Unauthorized users may enter live classes. |
 | Materials | Student materials must be published and allowed for the user scope. | Private or internal materials may leak. |
 | ENEM questions | Student APIs must not expose answer keys too early. | Students may see answers before attempting questions. |
 | Exercise lists | Answers are tied to `frappe.session.user` and validated server-side. | Students may submit or view answers for others. |

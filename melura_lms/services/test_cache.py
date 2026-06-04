@@ -37,9 +37,9 @@ class FakeCacheBackend:
 
 class TestCacheService(unittest.TestCase):
 	def test_cache_key_uses_melura_namespace(self):
-		key = build_cache_key("jitsi-settings", "public")
+		key = build_cache_key("live-class-settings", "public")
 
-		self.assertEqual(key, f"{CACHE_NAMESPACE}:v1:jitsi-settings:public")
+		self.assertEqual(key, f"{CACHE_NAMESPACE}:v1:live-class-settings:public")
 
 	def test_user_scoped_cache_key_uses_frappe_session_user(self):
 		with patch("melura_lms.services.cache.frappe.session", Mock(user="aluno@example.com")):
@@ -79,24 +79,24 @@ class TestCacheService(unittest.TestCase):
 
 	def test_cache_wrappers_use_backend_without_requiring_redis(self):
 		cache_backend = FakeCacheBackend()
-		key = build_cache_key("jitsi-settings", "public")
+		key = build_cache_key("live-class-settings", "public")
 
-		self.assertTrue(set_cached_value(key, {"domain": "meet.jit.si"}, expires_in_sec=60, cache_backend=cache_backend))
-		self.assertEqual(get_cached_value(key, cache_backend=cache_backend), {"domain": "meet.jit.si"})
+		self.assertTrue(set_cached_value(key, {"meeting_url": "https://meet.google.com/abc-defg-hij"}, expires_in_sec=60, cache_backend=cache_backend))
+		self.assertEqual(get_cached_value(key, cache_backend=cache_backend), {"meeting_url": "https://meet.google.com/abc-defg-hij"})
 		self.assertEqual(cache_backend.expires[key], 60)
 		self.assertTrue(delete_cached_value(key, cache_backend=cache_backend))
 		self.assertIsNone(get_cached_value(key, cache_backend=cache_backend))
 
 	def test_get_or_set_uses_factory_only_on_cache_miss(self):
 		cache_backend = FakeCacheBackend()
-		key = build_cache_key("jitsi-settings", "public")
-		factory = Mock(return_value={"domain": "meet.jit.si", "room_prefix": "bruce"})
+		key = build_cache_key("live-class-settings", "public")
+		factory = Mock(return_value={"meeting_url": "https://meet.google.com/abc-defg-hij"})
 
 		first_value = get_or_set_cached_value(key, factory, expires_in_sec=60, cache_backend=cache_backend)
 		second_value = get_or_set_cached_value(key, factory, expires_in_sec=60, cache_backend=cache_backend)
 
-		self.assertEqual(first_value, {"domain": "meet.jit.si", "room_prefix": "bruce"})
-		self.assertEqual(second_value, {"domain": "meet.jit.si", "room_prefix": "bruce"})
+		self.assertEqual(first_value, {"meeting_url": "https://meet.google.com/abc-defg-hij"})
+		self.assertEqual(second_value, {"meeting_url": "https://meet.google.com/abc-defg-hij"})
 		factory.assert_called_once_with()
 
 

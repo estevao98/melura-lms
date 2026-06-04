@@ -59,7 +59,7 @@ activity patterns remain.
 - Student answers linked to active disputes, support cases, legal requests, or
   ongoing course operation.
 - Access records that explain entitlement history.
-- Live class records and notice logs that explain Jitsi access, class status,
+- Live class records and notice logs that explain Google Meet access, class status,
   and operational actions.
 - WhatsApp notification logs tied to failed sends, resend attempts, provider
   diagnosis, or incident review.

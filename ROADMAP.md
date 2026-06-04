@@ -2,17 +2,23 @@
 
 ## 1. Product Direction
 
-`melura_lms` customizes Frappe Learning/LMS for Professor Bruce's online
-ENEM / Ciências Humanas course.
+`melura_lms` customizes Frappe Learning/LMS for an online ENEM / Ciências
+Humanas course operation.
 
 The goal is to deliver a clean pedagogical LMS layer for students, Professor
-Bruce, and operational admins. The app should stay upgrade-friendly by using
+the professor, and operational admins. The app should stay upgrade-friendly by using
 Frappe extension points and avoiding direct changes to Frappe, Frappe LMS,
-Frappe UI, or Jitsi Meet core.
+or Frappe UI core.
 
 The product focus is teaching, pedagogical access control, educational
 materials, exercise lists, student answers, progress, live classes, WhatsApp
 notification preparation, and operational visibility.
+
+Live classes use Google Meet external links only. Melura owns the pedagogical
+flow before and after class; the video call opens outside Melura in Google
+Meet. The MVP target is zero live-video infrastructure cost: no paid video
+infrastructure, no self-hosted video infrastructure, no embedded video
+provider, no video SDK, and no provider API.
 
 ## 2. Product Boundary
 
@@ -50,7 +56,7 @@ deployment, and operational hardening still need work.
 Done / mostly done:
 
 - project documentation foundation;
-- Jitsi settings and live class records;
+- live class records with Google Meet links;
 - teacher dashboard;
 - WhatsApp/Evolution preparation and logs;
 - student access control;
@@ -61,16 +67,16 @@ Done / mostly done:
 - student answers;
 - student progress;
 - operational/admin dashboard;
-- embedded live room;
+- external Google Meet launch page;
 - design system documentation;
 - security policy;
 - `AGENTS.md` instructions.
-- Jitsi launch-path selection ADR.
+- Google Meet only live-flow ADR.
 
 Needs refinement:
 
 - paused mobile student portal;
-- production Jitsi provider/configuration validation after the launch-path ADR;
+- recurring schedule generation and reminder automation validation;
 - WhatsApp real sending/retry foundation;
 - permission audit;
 - cache/performance strategy;
@@ -95,7 +101,7 @@ Deliverables:
 Definition of Done:
 
 - custom work stays inside `melura_lms`;
-- core Frappe/LMS/Frappe UI/Jitsi are not modified;
+- core Frappe/LMS/Frappe UI are not modified;
 - security and design rules are documented;
 - future agents know which docs to read.
 
@@ -132,10 +138,10 @@ Goal: support live classes and communication around classes.
 
 Deliverables:
 
-- Jitsi room generation;
 - live class records;
-- embedded live room;
-- external Jitsi fallback;
+- Google Meet external links;
+- recurring schedule generation;
+- student and professor reminders;
 - WhatsApp/Evolution API preparation;
 - notification logs;
 - manual resend flow where applicable.
@@ -144,16 +150,14 @@ Definition of Done:
 
 - teacher can start/open class without technical steps;
 - student opens the correct class from the LMS;
-- Jitsi data is returned only after backend permission checks;
+- Google Meet links are returned only after backend permission checks;
 - WhatsApp provider secrets are never exposed to frontend;
 - failed communication attempts are logged.
 
 Remaining work:
 
-- validate the production Jitsi launch-path ADR in staging and configure the
-  selected managed Jitsi/JaaS-style endpoint without hard-coding a provider;
-- track self-hosted Jitsi as future implementation work if cost, privacy,
-  customization, or scale require it;
+- validate automatic schedule generation and reminder jobs in staging;
+- ensure each course/batch has a configured Google Meet URL before go-live;
 - refine WhatsApp retry history, provider callbacks, and automation after the
   real sending/retry foundation is validated.
 
@@ -292,7 +296,7 @@ Definition of Done:
 | P1 | External student status integration | Future / Planned | Keeps pedagogical access synchronized with the external SaaS. | Signed webhook or protected integration endpoint |
 | P1 | Financial SaaS webhook for pedagogical access only | Future / Planned | Allows activation/block/expiration updates without importing billing logic. | External SaaS contract and webhook secret |
 | P1 | Real WhatsApp sending/retry flow | Started / Foundation added | Turns prepared communication flows into reliable operations. | Provider configuration, retry history, and provider callback policy |
-| P1 | Production Jitsi decision | Started / Foundation added | Chooses the right live-class hosting and access-control path. | Production requirements, budget, and privacy review |
+| P1 | Google Meet schedule/reminder validation | Started / Foundation added | Confirms the zero-cost live-class flow works without manual link operations. | Schedule DocType, WhatsApp settings, access rules |
 | P2 | Refactor paused mobile student portal | Future / Paused | Gives students a polished mobile-first experience. | Design system guidance and portal scope |
 | P2 | PWA shell | Future | Improves mobile access after the web portal is stable. | Stable student portal |
 | P2 | User documentation with screenshots | Future | Helps teacher/admin operate the product consistently. | Stable screens |
@@ -316,7 +320,8 @@ Definition of Done:
 - lead capture;
 - advanced marketing automation;
 - marketplace;
-- changing Frappe/LMS/Frappe UI/Jitsi core directly;
+- changing Frappe/LMS/Frappe UI core directly;
+- paid, managed, self-hosted, or embedded live-video infrastructure;
 - native mobile app before the mobile web/PWA experience is stable.
 
 Some of these may exist in a separate external SaaS, but they should not be
@@ -332,8 +337,7 @@ implemented inside `melura_lms` by default.
 | 2026-06-02 | Keep user-facing UI in Brazilian Portuguese. | Students, teacher, and admins operate the product in Portuguese. |
 | 2026-06-02 | Keep internal docs in English. | English documentation improves maintainability for future contributors and agents. |
 | 2026-06-02 | Pause mobile portal until design system is stronger. | The mobile student experience needs stronger visual/menu guidance before continuing. |
-| 2026-06-02 | Use `meet.jit.si` for development/testing, evaluate production Jitsi later. | Development can move with a safe default while production access control is decided separately. |
-| 2026-06-03 | Add production Jitsi decision foundation. | Early production should compare self-hosted Jitsi and Jitsi as a Service before treating public `meet.jit.si` as anything beyond development/demo fallback. |
+| 2026-06-04 | Use Google Meet external links as the only Melura MVP video path. | The MVP targets zero live-video infrastructure cost; automation stays around scheduling, access, reminders, and notifications. |
 
 ## 15. Related Documents
 
@@ -343,8 +347,8 @@ implemented inside `melura_lms` by default.
 - `docs/design-system.md`
 - `docs/roles-permissions.md`
 - `docs/student-access-integration.md`
-- `docs/jitsi-integration.md`
-- `docs/integrations/jitsi-production-decision.md`
+- `docs/decisions/ADR-0002-google-meet-only-live-flow.md`
+- `docs/development/naming-debt.md`
 - `docs/ux-flows.md`
 - `docs/testing-checklist.md`
 - `docs/deployment/00-overview.md`

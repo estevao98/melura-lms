@@ -17,7 +17,7 @@ Never commit:
 - webhook secrets;
 - Evolution API keys;
 - sensitive n8n webhook URLs;
-- Jitsi/JaaS credentials;
+- video provider credentials;
 - private certificates or keys;
 - backups, database dumps, or files containing real student data;
 - production logs with secrets or personal data.
@@ -58,7 +58,6 @@ Use placeholders in docs and scripts:
 export EVOLUTION_API_KEY="<evolution-api-key>"
 export EXTERNAL_STUDENT_STATUS_WEBHOOK_SECRET="<external-status-webhook-secret>"
 export MELURA_N8N_WEBHOOK_URL="<protected-n8n-webhook-url>"
-export MELURA_JITSI_DOMAIN="<jitsi-domain>"
 ```
 
 Do not commit a file containing real values. If a secret is accidentally
@@ -121,14 +120,16 @@ operators should verify:
 - provider secrets are absent from browser responses, Frappe logs, notification
   logs, tests, and committed files.
 
-## Jitsi Domain And Config Handling
+## Google Meet Link Handling
 
-Non-secret Jitsi settings such as a public domain can live in
-`Bruce Jitsi Settings`. Production should evaluate self-hosted Jitsi or JaaS
-when stronger access controls are required.
+Melura MVP uses configured Google Meet external links only. The app must not
+store or require Google OAuth credentials, Google Workspace credentials, Google
+Calendar API credentials, Google Meet API credentials, video SDK credentials,
+managed provider credentials, or self-hosted video infrastructure secrets.
 
-Any future Jitsi/JaaS credentials, JWT signing keys, app IDs, or provider
-secrets must stay outside Git and out of frontend payloads.
+Google Meet URLs are operational links stored on live classes or recurring
+schedules. They are not secrets, but they are protected classroom access data
+and must be returned to students only after backend permission checks.
 
 ## External Student Status Webhook Secret Handling
 

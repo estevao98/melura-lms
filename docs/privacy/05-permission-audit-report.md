@@ -4,7 +4,7 @@ This report is based on an implementation scan of `melura_lms` for the
 `feat/privacy-permission-audit` foundation. It is implementation-facing and
 should be updated as permissions, DocTypes, pages, or integrations change.
 
-No core Frappe, Frappe LMS, Frappe UI, payments, or Jitsi Meet files were
+No core Frappe, Frappe LMS, Frappe UI, payments, or external app files were
 modified for this audit foundation.
 
 ## Current Custom Pages
@@ -12,7 +12,7 @@ modified for this audit foundation.
 | Page | Files | Roles In Page JSON | Main Data Flow |
 | --- | --- | --- | --- |
 | `minha-aula` | `melura_lms/melura_lms/page/minha_aula/` | `LMS Student`, `System Manager`, `Moderator` | Student dashboard for next class, materials, exercise lists, progress |
-| `bruce-live-room` | `melura_lms/melura_lms/page/bruce_live_room/` | `LMS Student`, `Professor`, `System Manager`, `Moderator`, `Batch Evaluator`, `Course Creator`, `Administrador LMS`, `LMS Admin`, `Admin operacional` | Embedded Jitsi room context after backend authorization |
+| `bruce-live-room` | `melura_lms/melura_lms/page/bruce_live_room/` | `LMS Student`, `Professor`, `System Manager`, `Moderator`, `Batch Evaluator`, `Course Creator`, `Administrador LMS`, `LMS Admin`, `Admin operacional` | Google Meet launch context after backend authorization |
 | `bruce-professor-dashboard` | `melura_lms/melura_lms/page/bruce_professor_dashboard/` | `System Manager`, `Moderator`, `Batch Evaluator` | Teacher/academic operations dashboard |
 | `bruce-operational-dashboard` | `melura_lms/melura_lms/page/bruce_operational_dashboard/` | `System Manager`, `Administrador LMS`, `Admin operacional`, `LMS Admin` | Operational aggregates, content counts, active/inactive student indicators |
 
@@ -20,6 +20,8 @@ modified for this audit foundation.
 
 - `melura_lms.services.student_access`: central student access service, student
   content filters, progress, answer saving, and permission hooks.
+- `melura_lms.services.live_class_automation`: Google Meet URL validation,
+  schedule generation, and due reminder jobs.
 - `melura_lms.services.whatsapp`: WhatsApp preview/send/test helpers, Evolution
   API/n8n provider calls, recipient resolution, notification logs, provider
   response redaction.
@@ -93,7 +95,8 @@ Highest sensitivity:
   provider response, error message.
 - `Bruce Evolution Settings`: provider mode, API URL, n8n webhook URL, and
   credential note. API key is expected outside this DocType.
-- `Bruce Live Class`: Jitsi room name, meeting URL, instructor, class scope.
+- `Bruce Live Class`: legacy internal DocType with Google Meet URL, instructor,
+  schedule source, class scope, and reminder status.
 
 Pedagogical sensitivity:
 
@@ -102,7 +105,8 @@ Pedagogical sensitivity:
 - `Bruce Exercise List`
 - `Bruce Live Class Notice Log`
 - `Bruce WhatsApp Message Template`
-- `Bruce Jitsi Settings`
+- `Bruce Jitsi Settings` legacy compatibility settings, obsolete for the MVP
+  video flow.
 
 Child table sensitivity:
 
@@ -119,16 +123,10 @@ Child table sensitivity:
   and visible questions.
 - Student answer submission validates current active access, list visibility,
   question membership, and computes correctness server-side.
-- Live-room context validates login, class status, room data, and staff/student
-  permission before returning Jitsi domain, room name, and fallback URL.
-- Production Jitsi provider choice is intentionally separated from the current
-  permission foundation. `docs/integrations/jitsi-production-decision.md`
-  defines the boundary between self-hosted Jitsi, Jitsi as a Service, and the
-  public `meet.jit.si` development/demo fallback.
-- The Jitsi launch-path decision is now recorded in
-  `docs/decisions/ADR-0001-jitsi-launch-path.md`. Early production should use a
-  managed Jitsi/JaaS-style path while preserving provider-neutral code and a
-  future self-hosted option.
+- Live-room context validates login, class status, Google Meet URL, and
+  staff/student permission before returning `meeting_url` and `external_url`.
+- The Google Meet only decision is recorded in
+  `docs/decisions/ADR-0002-google-meet-only-live-flow.md`.
 
 ## Admin / Teacher-Only Flows
 
@@ -225,7 +223,7 @@ Priority coverage already present:
   `melura_lms/melura_lms/page/bruce_live_room/test_bruce_live_room.py` covers
   active student access, blocked student denial, another-batch denial,
   professor own-room access, and admin access.
-- Jitsi room names are server-generated with a secure token:
+- Google Meet URLs are validated server-side:
   `melura_lms/melura_lms/doctype/bruce_live_class/test_bruce_live_class.py`.
 - WhatsApp disabled settings do not make external calls and create failed logs:
   `melura_lms/services/test_whatsapp.py`.
@@ -266,9 +264,7 @@ Implemented cache behavior:
 - user-scoped key construction requires `frappe.session.user`;
 - obvious sensitive key token names such as `api_key`, `token`, `password`,
   `authorization`, and `secret` are rejected;
-- only non-secret Jitsi public settings (`domain` and `room_prefix`) are cached
-  globally for a short TTL;
-- saving `Bruce Jitsi Settings` invalidates the Jitsi settings cache key.
+- legacy video settings are not used by the current Google Meet flow.
 
 Intentionally uncached permission-sensitive paths:
 
@@ -277,7 +273,7 @@ Intentionally uncached permission-sensitive paths:
 - student progress;
 - student answers;
 - exercise list context for a student;
-- live-room context and Jitsi room payloads for a student;
+- live-room context and Google Meet links for a student;
 - WhatsApp recipient resolution, previews, provider configuration, sends, and
   notification logs;
 - operational dashboard aggregates that include inactive student identity.
@@ -310,10 +306,8 @@ Open cache risks:
 - Operational admin role matrix for each allowed admin role.
 - Future external SaaS webhook invalid signature, replay/idempotency, forbidden
   payload fields, and no financial payload persistence.
-- Production Jitsi path tests after the provider/domain is selected, including
-  public-settings-only responses, no frontend secrets, mobile browser behavior,
-  WebSocket/reverse-proxy behavior, and rejected access for blocked/expired or
-  out-of-scope students.
+- Google Meet schedule/reminder tests in a real site, including rejected access
+  for blocked/expired or out-of-scope students.
 
 ## Open Risks
 
@@ -330,10 +324,6 @@ Open cache risks:
 - WhatsApp retry updates the current notification log rather than preserving a
   separate per-attempt history because no schema field currently supports that
   history.
-- Production Jitsi launch path is selected at ADR level, but the concrete
-  provider/domain and final configuration are not committed here. Remaining
-  privacy/security risks include provider subprocessor review, data location
-  and international transfer, meeting metadata retention, recording
-  consent/storage, support access to meeting metadata, public fallback risk,
-  leaked external meeting URLs, and stronger Jitsi-side admission controls such
-  as provider-supported JWT or equivalent backend-generated credentials.
+- Google Meet URLs are external classroom links. Remaining privacy/security
+  risks include meeting metadata retention, recording consent/storage outside
+  Melura, support access to meeting metadata, and leaked external meeting URLs.

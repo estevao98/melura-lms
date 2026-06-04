@@ -6,7 +6,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 
 ## Validações manuais gerais
 
-- Confirmar que nenhuma mudança foi feita diretamente em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`.
+- Confirmar que nenhuma mudança foi feita diretamente em `frappe/`, `lms/` ou `frappe-ui/`.
 - Confirmar que textos visíveis estão em português brasileiro.
 - Confirmar que o usuário `Administrator` não é usado como professor operacional.
 - Confirmar que botões e mensagens principais usam linguagem simples.
@@ -59,19 +59,18 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
   status, exercise list context, and live-room context are not cached globally.
 - Confirm WhatsApp provider secrets, recipient phone, recipient name, message
   body, provider response, and notification logs are not cached.
-- Confirm the Jitsi settings cache contains only non-secret `domain` and
-  `room_prefix` values.
-- After changing `Bruce Jitsi Settings`, confirm the Jitsi settings cache key is
-  invalidated or expires within the documented TTL.
+- Confirm live-class pages do not cache student-specific Google Meet links
+  globally.
 - In development and production, confirm Redis is running for Frappe cache APIs;
   if Redis is unavailable, pages must compute normally instead of bypassing
   permission checks.
 
-## Aula ao vivo com Jitsi
+## Aula ao vivo com Google Meet
 
 - Criar aula vinculada a curso ou turma.
-- Gerar `roomName` no backend.
-- Confirmar que o `roomName` é único e não previsível.
+- Configurar link `https://meet.google.com/...`.
+- Confirmar que `http`, `javascript:`, `data:`, `file:`, `ftp:` e hosts que não
+  sejam `meet.google.com` são rejeitados.
 - Salvar link, curso, turma, professor, data/hora e status.
 - Exibir aula como `Agendada` antes do início.
 - Professor autorizado consegue iniciar aula.
@@ -81,40 +80,39 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Aula encerrada não permite nova entrada indevida.
 - Aula cancelada não pode ser iniciada sem regra explícita.
 - Nenhuma credencial sensível aparece no HTML, JS ou resposta da API.
+- `/app/bruce-live-room/<aula>` retorna `external_url` somente após validação
+  backend e não retorna campos antigos de sala embutida.
+- A página não carrega scripts de vídeo externo, não cria iframe de vídeo e
+  abre o Google Meet em nova aba/app.
 
-## Jitsi launch-path validation
+## Google Meet automatic live-flow validation
 
-- Confirmar que `docs/integrations/jitsi-production-decision.md` foi revisado
-  antes de liberar produção.
-- Confirmar que `docs/decisions/ADR-0001-jitsi-launch-path.md` foi aceito pelo
-  responsável pela decisão antes do go-live.
-- Confirmar que a produção inicial segue o caminho de Jitsi gerenciado / Jitsi
-  as a Service definido no ADR, mantendo Jitsi auto-hospedado como opção futura;
-  `meet.jit.si` fica restrito a local/dev/demo ou fallback temporário aprovado.
-- Confirmar que `Bruce Jitsi Settings` contém apenas domínio/prefixo públicos e
-  nenhum segredo, JWT signing key, API key, token, credencial de provedor,
-  domínio real sensível ou IP.
+- Confirmar que `docs/decisions/ADR-0002-google-meet-only-live-flow.md` está
+  aceito antes do go-live.
+- Confirmar que não há roadmap de provedor de vídeo pago, auto-hospedado,
+  gerenciado, embutido ou via SDK/API.
+- Confirmar que `Melura Live Class Schedule` valida link do Google Meet,
+  duração, janela de geração e lembretes.
+- Confirmar que agenda ativa gera aulas futuras.
+- Confirmar que agenda desativada não gera aulas.
+- Confirmar que a geração não duplica aula para a mesma agenda e horário.
+- Confirmar que aulas geradas copiam curso, turma, professor, início, término,
+  link do Google Meet e referência da agenda.
+- Confirmar que lembrete automático dos alunos respeita `Bruce Student Access`
+  `Ativo` e escopo de curso/turma.
+- Confirmar que lembrete do professor é separado do lembrete dos alunos.
+- Confirmar que integração de WhatsApp desativada registra aviso/log seguro e
+  não quebra scheduler.
 - Confirmar que o fluxo do professor abre/inicia a aula com conta operacional
   não-`Administrator`.
 - Confirmar que o fluxo do aluno `Ativo` entra na sala correta a partir de
   `Minha Aula` ou `/app/bruce-live-room/<aula>`.
-- Confirmar que `/app/bruce-live-room/<aula>` continua retornando contexto
-  Jitsi somente após validação backend de usuário, status da aula, escopo
-  curso/turma e `Bruce Student Access`.
 - Confirmar em staging que aluno `Pendente`, `Bloqueado`, `Expirado`, sem
-  acesso ou de outra turma/curso não recebe domínio, `room_name`, `meeting_url`
-  ou sala embutida.
+  acesso ou de outra turma/curso não recebe `meeting_url` nem `external_url`.
 - Confirmar que professor/admin autorizado consegue abrir a sala sem usar
   `Administrator` como conta operacional.
-- Confirmar que `Abrir em nova aba` continua sendo fallback explícito e que a
-  app não abre automaticamente `meet.jit.si` ou outro endpoint externo.
-- Confirmar que HTTPS, reverse proxy, WebSocket, firewall e carregamento de
-  `external_api.js` funcionam para o caminho Jitsi escolhido.
 - Confirmar que HTML, JS, respostas de API, logs, fixtures e testes não expõem
-  segredo, token, API key, JWT signing key, credencial de provedor ou dado real
-  de aluno.
-- Confirmar que gravação está desabilitada ou aprovada em documento separado
-  com consentimento, armazenamento, retenção e exclusão definidos.
+  segredo, token, API key, credencial de provedor ou dado real de aluno.
 
 ## WhatsApp
 
@@ -248,8 +246,8 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 
 ### Testes unitários
 
-- Geração de `roomName` único e não previsível.
-- Montagem de link Jitsi.
+- Validação de link Google Meet.
+- Geração automática de aulas por agenda recorrente.
 - Validação de status de aula.
 - Normalização de telefone para WhatsApp.
 - Mapeamento de status do provedor.

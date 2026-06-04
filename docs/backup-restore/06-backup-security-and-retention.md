@@ -71,7 +71,7 @@ Use extra care with:
 - `Bruce Student Answer` and progress records;
 - `Bruce Student Access` status and notes;
 - `Bruce WhatsApp Notification Log`;
-- Jitsi live-room data;
+- Google Meet live-class link data;
 - private files and uploaded materials;
 - settings DocTypes that reference provider configuration.
 
@@ -82,7 +82,7 @@ contain passwords or API keys.
 
 `site_config.json`, `common_site_config.json`, `.env` files, database
 passwords, Frappe encryption keys, API keys, webhook secrets, provider tokens,
-private keys, and Jitsi/JaaS credentials require special handling.
+private keys, and protected provider credentials require special handling.
 
 Store these values outside Git through environment configuration, site config,
 secret manager, or an approved encrypted vault. Do not render them in HTML,
@@ -90,4 +90,3 @@ return them through browser APIs, log them in full, or include them in examples.
 
 If a secret appears in a backup that is shared incorrectly, revoke and rotate it
 immediately.
-

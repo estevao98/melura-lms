@@ -89,7 +89,7 @@ Não traduzir nomes internos usados pelo código ou pelo framework, como nomes d
 - Usar frases curtas e diretas.
 - Preferir termos operacionais simples para professor e aluno.
 - Evitar jargões técnicos fora de telas administrativas e logs.
-- Usar `Aula ao vivo` para experiências Jitsi visíveis ao usuário.
+- Usar `Aula ao vivo` para experiências de Google Meet visíveis ao usuário.
 - Usar `Painel` em vez de `Dashboard` nas interfaces.
 - Usar `Professor` para o papel operacional de instrutor.
 - Usar `Aluno` para usuários matriculados.
@@ -97,6 +97,6 @@ Não traduzir nomes internos usados pelo código ou pelo framework, como nomes d
 ## Limites
 
 - Não alterar traduções globais do Frappe LMS.
-- Não modificar arquivos em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`.
+- Não modificar arquivos em `frappe/`, `lms/` ou `frappe-ui/`.
 - Não implementar frontend nesta etapa.
 - Não criar DocTypes nesta etapa.

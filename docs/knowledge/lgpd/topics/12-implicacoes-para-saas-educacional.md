@@ -31,7 +31,7 @@ Para Melura, a LGPD deve ser traduzida em regras de produto, arquitetura e opera
 - Toda listagem de dados de aluno deve ser filtrada por usuário autenticado e acesso permitido.
 - Logs devem ajudar suporte e auditoria sem armazenar segredos ou payloads completos.
 - Dados financeiros devem permanecer no SaaS externo.
-- Integrações com WhatsApp, Jitsi, IA ou SaaS financeiro devem ter escopo mínimo e controle de segredo.
+- Integrações com WhatsApp, Google Meet, IA ou SaaS financeiro devem ter escopo mínimo e controle de segredo.
 
 ## Funcionalidades que provavelmente serão necessárias
 
@@ -75,7 +75,7 @@ Para Melura, a LGPD deve ser traduzida em regras de produto, arquitetura e opera
 
 ## Pendências ou decisões humanas
 
-- Definir papéis jurídicos: Melura, Professor Bruce, SaaS financeiro e provedores.
+- Definir papéis jurídicos: Melura, professor, SaaS financeiro e provedores.
 - Definir se o produto atenderá menores de idade e como coletará autorização de responsáveis.
 - Definir canal público de privacidade.
 - Definir quais dados podem ser anonimizados e quais precisam ser retidos.

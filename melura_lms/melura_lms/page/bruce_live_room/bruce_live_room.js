@@ -22,8 +22,6 @@ class BruceLiveRoom {
 	constructor(page) {
 		this.page = page;
 		this.container = $('<div class="bruce-live-room__content"></div>').appendTo(page.main);
-		this.api = null;
-		this.scriptPromise = null;
 		if (page.wrapper && page.wrapper.addClass) {
 			page.wrapper.addClass("bruce-live-room-page");
 		}
@@ -36,7 +34,6 @@ class BruceLiveRoom {
 
 	load() {
 		const liveClass = this.get_live_class_from_route();
-		this.dispose_jitsi();
 
 		if (!liveClass) {
 			this.render_error(__("Aula não informada."), __("Abra a aula a partir da página Minha Aula ou do Painel do Professor."));
@@ -52,7 +49,6 @@ class BruceLiveRoom {
 			callback: (response) => {
 				const context = response.message || {};
 				this.render_room(context);
-				this.load_jitsi(context);
 			},
 			error: () => {
 				this.render_error(__("Não foi possível abrir a aula."), __("Confira seu acesso ou tente novamente em alguns instantes."));
@@ -91,21 +87,19 @@ class BruceLiveRoom {
 		const batchDisplay = this.clean(context.batch_title) || this.clean(context.batch);
 		const statusLabel = this.clean(context.status_label) || this.clean(context.status);
 		const externalUrl = this.clean(context.external_url);
+		const providerLabel = this.clean(context.provider_label) || "Google Meet";
 
 		this.container.html(`
 			<div class="bruce-live-room__shell">
 				<div class="bruce-live-room__header">
 					<div>
-						<div class="text-muted">${this.escape_html(__("Aula ao vivo"))}</div>
+						<div class="text-muted">${this.escape_html(providerLabel)}</div>
 						<h3>${this.escape_html(this.clean(context.title) || __("Sem título"))}</h3>
 					</div>
 					<div class="bruce-live-room__header-actions">
 						<span class="indicator-pill ${this.get_class_status_indicator(context.status)}">
 							${this.escape_html(statusLabel || __("Sem status"))}
 						</span>
-						<button class="btn btn-default btn-sm bruce-live-room__external" ${externalUrl ? "" : "disabled"}>
-							${this.escape_html(__("Abrir em nova aba"))}
-						</button>
 					</div>
 				</div>
 				<div class="bruce-live-room__grid">
@@ -114,9 +108,19 @@ class BruceLiveRoom {
 					${this.render_field(__("Data e horário"), this.format_datetime(context.starts_at))}
 					${this.render_field(__("Status"), statusLabel)}
 				</div>
-				<div class="bruce-live-room__stage">
-					<div class="bruce-live-room__jitsi" id="bruce-live-room-jitsi">
-						<div class="text-muted">${this.escape_html(__("Preparando sala..."))}</div>
+				<div class="bruce-live-room__meet-panel">
+					<div>
+						<div class="bruce-live-room__label">${this.escape_html(__("Aula ao vivo"))}</div>
+						<h4>${this.escape_html(__("Esta aula será aberta no Google Meet."))}</h4>
+						<p class="text-muted">${this.escape_html(__("Use o botão abaixo para entrar. O acesso continua validado pela Melura antes de liberar este link."))}</p>
+					</div>
+					<div class="bruce-live-room__actions">
+						<button class="btn btn-primary bruce-live-room__external" ${externalUrl ? "" : "disabled"}>
+							${this.escape_html(__("Entrar na aula"))}
+						</button>
+						<button class="btn btn-default bruce-live-room__copy" ${externalUrl ? "" : "disabled"}>
+							${this.escape_html(__("Copiar link"))}
+						</button>
 					</div>
 				</div>
 			</div>
@@ -127,76 +131,28 @@ class BruceLiveRoom {
 				window.open(externalUrl, "_blank", "noopener");
 			}
 		});
+
+		this.container.find(".bruce-live-room__copy").on("click", () => {
+			this.copy_link(externalUrl);
+		});
 	}
 
-	load_jitsi(context) {
-		const domain = this.clean(context.domain);
-		const roomName = this.clean(context.room_name);
-		const parentNode = this.container.find("#bruce-live-room-jitsi").get(0);
-
-		if (!domain || !roomName || !parentNode) {
-			this.render_jitsi_error(__("Sala Jitsi indisponível."));
+	copy_link(url) {
+		if (!url) {
 			return;
 		}
 
-		this.load_external_api(domain).then(() => {
-			if (!window.JitsiMeetExternalAPI) {
-				this.render_jitsi_error(__("Não foi possível carregar o Jitsi."));
-				return;
-			}
+		if (frappe.utils && frappe.utils.copy_to_clipboard) {
+			frappe.utils.copy_to_clipboard(url);
+			frappe.show_alert({ message: __("Link da aula copiado."), indicator: "green" });
+			return;
+		}
 
-			parentNode.innerHTML = "";
-			this.api = new window.JitsiMeetExternalAPI(domain, {
-				roomName,
-				parentNode,
-				width: "100%",
-				height: "100%",
-				userInfo: {
-					displayName: frappe.session.user_fullname || frappe.session.user,
-				},
-				configOverwrite: {
-					prejoinPageEnabled: true,
-				},
-				interfaceConfigOverwrite: {
-					MOBILE_APP_PROMO: false,
-				},
+		if (navigator.clipboard && window.isSecureContext) {
+			navigator.clipboard.writeText(url).then(() => {
+				frappe.show_alert({ message: __("Link da aula copiado."), indicator: "green" });
 			});
-		}).catch(() => {
-			this.render_jitsi_error(__("Não foi possível carregar o Jitsi. Use o botão Abrir em nova aba."));
-		});
-	}
-
-	load_external_api(domain) {
-		if (window.JitsiMeetExternalAPI) {
-			return Promise.resolve();
 		}
-
-		if (this.scriptPromise) {
-			return this.scriptPromise;
-		}
-
-		this.scriptPromise = new Promise((resolve, reject) => {
-			const script = document.createElement("script");
-			script.src = `https://${domain}/external_api.js`;
-			script.async = true;
-			script.onload = resolve;
-			script.onerror = reject;
-			document.head.appendChild(script);
-		});
-
-		return this.scriptPromise;
-	}
-
-	render_jitsi_error(message) {
-		const target = this.container.find("#bruce-live-room-jitsi");
-		target.html(`<div class="bruce-live-room__jitsi-error">${this.escape_html(message)}</div>`);
-	}
-
-	dispose_jitsi() {
-		if (this.api && this.api.dispose) {
-			this.api.dispose();
-		}
-		this.api = null;
 	}
 
 	render_field(label, value) {
@@ -341,31 +297,20 @@ class BruceLiveRoom {
 				margin-top: 16px;
 			}
 
-			.bruce-live-room__stage {
-				background: #111827;
+			.bruce-live-room__meet-panel {
+				background: var(--card-bg);
 				border: 1px solid var(--border-color);
 				border-radius: 8px;
-				height: calc(100vh - 220px);
-				min-height: 520px;
-				overflow: hidden;
-			}
-
-			.bruce-live-room__jitsi {
-				align-items: center;
 				display: flex;
-				height: 100%;
-				justify-content: center;
-				width: 100%;
+				flex-direction: column;
+				gap: 16px;
+				padding: 20px;
 			}
 
-			.bruce-live-room__jitsi iframe {
-				border: 0;
-			}
-
-			.bruce-live-room__jitsi-error {
-				color: #fff;
-				padding: 24px;
-				text-align: center;
+			.bruce-live-room__meet-panel h4 {
+				font-size: 20px;
+				line-height: 1.3;
+				margin: 4px 0 8px;
 			}
 
 			@media (max-width: 900px) {
@@ -373,9 +318,6 @@ class BruceLiveRoom {
 					grid-template-columns: repeat(2, minmax(0, 1fr));
 				}
 
-				.bruce-live-room__stage {
-					height: calc(100vh - 240px);
-				}
 			}
 
 			@media (max-width: 640px) {
@@ -405,10 +347,6 @@ class BruceLiveRoom {
 					grid-template-columns: 1fr;
 				}
 
-				.bruce-live-room__stage {
-					height: 70vh;
-					min-height: 360px;
-				}
 			}
 		</style>`).appendTo("head");
 	}

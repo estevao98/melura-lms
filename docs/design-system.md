@@ -48,11 +48,11 @@ portal again.
 - Status must always use text, not color alone.
 - Every critical screen must have empty, loading, and error states.
 - Do not break Frappe patterns without a clear product or usability reason.
-- Do not modify `frappe/`, `lms/`, `frappe-ui/`, or `jitsi-meet/` directly.
+- Do not modify `frappe/`, `lms/`, or `frappe-ui` directly.
 - Prefer boring consistency over visually impressive inconsistency.
 - Custom CSS must be scoped and token-based.
 - The student should never feel like they are inside an admin system.
-- The teacher should never need to understand `room_name`, Jitsi internals,
+- The teacher should never need to understand legacy room fields, video provider internals,
   webhook payloads, API keys, or stack traces to run a class.
 - The operational admin should see actionable operational signals, not vanity
   metrics.
@@ -77,7 +77,7 @@ The student should not see:
 - `DocType`;
 - logs;
 - payloads;
-- `room_name`;
+- legacy room fields;
 - API keys;
 - webhook names or URLs;
 - stack traces;
@@ -106,8 +106,7 @@ UX mistakes to avoid:
 - too much scrolling before the main action;
 - technical messages;
 - links that unexpectedly send the student to external systems;
-- showing copied external Jitsi links as the main path when an embedded live room
-  exists;
+- showing Google Meet links before backend access validation;
 - using desktop table layouts as the primary mobile experience.
 
 Student-facing examples must stay in Brazilian Portuguese:
@@ -295,7 +294,7 @@ Use custom portal UI for:
 
 - student mobile experiences;
 - `Minha Aula`;
-- embedded live room;
+- Google Meet launch page;
 - future PWA screens;
 - future Capacitor app shell;
 - mobile-first student flows;
@@ -320,7 +319,7 @@ well.
 Create custom UI only for:
 
 - student portal;
-- embedded live room;
+- Google Meet launch page;
 - PWA;
 - Capacitor app shell;
 - mobile-first experiences;
@@ -518,7 +517,7 @@ Future token categories:
 Rules:
 
 - Do not solve layout problems by adding arbitrary high z-index values.
-- Embedded Jitsi screens must not be covered by unrelated UI.
+- Live-class launch pages must keep the primary action visible.
 - Dialogs must trap focus and remain above the page content.
 
 ### 6.9 Breakpoints and Touch Size
@@ -744,7 +743,7 @@ Não foi possível carregar sua aula. Verifique sua conexão e tente novamente.
 Rules:
 
 - User-facing errors must be in Brazilian Portuguese.
-- Do not show `PermissionError`, stack traces, `roomName missing`, payloads, or
+- Do not show `PermissionError`, stack traces, `Meeting URL missing`, payloads, or
   internal identifiers to students or teachers.
 - Technical details can appear in logs for authorized technical users.
 
@@ -762,7 +761,7 @@ Do not use modals/dialogs for:
 - long forms;
 - complex flows;
 - full pages hidden inside a modal;
-- embedded live rooms.
+- live-class launch pages.
 
 Rules:
 
@@ -903,7 +902,7 @@ Suggested sections:
 
 Examples:
 
-- `Bruce Live Class`: main information, pedagogical scope, Jitsi data, WhatsApp,
+- `Bruce Live Class`: main information, pedagogical scope, Google Meet link, WhatsApp,
   history.
 - `Bruce Educational Material`: main information, pedagogical scope,
   publication, attachment.
@@ -990,8 +989,8 @@ Use for:
 Rules:
 
 - Ask only for necessary fields.
-- The system must generate Jitsi technical room names in the backend.
-- Do not force the teacher to fill `room_name`.
+- The system must validate Google Meet links in the backend.
+- Do not force the teacher to fill legacy technical room fields.
 - Keep sensitive configuration out of ordinary forms.
 
 ### 8.4 Student Mobile Page
@@ -1034,22 +1033,22 @@ Structure:
 
 - compact header;
 - minimal class metadata;
-- large Jitsi area;
+- clear Google Meet launch action;
 - fallback button `Abrir em nova aba`;
-- no excessive scroll before the video.
+- no excessive scroll before `Entrar na aula`.
 
 Rules:
 
-- Embedded room must prioritize video.
-- Jitsi external link is explicit fallback only.
-- Do not automatically open `meet.jit.si` in another tab.
+- The live-class page must not embed video.
+- Google Meet opens only after the user clicks `Entrar na aula`.
+- Do not automatically open Google Meet in another tab.
 - Keep camera/mic permission flow clear.
 - Do not place the actual class far below several cards.
-- Do not cover Jitsi with unrelated sticky UI.
+- Do not cover primary live-class actions with unrelated sticky UI.
 
 Current reference:
 
-- `/app/bruce-live-room/<aula>` embeds Jitsi through the Jitsi IFrame API.
+- `/app/bruce-live-room/<aula>` renders a Melura page that opens Google Meet externally.
 - The backend validates user, status, room data, student access, course/batch
   scope, teacher responsibility, or admin role before returning room context.
 
@@ -1093,11 +1092,11 @@ Actions by role:
 
 Rules:
 
-- Embedded room must prioritize video.
+- The launch page must prioritize `Entrar na aula`.
 - Do not place the actual class far below several cards.
-- External Jitsi must be fallback only.
+- `Copiar link` is secondary to `Entrar na aula`.
 - The system should generate technical room names, not the teacher.
-- `room_name` must be unique and not predictable.
+- Legacy room fields are not part of the Google Meet flow.
 - Backend validates permission and access before returning the live room context.
 
 ### 9.2 Educational Material
@@ -1262,7 +1261,7 @@ Bad user-facing examples:
 
 - `PermissionError.`
 - `Invalid doctype.`
-- `roomName missing.`
+- `Meeting URL missing.`
 - `Webhook payload failed.`
 - `Student access denied by backend.`
 
@@ -1342,8 +1341,8 @@ Rules:
 - Use one-column cards on mobile.
 - Use large buttons.
 - Keep critical content above the fold when possible.
-- Embedded live room must keep video visible early.
-- Avoid sticky elements that cover primary actions or the Jitsi area.
+- Live-class pages must keep the primary action visible early.
+- Avoid sticky elements that cover primary actions.
 - Ensure text does not overflow buttons, cards, badges, or mobile nav.
 
 ## 13. Light and Dark Theme
@@ -1427,7 +1426,7 @@ Rules:
 - Student pages must use the logged-in user from the backend.
 - Student pages must not accept frontend parameters to expand course, batch, or
   student access.
-- Jitsi room context must be returned only after backend validation.
+- Google Meet links must be returned only after backend validation.
 - WhatsApp sending must happen in the backend or protected n8n flow.
 - Logs should help support without becoming a sensitive data dump.
 
@@ -1439,7 +1438,7 @@ Examples of data that must not appear in student/teacher UI:
 - provider auth headers;
 - complete integration payloads;
 - stack traces;
-- raw `room_name` as an editable operational requirement;
+- raw legacy room fields as an editable operational requirement;
 - internal permission implementation details.
 
 ## 16. Pre-Commit Checklist for New UI
@@ -1459,7 +1458,7 @@ Examples of data that must not appear in student/teacher UI:
 - [ ] Buttons are at least 44px on mobile.
 - [ ] Status uses text, not color alone.
 - [ ] Dark theme did not break.
-- [ ] `frappe/`, `lms/`, `frappe-ui/`, and `jitsi-meet/` were not modified.
+- [ ] `frappe/`, `lms/`, and `frappe-ui` were not modified.
 - [ ] `/app/minha-aula` still works.
 - [ ] `/app/bruce-professor-dashboard` still works.
 - [ ] `/app/bruce-operational-dashboard` still works.

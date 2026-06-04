@@ -11,7 +11,7 @@
 
 ## Produto e governança
 
-- [ ] Definir se Melura/Professor Bruce atua como controlador, operador ou ambos em cada fluxo.
+- [ ] Definir se Melura/professor atua como controlador, operador ou ambos em cada fluxo.
 - [ ] Criar inventário de dados pessoais por DocType/tabela/integração.
 - [ ] Criar matriz de base legal por finalidade.
 - [ ] Criar política de privacidade em português brasileiro.
@@ -41,7 +41,7 @@
 - [ ] Garantir que `student_user` venha de `frappe.session.user`.
 - [ ] Impedir acesso cruzado entre alunos/turmas/cursos.
 - [ ] Bloquear acesso pedagógico para `Pendente`, `Bloqueado` e `Expirado`.
-- [ ] Proteger links e dados de salas Jitsi.
+- [ ] Proteger links de aula do Google Meet.
 - [ ] Manter secrets fora do Git e fora do frontend.
 - [ ] Evitar logs com tokens, senhas, payloads completos ou dados excessivos.
 - [ ] Proteger arquivos privados.
@@ -50,7 +50,7 @@
 
 ## Integrações
 
-- [ ] Mapear provedores: Jitsi/JaaS, Evolution API, n8n, hospedagem, e-mail, storage, IA.
+- [ ] Mapear provedores: Google Meet, Evolution API, n8n, hospedagem, e-mail, storage, IA.
 - [ ] Registrar país/local de processamento quando relevante.
 - [ ] Validar webhooks do SaaS externo com assinatura/segredo.
 - [ ] Tornar webhook de acesso idempotente.

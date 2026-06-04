@@ -9,9 +9,9 @@ Nome esperado do repositório GitHub: `melura-lms`.
 
 ## Visão geral
 
-Melura customiza o Frappe LMS para o curso online de ENEM / Ciências Humanas do Professor Bruce. Neste repositório, Melura é o produto educacional; `melura_lms` é a app Frappe customizada que implementa as regras, telas, DocTypes, permissões e integrações específicas.
+Melura customiza o Frappe LMS para uma operação online de ENEM / Ciências Humanas. Neste repositório, Melura é o produto educacional; `melura_lms` é a app Frappe customizada que implementa as regras, telas, DocTypes, permissões e integrações específicas.
 
-A app é focada na operação pedagógica: alunos, professor, conteúdos, aulas ao vivo, exercícios, progresso e administração operacional. Ela não é o SaaS financeiro/comercial. A experiência visível ao usuário final permanece em português brasileiro, e a customização deve continuar sem modificar diretamente o core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
+A app é focada na operação pedagógica: alunos, professor, conteúdos, aulas ao vivo, exercícios, progresso e administração operacional. Ela não é o SaaS financeiro/comercial. A experiência visível ao usuário final permanece em português brasileiro, e a customização deve continuar sem modificar diretamente o core do Frappe, Frappe LMS ou Frappe UI.
 
 ## Problema
 
@@ -27,10 +27,11 @@ A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sem
 
 ## Funcionalidades principais
 
-- Controle de acesso do aluno com `Bruce Student Access` - Concluído / quase concluído.
+- Controle de acesso pedagógico do aluno - Concluído / quase concluído.
 - Página do aluno / `Minha Aula` - Concluído / quase concluído.
 - Registros de aulas ao vivo - Concluído / quase concluído.
-- Sala ao vivo Jitsi embutida - Funcional, precisa de hardening.
+- Aula ao vivo com link externo do Google Meet - Funcional.
+- Geração automática de aulas por agenda recorrente - Fundação adicionada.
 - `Painel do Professor` - Concluído / quase concluído.
 - `Painel Operacional` - Concluído / quase concluído.
 - Materiais educacionais - Concluído / quase concluído.
@@ -46,7 +47,7 @@ A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sem
 
 ## Arquitetura em resumo
 
-Melura usa o Frappe Framework e o Frappe LMS / Frappe Learning como base. A app `melura_lms` concentra as customizações pedagógicas. Jitsi atende aulas ao vivo, Evolution API / n8n prepara comunicação via WhatsApp, e um SaaS externo fica responsável por operações financeiras e comerciais.
+Melura usa o Frappe Framework e o Frappe LMS / Frappe Learning como base. A app `melura_lms` concentra as customizações pedagógicas. Aulas ao vivo usam links externos do Google Meet, Evolution API / n8n prepara comunicação via WhatsApp, e um SaaS externo fica responsável por operações financeiras e comerciais.
 
 ```mermaid
 flowchart TD
@@ -54,7 +55,7 @@ flowchart TD
   Professor[Professor] --> LMS
   Admin[Admin operacional] --> LMS
   LMS --> CustomApp[melura_lms]
-  CustomApp --> Jitsi[Aulas ao vivo via Jitsi]
+  CustomApp --> GoogleMeet[Aulas ao vivo via Google Meet externo]
   CustomApp --> WhatsApp[Evolution API / n8n]
   SaaSExterno[SaaS financeiro externo] -. status de acesso futuro .-> CustomApp
 ```
@@ -70,8 +71,9 @@ flowchart TD
 - `docs/design-system.md`: regras de UI, UX, linguagem e consistência.
 - `docs/roles-permissions.md`: papéis, permissões e separação de contas.
 - `docs/student-access-integration.md`: regras de `Bruce Student Access` e integração externa futura.
-- `docs/jitsi-integration.md`: regras e implementação da integração Jitsi.
-- `docs/ux-flows.md`: fluxos de professor, aluno, admin, Jitsi, WhatsApp e progresso.
+- `docs/decisions/ADR-0002-google-meet-only-live-flow.md`: decisão de Google Meet externo como único fluxo de vídeo do MVP.
+- `docs/development/naming-debt.md`: dívida de nomenclatura técnica legada.
+- `docs/ux-flows.md`: fluxos de professor, aluno, admin, Google Meet, WhatsApp e progresso.
 - `docs/testing-checklist.md`: checklist de validação manual e futura automação.
 - `docs/deployment/`: documentação de prontidão de deploy e produção.
 - `docs/backup-restore/`: política, runbooks e checklist de validação segura de backup e restore.
@@ -124,7 +126,7 @@ Exemplos de valores sensíveis:
 - chave da Evolution API;
 - segredos de webhook;
 - segredo futuro de webhook do SaaS externo;
-- credenciais futuras de Jitsi/JaaS.
+Não há credenciais de vídeo para este MVP: Google Meet é configurado como link externo, sem OAuth, API, SDK ou iframe.
 
 Credenciais de provedores nunca devem ser expostas no frontend, renderizadas em HTML, retornadas por APIs de navegador ou registradas integralmente em logs.
 
@@ -150,7 +152,7 @@ O core MVP pedagógico está em grande parte construído, mas ainda existem fren
 - validação de backup e restore;
 - integração externa de status do aluno;
 - fluxo real de envio/retry de WhatsApp;
-- decisão de Jitsi para produção;
+- automação de agenda e lembretes de aula ao vivo;
 - portal mobile do aluno pausado para refinamento;
 - shell PWA futuro.
 
@@ -171,7 +173,8 @@ Esta app Frappe LMS customizada não deve incluir por padrão:
 - captação de leads;
 - automação avançada de marketing;
 - app mobile nativo antes de mobile web/PWA estar estável;
-- modificações diretas no core do Frappe, Frappe LMS, Frappe UI ou Jitsi.
+- modificações diretas no core do Frappe, Frappe LMS ou Frappe UI;
+- infraestrutura paga, gerenciada, auto-hospedada ou embutida de vídeo ao vivo.
 
 Essas responsabilidades podem pertencer a outro repositório ou a um SaaS externo, não ao core pedagógico `melura_lms`.
 
@@ -183,7 +186,7 @@ Essas responsabilidades podem pertencer a outro repositório ou a um SaaS extern
 - [docs/design-system.md](docs/design-system.md): UI, UX, linguagem, acessibilidade e padrões visuais.
 - [docs/roles-permissions.md](docs/roles-permissions.md): papéis, permissões e separação de contas.
 - [docs/student-access-integration.md](docs/student-access-integration.md): fonte de acesso pedagógico e integração externa futura.
-- [docs/jitsi-integration.md](docs/jitsi-integration.md): aulas ao vivo, sala embutida e regras de Jitsi.
+- [docs/decisions/ADR-0002-google-meet-only-live-flow.md](docs/decisions/ADR-0002-google-meet-only-live-flow.md): decisão de Google Meet externo.
 - [docs/ux-flows.md](docs/ux-flows.md): fluxos operacionais de aluno, professor, admin, WhatsApp e progresso.
 - [docs/testing-checklist.md](docs/testing-checklist.md): validações manuais e futuras automações.
 - [docs/deployment/00-overview.md](docs/deployment/00-overview.md): visão geral de prontidão de deploy e produção.

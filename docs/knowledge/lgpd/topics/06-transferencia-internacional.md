@@ -11,7 +11,7 @@
 
 ## Resumo curto
 
-Este chunk aborda quando a transferência internacional de dados pessoais é permitida e quais garantias podem ser exigidas. Para um SaaS educacional, isto se conecta ao uso de provedores externos, hospedagem, analytics, e-mail, WhatsApp, Jitsi, IA, storage ou qualquer serviço fora do Brasil.
+Este chunk aborda quando a transferência internacional de dados pessoais é permitida e quais garantias podem ser exigidas. Para um SaaS educacional, isto se conecta ao uso de provedores externos, hospedagem, analytics, e-mail, WhatsApp, Google Meet, IA, storage ou qualquer serviço fora do Brasil.
 
 ## Conteúdo extraído
 
@@ -92,7 +92,7 @@ Do Controlador e do Operador
 ## Implicações técnicas
 
 - Mapear todos os provedores que podem receber dados fora do Brasil.
-- Verificar onde ficam servidores de Jitsi/JaaS, WhatsApp/Evolution, e-mail, IA, logs, backups e hospedagem.
+- Verificar onde ficam servidores de Google Meet, WhatsApp/Evolution, e-mail, IA, logs, backups e hospedagem.
 - Documentar transferência internacional na política de privacidade.
 - Preferir contratos e provedores com garantias claras de proteção de dados.
 - Evitar enviar dados excessivos a provedores externos.

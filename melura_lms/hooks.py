@@ -1,7 +1,7 @@
 app_name = "melura_lms"
 app_title = "Melura LMS"
 app_publisher = "Estevão Oliveira Portes"
-app_description = "Customizações do Frappe LMS para Jitsi, WhatsApp, painel do professor e KPIs"
+app_description = "Customizações do Frappe LMS para Google Meet, WhatsApp, painel do professor e KPIs"
 app_email = "estevao.opmg2@gmail.com"
 app_license = "mit"
 
@@ -168,23 +168,16 @@ has_permission = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"melura_lms.tasks.all"
-# 	],
-# 	"daily": [
-# 		"melura_lms.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"melura_lms.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"melura_lms.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"melura_lms.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"melura_lms.services.live_class_automation.generate_live_classes_from_schedules",
+	],
+	"cron": {
+		"*/30 * * * *": [
+			"melura_lms.services.live_class_automation.send_due_live_class_reminders",
+		],
+	},
+}
 
 # Testing
 # -------

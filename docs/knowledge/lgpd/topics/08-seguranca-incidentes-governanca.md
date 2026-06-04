@@ -107,7 +107,7 @@ Das Sanções Administrativas
 - Criar plano de resposta a incidente e rotação de segredos.
 - Evitar logs com dados pessoais desnecessários, tokens e payloads completos.
 - Criar rotina de backup/restore segura.
-- Mapear riscos de Jitsi, WhatsApp, Frappe Desk, arquivos privados e webhook externo.
+- Mapear riscos de Google Meet, WhatsApp, Frappe Desk, arquivos privados e webhook externo.
 
 ## Pendências ou decisões humanas
 

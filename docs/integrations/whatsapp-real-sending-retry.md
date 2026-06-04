@@ -136,5 +136,5 @@ notifications. It is not a campaign tool. Any future UI action should:
 - n8n webhook URLs may be sensitive and require deployment-level protection.
 - Phone consent, privacy notices, retention periods, and support procedures
   need human operational decisions.
-- Bulk resend, scheduler, reminders, and marketing automation are intentionally
-  not implemented.
+- Bulk resend, provider delivery callbacks, retry counts, and marketing
+  automation are intentionally not implemented.

@@ -11,7 +11,7 @@ This repository contains the pedagogical LMS core:
 
 - student access through `Bruce Student Access`;
 - `Minha Aula`;
-- live classes and embedded Jitsi rooms;
+- live classes with external Google Meet links;
 - educational materials, ENEM questions, exercise lists, answers, and progress;
 - teacher and operational dashboards;
 - WhatsApp notification preparation, protected Evolution API/n8n flows, and
@@ -41,11 +41,11 @@ This deployment foundation intentionally does not add:
 - GitHub Actions;
 - production Docker setup;
 - schema, DocType, fixture, patch, or hook changes;
-- changes to Frappe, Frappe LMS, Frappe UI, payments, or Jitsi Meet core.
+- changes to Frappe, Frappe LMS, Frappe UI, payments, or external apps.
 
 ## Why This Is Separate From Feature Development
 
-Feature development answers what the LMS does for students, Professor Bruce, and
+Feature development answers what the LMS does for students, the professor, and
 operational admins. Production readiness answers how the same behavior runs
 safely in a real environment. Keeping these tracks separate avoids mixing
 secrets, hosting assumptions, deployment commands, or commercial SaaS

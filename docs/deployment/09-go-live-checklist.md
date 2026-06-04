@@ -12,16 +12,17 @@ operations.
 - [ ] Workers, scheduler, Redis, socketio, database, and reverse proxy are
       supervised.
 - [ ] Smoke tests pass for student, teacher, and operational admin flows.
-- [ ] Production Jitsi path is selected and documented for launch using
-      `docs/integrations/jitsi-production-decision.md`.
-- [ ] Jitsi launch path in
-      `docs/decisions/ADR-0001-jitsi-launch-path.md` is accepted by the
-      decision owner before go-live.
-- [ ] Production Jitsi configuration is tested with a real class flow:
-      teacher opens/starts the class, active student enters, blocked/out-of-scope
-      student is rejected, and explicit fallback behavior is verified.
-- [ ] Public `meet.jit.si` is limited to development/demo or explicitly
-      accepted as a temporary production risk.
+- [ ] Google Meet only live-flow in
+      `docs/decisions/ADR-0002-google-meet-only-live-flow.md` is accepted before
+      go-live.
+- [ ] Each live-class schedule has a valid `https://meet.google.com/...` URL.
+- [ ] Automatic class generation and reminder jobs were tested in staging.
+- [ ] A real class flow is tested: teacher opens/starts the class, active
+      student enters from Melura, blocked/out-of-scope student is rejected, and
+      the Google Meet link opens externally.
+- [ ] No iframe, video SDK, Google OAuth, Google Workspace credentials, Google
+      Calendar API, Google Meet API, paid video provider, or self-hosted video
+      infrastructure is configured for the MVP.
 - [ ] WhatsApp sending is disabled, test-only, or explicitly approved for real
       sends.
 
@@ -33,7 +34,7 @@ operations.
 - [ ] n8n webhook URL is protected when sensitive.
 - [ ] Database password and encryption key are backed up securely outside Git.
 - [ ] Debug mode is disabled.
-- [ ] `Administrator` is not used as Professor Bruce's daily account.
+- [ ] `Administrator` is not used as the professor's daily account.
 - [ ] Technical, teacher, operational admin, integration/bot, and student
       accounts are separated.
 - [ ] Dormant or test users with elevated permissions are disabled.
@@ -58,9 +59,7 @@ operations.
 - [ ] Student APIs derive user from `frappe.session.user`.
 - [ ] Students cannot access operational dashboard APIs.
 - [ ] Teacher/admin actions validate roles server-side.
-- [ ] Jitsi room context is returned only after backend permission checks.
-- [ ] Jitsi production provider/domain settings expose no credentials, JWT
-      signing keys, API keys, or provider secrets to frontend responses.
+- [ ] Google Meet links are returned only after backend permission checks.
 - [ ] WhatsApp preview/send/test methods do not expose provider secrets.
 
 ## Backup And Restore Checklist
@@ -82,8 +81,6 @@ operations.
 - [ ] Certificate renewal is automated or operationally scheduled.
 - [ ] HTTP redirects to HTTPS where appropriate.
 - [ ] Reverse proxy handles WebSocket requirements when socketio is used.
-- [ ] Chosen Jitsi path has HTTPS, reverse proxy, WebSocket, and firewall
-      behavior validated in staging.
 - [ ] Private files are not unintentionally exposed by Nginx.
 
 ## Operational Handoff Checklist
@@ -94,6 +91,5 @@ operations.
 - [ ] Support process for blocked/expired access is documented.
 - [ ] Runbook owner knows deploy, rollback, backup, and restore steps.
 - [ ] Incident contact path is known.
-- [ ] Future work is tracked for Jitsi provider integration or self-hosted
-      implementation when needed, backup automation
-      hardening, CI, and any Docker evaluation.
+- [ ] Future work is tracked for schedule/reminder hardening, backup automation,
+      CI, and any Docker evaluation.

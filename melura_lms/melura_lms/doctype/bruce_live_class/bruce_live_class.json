@@ -22,10 +22,15 @@
   "column_break_schedule",
   "starts_at",
   "ends_at",
+  "auto_generated",
+  "generated_from_schedule",
+  "auto_start_at",
   "section_break_jitsi",
   "room_name",
   "column_break_jitsi",
   "meeting_url",
+  "reminder_sent_at",
+  "professor_reminder_sent_at",
   "section_break_notice_history",
   "notice_history_html"
  ],
@@ -125,12 +130,31 @@
    "reqd": 1
   },
   {
-   "fieldname": "section_break_jitsi",
-   "fieldtype": "Section Break",
-   "label": "Jitsi"
+   "fieldname": "auto_generated",
+   "fieldtype": "Check",
+   "label": "Gerada automaticamente",
+   "read_only": 1
   },
   {
-   "description": "Gerado no backend de forma única e não previsível.",
+   "fieldname": "generated_from_schedule",
+   "fieldtype": "Link",
+   "label": "Gerada a partir da agenda",
+   "options": "Melura Live Class Schedule",
+   "read_only": 1
+  },
+  {
+   "description": "Horário de referência para automações da aula.",
+   "fieldname": "auto_start_at",
+   "fieldtype": "Datetime",
+   "label": "Início automático"
+  },
+  {
+   "fieldname": "section_break_jitsi",
+   "fieldtype": "Section Break",
+   "label": "Aula ao vivo"
+  },
+  {
+   "description": "Campo técnico legado mantido temporariamente para compatibilidade. Não é usado no fluxo Google Meet.",
    "fieldname": "room_name",
    "fieldtype": "Data",
    "label": "Nome da sala",
@@ -142,9 +166,21 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Link do Google Meet usado para esta aula. Exemplo: https://meet.google.com/abc-defg-hij",
    "fieldname": "meeting_url",
    "fieldtype": "Small Text",
-   "label": "Link da aula",
+   "label": "Link do Google Meet"
+  },
+  {
+   "fieldname": "reminder_sent_at",
+   "fieldtype": "Datetime",
+   "label": "Lembrete dos alunos enviado em",
+   "read_only": 1
+  },
+  {
+   "fieldname": "professor_reminder_sent_at",
+   "fieldtype": "Datetime",
+   "label": "Lembrete do professor enviado em",
    "read_only": 1
   },
   {

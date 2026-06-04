@@ -23,8 +23,8 @@ class TestBruceLiveRoom(unittest.TestCase):
 		doc.instructor = "professor@example.com"
 		doc.starts_at = "2026-06-01 19:00:00"
 		doc.status = "Ao vivo"
-		doc.room_name = "bruce-token-seguro"
-		doc.meeting_url = "https://meet.jit.si/bruce-token-seguro"
+		doc.room_name = ""
+		doc.meeting_url = "https://meet.google.com/abc-defg-hij"
 
 		for fieldname, value in values.items():
 			setattr(doc, fieldname, value)
@@ -51,10 +51,6 @@ class TestBruceLiveRoom(unittest.TestCase):
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.assert_current_student_can_access_live_class"
 			) as assert_student_can_access,
 			patch(
-				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.BruceLiveClass.get_jitsi_settings",
-				return_value=Mock(domain="meet.jit.si"),
-			),
-			patch(
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.db",
 				Mock(get_value=Mock(side_effect=["Curso ENEM", "Turma Maio"])),
 			),
@@ -62,9 +58,11 @@ class TestBruceLiveRoom(unittest.TestCase):
 			result = get_live_room_context_without_frappe_wrapper("BLC-2026-00001")
 
 		assert_student_can_access.assert_called_once_with(doc)
-		self.assertEqual(result["room_name"], "bruce-token-seguro")
-		self.assertEqual(result["domain"], "meet.jit.si")
-		self.assertEqual(result["external_url"], "https://meet.jit.si/bruce-token-seguro")
+		self.assertNotIn("room_name", result)
+		self.assertNotIn("domain", result)
+		self.assertEqual(result["provider_label"], "Google Meet")
+		self.assertEqual(result["meeting_url"], "https://meet.google.com/abc-defg-hij")
+		self.assertEqual(result["external_url"], "https://meet.google.com/abc-defg-hij")
 		self.assertEqual(result["course_title"], "Curso ENEM")
 		self.assertEqual(result["batch_title"], "Turma Maio")
 
@@ -136,10 +134,6 @@ class TestBruceLiveRoom(unittest.TestCase):
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.assert_current_student_can_access_live_class"
 			) as assert_student_can_access,
 			patch(
-				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.BruceLiveClass.get_jitsi_settings",
-				return_value=Mock(domain="https://meet.jit.si/"),
-			),
-			patch(
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.db",
 				Mock(get_value=Mock(return_value=None)),
 			),
@@ -147,7 +141,7 @@ class TestBruceLiveRoom(unittest.TestCase):
 			result = get_live_room_context_without_frappe_wrapper("BLC-2026-00001")
 
 		assert_student_can_access.assert_not_called()
-		self.assertEqual(result["domain"], "meet.jit.si")
+		self.assertEqual(result["provider_label"], "Google Meet")
 
 	def test_admin_can_open_room(self):
 		doc = self.make_live_class()
@@ -169,10 +163,6 @@ class TestBruceLiveRoom(unittest.TestCase):
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.assert_current_student_can_access_live_class"
 			) as assert_student_can_access,
 			patch(
-				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.BruceLiveClass.get_jitsi_settings",
-				return_value=Mock(domain="meet.jit.si"),
-			),
-			patch(
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.db",
 				Mock(get_value=Mock(return_value=None)),
 			),
@@ -183,7 +173,7 @@ class TestBruceLiveRoom(unittest.TestCase):
 		self.assertEqual(result["status_label"], "Aula ao vivo")
 
 	def test_fallback_external_url_remains_available(self):
-		doc = self.make_live_class(meeting_url="https://meet.jit.si/bruce-token-seguro")
+		doc = self.make_live_class(meeting_url="https://meet.google.com/abc-defg-hij")
 
 		with (
 			patch(
@@ -199,17 +189,13 @@ class TestBruceLiveRoom(unittest.TestCase):
 				return_value=["System Manager"],
 			),
 			patch(
-				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.BruceLiveClass.get_jitsi_settings",
-				return_value=Mock(domain="meet.jit.si"),
-			),
-			patch(
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.db",
 				Mock(get_value=Mock(return_value=None)),
 			),
 		):
 			result = get_live_room_context_without_frappe_wrapper("BLC-2026-00001")
 
-		self.assertEqual(result["external_url"], "https://meet.jit.si/bruce-token-seguro")
+		self.assertEqual(result["external_url"], "https://meet.google.com/abc-defg-hij")
 
 	def test_live_room_context_is_not_globally_cached(self):
 		doc = self.make_live_class()
@@ -230,10 +216,6 @@ class TestBruceLiveRoom(unittest.TestCase):
 			patch(
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.assert_current_student_can_access_live_class"
 			) as assert_student_can_access,
-			patch(
-				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.BruceLiveClass.get_jitsi_settings",
-				return_value=Mock(domain="meet.jit.si"),
-			),
 			patch(
 				"melura_lms.melura_lms.page.bruce_live_room.bruce_live_room.frappe.db",
 				Mock(get_value=Mock(return_value=None)),

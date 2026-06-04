@@ -9,7 +9,7 @@ from string import Formatter
 import frappe
 import requests
 from frappe import _
-from frappe.utils import now_datetime
+from frappe.utils import get_url, now_datetime
 
 from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log import (
 	EVENT_INTEGRATION_DISABLED,
@@ -26,7 +26,7 @@ from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_
 
 TEMPLATE_EVENT_TYPE = "Link de aula disponível"
 TEST_MESSAGE = (
-	"Teste de integração do WhatsApp do Bruce LMS. "
+	"Teste de integração do WhatsApp da Melura. "
 	"Se você recebeu esta mensagem, a conexão está funcionando."
 )
 LOG_STATUS_PENDING = "Pendente"
@@ -51,7 +51,7 @@ class SafeFormatDict(dict):
 
 @frappe.whitelist()
 def send_live_class_link(live_class):
-	"""Send the Jitsi link for a Bruce Live Class through the configured WhatsApp provider."""
+	"""Send the live-class link through the configured WhatsApp provider."""
 	doc = frappe.get_doc("Bruce Live Class", live_class)
 	doc.check_permission("write")
 	create_notice_log(
@@ -122,7 +122,7 @@ def send_evolution_test_message(phone):
 		return summarize_single_test_result(
 			mark_log_failed(
 				log,
-				_("Selecione o modo Evolution API em Bruce Evolution Settings para enviar a mensagem de teste."),
+				_("Selecione o modo Evolution API nas configurações de WhatsApp para enviar a mensagem de teste."),
 			)
 		)
 
@@ -220,25 +220,25 @@ def validate_evolution_configuration(settings=USE_STORED_SETTINGS):
 	if not settings:
 		return configuration_result(
 			CONFIG_STATUS_MISSING_SETTINGS,
-			_("Bruce Evolution Settings não foi encontrado. Revise a instalação da app."),
+			_("As configurações de WhatsApp não foram encontradas. Revise a instalação da app."),
 		)
 
 	if not settings.enabled:
 		return configuration_result(
 			CONFIG_STATUS_DISABLED,
-			_("A integração de WhatsApp está desativada em Bruce Evolution Settings."),
+			_("A integração de WhatsApp está desativada nas configurações de WhatsApp."),
 		)
 
 	if not settings.api_url:
 		return configuration_result(
 			CONFIG_STATUS_MISSING_API_URL,
-			_("Informe a URL da API em Bruce Evolution Settings."),
+			_("Informe a URL da API nas configurações de WhatsApp."),
 		)
 
 	if not settings.instance_name:
 		return configuration_result(
 			CONFIG_STATUS_MISSING_INSTANCE,
-			_("Informe o nome da instância em Bruce Evolution Settings."),
+			_("Informe o nome da instância nas configurações de WhatsApp."),
 		)
 
 	if not get_evolution_api_key():
@@ -343,7 +343,7 @@ def build_live_class_link_preview(live_class):
 		"integration_enabled": integration_enabled,
 		"integration_warning": ""
 		if integration_enabled
-		else _("A integração de WhatsApp está desativada em Bruce Evolution Settings."),
+		else _("A integração de WhatsApp está desativada nas configurações de WhatsApp."),
 	}
 
 
@@ -381,17 +381,17 @@ def validate_send_request(live_class, recipient, settings):
 		return _("Nenhum telefone de WhatsApp foi encontrado para esta aula.")
 
 	if not settings or not settings.enabled:
-		return _("A integração de WhatsApp está desativada em Bruce Evolution Settings.")
+		return _("A integração de WhatsApp está desativada nas configurações de WhatsApp.")
 
 	if settings.provider_mode == "Evolution API":
 		if not settings.api_url or not settings.instance_name:
-			return _("Configure URL da API e nome da instância em Bruce Evolution Settings.")
+			return _("Configure URL da API e nome da instância nas configurações de WhatsApp.")
 
 		if not get_evolution_api_key():
 			return _("Configure EVOLUTION_API_KEY em variável de ambiente ou site_config.json.")
 
 	if settings.provider_mode == "n8n" and not settings.n8n_webhook_url:
-		return _("Configure a URL do webhook n8n em Bruce Evolution Settings.")
+		return _("Configure a URL do webhook n8n nas configurações de WhatsApp.")
 
 	if settings.provider_mode not in ("Evolution API", "n8n"):
 		return _("Modo de provedor de WhatsApp inválido.")
@@ -568,15 +568,28 @@ def get_active_template():
 
 
 def get_template_context(live_class, recipient):
+	link = get_live_class_public_link(live_class)
 	return {
 		"nome": recipient.get("recipient_name") or "",
 		"aula": live_class.title or "",
 		"curso": live_class.course or "",
 		"turma": live_class.batch or "",
 		"inicio": frappe.format(live_class.starts_at, {"fieldtype": "Datetime"}) if live_class.starts_at else "",
-		"link": live_class.meeting_url or "",
+		"link": link,
 		"meeting_url": live_class.meeting_url or "",
 	}
+
+
+def get_live_class_public_link(live_class):
+	try:
+		base_url = get_url()
+	except Exception:
+		base_url = ""
+
+	if base_url and getattr(live_class, "name", None):
+		return f"{base_url.rstrip('/')}/app/bruce-live-room/{live_class.name}"
+
+	return live_class.meeting_url or ""
 
 
 def format_template(template, context):

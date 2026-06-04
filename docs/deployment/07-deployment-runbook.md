@@ -95,7 +95,7 @@ After deploy:
 - confirm blocked/expired access does not unlock content;
 - open `Painel do Professor` as an authorized teacher;
 - open `Painel Operacional` as an authorized operational admin;
-- validate Jitsi live-room context for an authorized class;
+- validate Google Meet launch context for an authorized class;
 - confirm WhatsApp configuration test does not expose `EVOLUTION_API_KEY`;
 - confirm external student status webhook secret is configured outside Git when
   the integration is enabled;

@@ -1,0 +1,222 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "format:MLCS-{YYYY}-{#####}",
+ "creation": "2026-06-04 00:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "enabled",
+  "section_break_scope",
+  "course",
+  "batch",
+  "instructor",
+  "section_break_meet",
+  "google_meet_url",
+  "section_break_schedule",
+  "weekday",
+  "starts_at_time",
+  "duration_minutes",
+  "generate_days_ahead",
+  "section_break_notifications",
+  "notify_minutes_before",
+  "professor_notify_minutes_before",
+  "auto_send_student_reminder",
+  "auto_send_professor_reminder",
+  "last_generated_at",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Título",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Ativa"
+  },
+  {
+   "fieldname": "section_break_scope",
+   "fieldtype": "Section Break",
+   "label": "Escopo pedagógico"
+  },
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Curso",
+   "options": "LMS Course",
+   "reqd": 1
+  },
+  {
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Turma",
+   "options": "LMS Batch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "instructor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Professor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_meet",
+   "fieldtype": "Section Break",
+   "label": "Google Meet"
+  },
+  {
+   "description": "Link do Google Meet usado pelas aulas geradas. Exemplo: https://meet.google.com/abc-defg-hij",
+   "fieldname": "google_meet_url",
+   "fieldtype": "Small Text",
+   "label": "Link do Google Meet",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_schedule",
+   "fieldtype": "Section Break",
+   "label": "Agenda"
+  },
+  {
+   "fieldname": "weekday",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Dia da semana",
+   "options": "Segunda\nTerça\nQuarta\nQuinta\nSexta\nSábado\nDomingo",
+   "reqd": 1
+  },
+  {
+   "fieldname": "starts_at_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Horário de início",
+   "reqd": 1
+  },
+  {
+   "default": "60",
+   "fieldname": "duration_minutes",
+   "fieldtype": "Int",
+   "label": "Duração em minutos",
+   "reqd": 1
+  },
+  {
+   "default": "14",
+   "description": "Quantidade de dias futuros para gerar automaticamente.",
+   "fieldname": "generate_days_ahead",
+   "fieldtype": "Int",
+   "label": "Gerar dias à frente",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_notifications",
+   "fieldtype": "Section Break",
+   "label": "Lembretes"
+  },
+  {
+   "default": "30",
+   "fieldname": "notify_minutes_before",
+   "fieldtype": "Int",
+   "label": "Avisar alunos minutos antes"
+  },
+  {
+   "default": "30",
+   "fieldname": "professor_notify_minutes_before",
+   "fieldtype": "Int",
+   "label": "Avisar professor minutos antes"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_send_student_reminder",
+   "fieldtype": "Check",
+   "label": "Enviar lembrete aos alunos"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_send_professor_reminder",
+   "fieldtype": "Check",
+   "label": "Enviar lembrete ao professor"
+  },
+  {
+   "fieldname": "last_generated_at",
+   "fieldtype": "Datetime",
+   "label": "Última geração em",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Observações"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-04 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Melura LMS",
+ "name": "Melura Live Class Schedule",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}

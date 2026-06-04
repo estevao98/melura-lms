@@ -105,11 +105,11 @@ Da Segurança e do Sigilo de Dados
 - Definir se o curso/professor é controlador e se Melura atua como operador em cenários futuros.
 - Manter registro das operações de tratamento dentro do produto e dos processos externos.
 - Criar contato público de privacidade/encarregado quando necessário.
-- Criar contratos/instruções para operadores: hospedagem, WhatsApp, Jitsi/JaaS, e-mail, IA, analytics, backup.
+- Criar contratos/instruções para operadores: hospedagem, WhatsApp, Google Meet, e-mail, IA, analytics, backup.
 - Criar procedimento de relatório de impacto para tratamentos de maior risco.
 
 ## Pendências ou decisões humanas
 
-- Definir papéis jurídicos de Melura, Professor Bruce e SaaS financeiro externo.
+- Definir papéis jurídicos de Melura, professor e SaaS financeiro externo.
 - Definir encarregado/canal oficial.
 - Criar registro de operações de tratamento simplificado.

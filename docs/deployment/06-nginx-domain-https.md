@@ -42,17 +42,14 @@ Nginx or an equivalent reverse proxy should handle:
 Private files must not become publicly accessible through reverse proxy
 misconfiguration.
 
-The Jitsi launch path is recorded in
-`docs/decisions/ADR-0001-jitsi-launch-path.md`. Managed Jitsi/JaaS and
-self-hosted Jitsi have different domain, reverse proxy, WebSocket, firewall,
-media, and support requirements; validate the selected path separately from the
-Frappe LMS domain.
+The live-class launch path is recorded in
+`docs/decisions/ADR-0002-google-meet-only-live-flow.md`. Google Meet opens as
+an external link, so Melura does not configure video reverse proxy, media
+services, provider APIs, SDKs, or self-hosted video infrastructure.
 
-If the selected production Jitsi path uses a self-hosted Jitsi endpoint behind
-a reverse proxy, validate the Jitsi web frontend, `external_api.js`, WebSocket
-upgrade behavior, XMPP/WebSocket paths, media connectivity, and timeouts in
-staging before go-live. Keep exact production domains, IPs, ports, and firewall
-rules in private deployment notes.
+Validate in staging that the Melura page opens the configured Google Meet URL
+only after backend authorization. Keep exact production domains, IPs, ports, and
+firewall rules in private deployment notes.
 
 ## WebSocket Considerations
 
@@ -64,10 +61,8 @@ validate:
 - process manager supervises socketio;
 - Redis socketio service is running where required.
 
-Jitsi may also require WebSocket support depending on the selected deployment
-or provider. Do not assume that a reverse proxy working for Frappe/socketio is
-automatically sufficient for self-hosted Jitsi; validate browser console logs,
-Jitsi connection state, and mobile network behavior separately.
+Google Meet itself is outside Melura infrastructure; validate only that the
+authorized Melura launch page opens the configured external URL.
 
 ## Why Production Must Not Rely On Localhost
 

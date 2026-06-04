@@ -212,9 +212,9 @@ def locate_student_access_record(payload):
 			return frappe.get_doc("Bruce Student Access", matches[0].get("name"))
 
 		if len(matches) > 1:
-			frappe.throw(_("Referência externa duplicada para Bruce Student Access."), frappe.ValidationError)
+			frappe.throw(_("Referência externa duplicada para acesso pedagógico."), frappe.ValidationError)
 
-	frappe.throw(_("Informe uma referência segura de Bruce Student Access."), frappe.ValidationError)
+	frappe.throw(_("Informe uma referência segura de acesso pedagógico."), frappe.ValidationError)
 
 
 def update_student_access_record(access, status, external_reference=None):

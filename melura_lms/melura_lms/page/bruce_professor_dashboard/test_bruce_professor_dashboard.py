@@ -297,7 +297,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 			"name": "BLC-2026-00003",
 			"title": "Aula agendada",
 			"course": "a-guide-to-frappe-learning",
-			"batch": "turma-teste-jitsi",
+			"batch": "turma-teste-google-meet",
 			"status": "Agendada",
 		}
 
@@ -313,7 +313,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 			patch(
 				"melura_lms.melura_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.frappe.db",
 				Mock(
-					get_value=Mock(side_effect=["Guia do Frappe Learning", "Turma Teste Jitsi"]),
+					get_value=Mock(side_effect=["Guia do Frappe Learning", "Turma Teste Google Meet"]),
 					get_single_value=Mock(return_value=1),
 				),
 			),
@@ -325,7 +325,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 			result = _get_next_live_class()
 
 		self.assertEqual(result["course_title"], "Guia do Frappe Learning")
-		self.assertEqual(result["batch_title"], "Turma Teste Jitsi")
+		self.assertEqual(result["batch_title"], "Turma Teste Google Meet")
 		self.assertEqual(result["notice_logs"], [])
 
 	def test_get_link_title_falls_back_to_original_value(self):

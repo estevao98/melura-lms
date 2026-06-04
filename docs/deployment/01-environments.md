@@ -14,7 +14,7 @@ Expected traits:
 
 - site name may be `curso.localhost`;
 - `bench start` may run web, workers, Redis, scheduler, and socketio together;
-- `meet.jit.si` may be used for Jitsi development/testing;
+- Google Meet test links may be configured for live-class development/testing;
 - test credentials and placeholder settings only;
 - no real student data, production database dumps, production backups, or
   production provider secrets.
@@ -45,7 +45,7 @@ Expected traits:
 - smoke tests are run before promoting changes to production.
 
 Use staging to validate migrations, builds, cache clearing, backup/restore,
-Jitsi configuration, WhatsApp disabled or test mode, permissions, and rollback
+Google Meet links, WhatsApp disabled or test mode, permissions, and rollback
 steps.
 
 ## Production VPS

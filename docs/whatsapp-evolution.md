@@ -23,7 +23,7 @@ Implementado:
   os mesmos destinatários resolvidos do envio manual;
 - registro de eventos operacionais em `Bruce Live Class Notice Log` quando há
   pré-visualização, tentativa manual, falha de envio ou integração desativada;
-- ação no formulário `Bruce Live Class`: `Enviar link por WhatsApp`;
+- ação no formulário `Bruce Live Class`: `Enviar aviso aos alunos`;
 - ação no formulário `Bruce Live Class`: `Pré-visualizar WhatsApp`;
 - status visual de WhatsApp no `Painel do Professor`;
 - ação no `Painel do Professor`: `Pré-visualizar WhatsApp`, sem envio real;
@@ -35,10 +35,9 @@ Implementado:
 
 Ainda não foram implementados nesta etapa:
 
-- automações, scheduler ou jobs;
 - frontend Vue complexo;
-- alteração em `frappe/`, `lms/`, `frappe-ui/` ou `jitsi-meet/`.
-- automação de lembretes de WhatsApp.
+- alteração em `frappe/`, `lms/` ou `frappe-ui/`.
+- callbacks de entrega do provedor.
 
 ## Arquitetura prevista
 
@@ -130,7 +129,7 @@ telefone e pede confirmação. O backend:
 Mensagem enviada:
 
 ```text
-Teste de integração do WhatsApp do Bruce LMS. Se você recebeu esta mensagem, a conexão está funcionando.
+Teste de integração do WhatsApp da Melura. Se você recebeu esta mensagem, a conexão está funcionando.
 ```
 
 Quando a integração estiver desativada, a configuração estiver incompleta ou a
@@ -219,7 +218,7 @@ o log técnico por destinatário.
 1. Usuário autorizado abre uma `Bruce Live Class` ou o `Painel do Professor`.
 2. Para validação operacional, preenche opcionalmente `Nome do destinatário
    WhatsApp` e `Telefone WhatsApp` na aula.
-3. Clica em `Enviar link por WhatsApp`.
+3. Clica em `Enviar aviso aos alunos`.
 4. Backend valida permissão de escrita na aula.
 5. Se `Telefone WhatsApp` estiver preenchido, backend usa esse destinatário
    manual/teste. O telefone é normalizado removendo espaços, parênteses, traços
@@ -299,6 +298,7 @@ mensagem real e não cria log.
 ## Próximas etapas
 
 - permitir reenvio manual de mensagens com falha a partir dos logs;
-- adicionar automações 24h/1h antes, quando essa fase for autorizada;
+- validar automações de lembrete em staging com WhatsApp desativado e mockado
+  antes de envio real;
 - refinar filtros de permissão por vínculo real de professor, turma e curso;
 - revisar consentimento e política de uso de telefone antes de envios em massa.

@@ -2,8 +2,8 @@
 
 ## 1. Mission
 
-`melura_lms` customizes Frappe Learning/LMS for Professor Bruce's online
-ENEM / Ciências Humanas pedagogical operation. AI coding agents must preserve
+`melura_lms` customizes Frappe Learning/LMS for Melura's online ENEM /
+Ciências Humanas pedagogical operation. AI coding agents must preserve
 architecture, security, maintainability, and product consistency while keeping
 the app upgrade-friendly.
 
@@ -13,12 +13,13 @@ preferred path is extension, not core modification.
 The product must remain simple for:
 
 - students;
-- Professor Bruce;
+- the professor;
 - operational admins.
 
 ## 2. Product Boundary
 
-This app handles pedagogical LMS features: live classes, embedded Jitsi rooms,
+This app handles pedagogical LMS features: live classes with Google Meet
+external links,
 teacher and operational dashboards, `Minha Aula`, Bruce Student Access,
 educational materials, ENEM questions, exercise lists, student answers,
 progress, WhatsApp notification preparation, protected Evolution API / n8n
@@ -60,9 +61,11 @@ the docs are the source of detail.
 - `ROADMAP.md`: product direction and scope boundaries.
 - `docs/design-system.md`: UI, UX, visual, and language rules.
 - `docs/roles-permissions.md`: authorization and account separation rules.
-- `docs/student-access-integration.md`: Bruce Student Access rules.
-- `docs/jitsi-integration.md`: live class and Jitsi rules.
-- `docs/ux-flows.md`: teacher, student, admin, Jitsi, WhatsApp, and progress
+- `docs/student-access-integration.md`: student access rules.
+- `docs/decisions/ADR-0002-google-meet-only-live-flow.md`: accepted Google
+  Meet-only live class decision.
+- `docs/jitsi-integration.md`: obsolete historical live-video note.
+- `docs/ux-flows.md`: teacher, student, admin, Google Meet, WhatsApp, and progress
   flows.
 - `docs/testing-checklist.md`: manual and automated validation guidance.
 - `docs/kpis-admin.md`: KPI guidance when populated.
@@ -145,19 +148,22 @@ Rules:
 - Do not create one-off visual inconsistency.
 - The student should not feel like they are using the administrative Desk.
 
-## 10. Jitsi and Live Class Rules
+## 10. Google Meet and Live Class Rules
 
-- Generate `roomName` server-side.
-- Use unique and non-predictable room names.
-- Do not use plain course, batch, or date values as room names.
-- Validate permission before returning Jitsi domain, room name, meeting URL, or
-  embedded room data.
+- Melura live classes use Google Meet external links only.
+- Do not iframe or embed Google Meet.
+- Do not add Google API, OAuth, Workspace, Calendar API, Meet API, video SDK,
+  paid video infrastructure, or self-hosted video infrastructure.
+- Validate permission before returning a meeting URL or external link.
+- Google Meet URLs must be configured manually or copied from an authorized
+  schedule/live-class record.
+- Accept only HTTPS `meet.google.com` URLs for current MVP behavior.
 - Student access to `/app/bruce-live-room/<class>` must require active
   pedagogical access.
-- External Jitsi link must be explicit fallback only.
-- Do not automatically open `meet.jit.si` in another tab.
-- Development/testing may use `meet.jit.si`.
-- Future production should evaluate self-hosted Jitsi or Jitsi as a Service.
+- The live-room page may show a Melura launch screen and explicit open/copy
+  actions, but must not embed the video call.
+- Legacy technical names may remain only for compatibility and must be tracked
+  in `docs/development/naming-debt.md`.
 
 ## 11. WhatsApp / Evolution / n8n Rules
 

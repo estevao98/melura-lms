@@ -2,12 +2,12 @@
 
 ## 1. System Overview
 
-Melura is a focused education platform layer built on top of Frappe LMS for
-Professor Bruce's ENEM / Ciências Humanas course context.
+Melura is a focused education platform layer built on top of Frappe LMS for an
+ENEM / Ciências Humanas course context.
 `melura_lms` is the custom Frappe app that contains the
 project-specific LMS behavior.
 
-The system supports students, Professor Bruce, and operational/admin users. It
+The system supports students, the professor, and operational/admin users. It
 handles pedagogical operations: live classes, access control, educational
 materials, ENEM questions, exercise lists, student answers, progress,
 dashboards, and communication preparation.
@@ -33,9 +33,9 @@ flowchart TD
   Teacher[Teacher] --> LMS
   Admin[Operational Admin] --> LMS
   LMS --> CustomApp[melura_lms]
-  CustomApp --> Access[Bruce Student Access]
+  CustomApp --> Access[Pedagogical Student Access]
   CustomApp --> Content[Materials, Questions, Lists, Answers, Progress]
-  CustomApp --> Jitsi[Jitsi Live Classes]
+  CustomApp --> GoogleMeet[External Google Meet Live Classes]
   CustomApp --> WhatsApp[Evolution API / n8n]
   ExternalSaaS[External Financial SaaS] -. future access status only .-> Access
 ```
@@ -83,7 +83,7 @@ Outside this app:
 - Frappe DocTypes.
 - Frappe Desk/pages.
 - Frappe UI where applicable.
-- Jitsi for live classes.
+- Google Meet external links for live classes.
 - Evolution API / n8n for WhatsApp preparation.
 - MariaDB, Redis, and Frappe Bench as part of the Frappe environment.
 
@@ -93,16 +93,18 @@ Outside this app:
 whitelisted methods, hooks, fixtures, patches, and assets should live in this
 app.
 
-Core apps must remain untouched: do not modify Frappe, Frappe LMS, Frappe UI,
-or Jitsi core directly.
+Core apps must remain untouched: do not modify Frappe, Frappe LMS, or Frappe UI
+directly.
 
 Before adding new code, search existing patterns in `melura_lms` and
 extend them when they fit.
 
 ## 7. Core Domains
 
-- Student Access: controls pedagogical access through `Bruce Student Access`.
-- Live Classes: represents scheduled, live, ended, or canceled Jitsi classes.
+- Student Access: controls pedagogical access through the legacy internal
+  `Bruce Student Access` DocType.
+- Live Classes: represents scheduled, live, ended, or canceled classes that
+  open externally in Google Meet.
 - Student Home / "Minha Aula": gives students one simple entry point for class,
   materials, exercise lists, and progress.
 - Educational Materials: manages published or internal learning resources.
@@ -125,15 +127,16 @@ extend them when they fit.
 
 | Domain | Main DocType / Entity | Responsibility |
 | ------ | --------------------- | -------------- |
-| Student Access | Bruce Student Access | Stores pedagogical access status, student, course/batch scope, access window, and opaque external reference. |
-| Live Classes | Bruce Live Class | Stores class metadata, LMS scope, instructor, Jitsi room data, status, and WhatsApp status. |
+| Student Access | Bruce Student Access | Legacy internal DocType that stores pedagogical access status, student, course/batch scope, access window, and opaque external reference. |
+| Live Classes | Bruce Live Class | Legacy internal DocType that stores class metadata, LMS scope, instructor, Google Meet link, status, schedule source, and WhatsApp status. |
+| Live Class Schedules | Melura Live Class Schedule | Stores recurring schedule rules, default Google Meet URL, generation window, and reminder settings. |
 | Educational Materials | Bruce Educational Material | Stores learning materials, publication state, visibility, file/reference, and LMS scope. |
 | ENEM Question Bank | Bruce ENEM Question | Stores ENEM question content, classification, answer key, resolution metadata, publication state, and LMS scope. |
 | ENEM Alternatives | Bruce ENEM Question Alternative | Stores alternatives for ENEM questions. |
 | Exercise Lists | Bruce Exercise List | Stores published exercise lists, LMS scope, related content, and publication state. |
 | Exercise List Items | Bruce Exercise List Item | Links questions to exercise lists with ordering and optional points. |
 | Student Answers | Bruce Student Answer | Stores the logged-in student's selected answer and server-computed correctness. |
-| Jitsi Settings | Bruce Jitsi Settings | Stores non-sensitive Jitsi operational settings such as domain and room prefix. |
+| Legacy Video Settings | Bruce Jitsi Settings | Obsolete internal DocType kept temporarily for compatibility; not part of the Melura MVP video path. |
 | WhatsApp Settings | Bruce Evolution Settings | Stores non-sensitive provider configuration and references to secrets kept outside Git/frontend. |
 | WhatsApp Templates | Bruce WhatsApp Message Template | Stores Brazilian Portuguese WhatsApp message templates. |
 | WhatsApp Logs | Bruce WhatsApp Notification Log | Records WhatsApp send/test attempts, status, timestamps, related class, and short errors. |
@@ -172,9 +175,9 @@ Student opens "Minha Aula":
 Student enters live class:
 
 1. Student clicks "Entrar na aula".
-2. Backend validates user, live class, status, room data, and access scope.
-3. `/app/bruce-live-room/<class>` loads the embedded Jitsi room.
-4. External Jitsi URL remains an explicit fallback.
+2. Backend validates user, live class, status, Google Meet URL, and access scope.
+3. `/app/bruce-live-room/<class>` shows the Melura launch page.
+4. The student opens the external Google Meet link from that page.
 
 Teacher starts/opens a live class:
 
@@ -203,13 +206,15 @@ Future external SaaS updates student pedagogical status:
 
 ## 11. Integration Architecture
 
-### Jitsi
+### Google Meet Live Classes
 
-- Room names are generated server-side.
-- Room names must be unique and non-predictable.
-- Live room data is returned only after permission checks.
-- `meet.jit.si` is acceptable for development/testing.
-- Production should evaluate self-hosted Jitsi or Jitsi as a Service.
+- Google Meet is configured as an external HTTPS link.
+- The only accepted host is `meet.google.com`.
+- Melura does not iframe Google Meet.
+- Melura does not use Google OAuth, Google Workspace credentials, Google
+  Calendar API, Google Meet API, a video SDK, paid video infrastructure, or
+  self-hosted video infrastructure for this MVP.
+- Live-room context is returned only after backend permission checks.
 
 ### WhatsApp / Evolution / n8n
 
@@ -243,7 +248,7 @@ Backend is responsible for:
 - authorization checks;
 - student access validation;
 - business rules;
-- Jitsi room data protection;
+- Google Meet link protection;
 - WhatsApp send/log flow;
 - progress calculation;
 - safe error handling;
@@ -287,15 +292,15 @@ Production deployment still needs hardening.
 - Backups must stay outside Git.
 - Restore flow should be tested.
 - Workers, scheduler, and Redis must be validated in production.
-- Production Jitsi path must be decided.
+- Google Meet URLs and reminder automation must be validated before go-live.
 
 ## 16. Architectural Anti-Patterns
 
-- Modifying core Frappe, Frappe LMS, Frappe UI, or Jitsi directly.
+- Modifying core Frappe, Frappe LMS, or Frappe UI directly.
 - Frontend-only authorization.
 - Trusting user, course, or batch from frontend requests.
 - Exposing API keys in Vue, HTML, or browser responses.
-- Using predictable Jitsi room names.
+- Exposing Google Meet links before backend permission checks.
 - Putting financial SaaS responsibilities inside this app.
 - Broad refactors during small tasks.
 - Duplicating existing DocTypes, pages, or services without checking current
@@ -310,7 +315,7 @@ Production deployment still needs hardening.
 | Keep custom behavior in `melura_lms`. | Active | Preserves upgradeability and avoids core modification. |
 | Keep user-facing UI in Brazilian Portuguese. | Active | Matches the product audience and existing labels/statuses. |
 | Keep internal docs in English. | Active | Gives future developers and AI agents one documentation language. |
-| Use Jitsi for live classes. | Active | Supports embedded live classes through a known provider/API. |
+| Use Google Meet external links for live classes. | Active | Keeps the MVP at zero live-video infrastructure cost while Melura owns scheduling, access checks, reminders, and notifications. |
 | Use Evolution API/n8n for WhatsApp preparation. | Active | Keeps communication provider calls backend-side or protected. |
 | Keep financial/commercial operations in external SaaS. | Active / Future integration only | Prevents the LMS from becoming billing, CRM, checkout, or financial operations software. |
 | Avoid core modifications. | Active | Extension over core modification keeps Frappe and Frappe LMS upgrade-friendly. |
@@ -325,7 +330,8 @@ Production deployment still needs hardening.
 - `docs/design-system.md`
 - `docs/roles-permissions.md`
 - `docs/student-access-integration.md`
-- `docs/jitsi-integration.md`
+- `docs/decisions/ADR-0002-google-meet-only-live-flow.md`
+- `docs/development/naming-debt.md`
 - `docs/ux-flows.md`
 - `docs/testing-checklist.md`
 - `docs/kpis-admin.md`

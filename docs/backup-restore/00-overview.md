@@ -7,7 +7,7 @@ of production readiness.
 
 ## Why It Matters
 
-Melura is the pedagogical LMS core for students, Professor Bruce, and
+Melura is the pedagogical LMS core for students, the professor, and
 operational admins. If database records or uploaded files are lost, students
 may lose access history, class context, answers, progress, materials, and
 support evidence. Operators also need reliable recovery paths for bad
@@ -57,4 +57,3 @@ Restore must be tested in a staging or isolated test environment before any
 production use. Never run a destructive restore against production without a
 reviewed rollback plan, confirmed backup artifacts, and an explicit decision
 owner.
-

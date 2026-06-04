@@ -32,7 +32,7 @@ In scope for `melura_lms`:
 
 - student access to pedagogical content;
 - `Minha Aula`;
-- live classes and embedded Jitsi room context;
+- live classes with external Google Meet links;
 - teacher and operational dashboards;
 - educational materials;
 - ENEM questions and exercise lists;
@@ -60,17 +60,17 @@ financial system.
 
 ## System Relationships
 
-Melura is the product experienced by students, Professor Bruce, and operational
+Melura is the product experienced by students, the professor, and operational
 admins. `melura_lms` is the custom app that implements Melura-specific pedagogical
 features on top of Frappe LMS.
 
 Frappe LMS remains the underlying LMS base. This app should extend it through
-Frappe extension points instead of modifying `frappe/`, `lms/`, `frappe-ui/`,
-or `jitsi-meet/`.
+Frappe extension points instead of modifying `frappe/`, `lms/`, or
+`frappe-ui/`.
 
-Jitsi is used for live classes. `melura_lms` stores or derives class room data and
-must validate permission before returning Jitsi domain, room name, meeting URL,
-or embedded room context.
+Google Meet external links are used for live classes. `melura_lms` stores class
+metadata and must validate permission before returning `meeting_url` or
+`external_url`.
 
 WhatsApp/Evolution/n8n are operational communication integrations. Provider
 calls must happen through backend logic or protected flows. Evolution API keys,

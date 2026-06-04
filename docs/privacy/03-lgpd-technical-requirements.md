@@ -29,16 +29,16 @@ Source chunks used:
 | Portability/export | No dedicated portability export exists today | Plan an export of student account, access, answers, progress, and relevant communication metadata when applicable | Decide scope, format, exclusions for secrets/industrial secrets, and approval workflow |
 | Consent when applicable | WhatsApp is currently operational class-notice preparation; secrets are backend-only | Separate operational communication from promotional/marketing communication if marketing is ever added | Decide legal basis for WhatsApp operational notices and whether consent/opt-out records are required |
 | Children/adolescents care | Current app does not define age or responsible/legal guardian fields | If minors are served, design responsible consent and clearer child/adolescent transparency flows outside or inside proper scope | Decide whether Melura serves children/adolescents, minimum age, responsible consent process, and data limits |
-| Security measures | Server-side access checks; permission query conditions for student-readable pedagogical DocTypes; secret redaction for provider responses; Jitsi room generation server-side | Add production hardening checklist, backup/restore process, incident runbook, and deeper permission tests | Approve minimum security baseline and operational responsibilities |
+| Security measures | Server-side access checks; permission query conditions for student-readable pedagogical DocTypes; secret redaction for provider responses; Google Meet URL validation server-side | Add production hardening checklist, backup/restore process, incident runbook, and deeper permission tests | Approve minimum security baseline and operational responsibilities |
 | Incident response | `SECURITY.md` defines vulnerability reporting and severity; current logs avoid secrets by policy | Add incident response runbook, evidence preservation, secret rotation checklist, and notification decision tree | Decide who evaluates incidents, who communicates, and criteria for ANPD/titular notification |
 | Logs | Notice and WhatsApp logs record operational events; provider responses are redacted for sensitive keys | Define retention, access review, and log minimization for Frappe logs, provider logs, and backups | Decide retention periods and acceptable personal data in logs |
-| Controller/operator/processor boundary | Docs state future financial SaaS is external and this app is pedagogical | Maintain provider/suboperator map for hosting, Jitsi/JaaS, Evolution API, n8n, email/storage/backup, and future SaaS | Define whether Melura, Professor Bruce, external SaaS, and providers act as controller/operator in each flow |
+| Controller/operator/processor boundary | Docs state future financial SaaS is external and this app is pedagogical | Maintain provider/suboperator map for hosting, Google Meet, Evolution API, n8n, email/storage/backup, and future SaaS | Define whether Melura, external SaaS, and providers act as controller/operator in each flow |
 | Future external SaaS webhook risk | No webhook implemented in current feature; `Bruce Student Access.external_reference` is documented as opaque | Implement signature/secret validation, idempotency, payload schema, allowed status mapping, and minimal logging | Decide trusted source, payload contract, allowed references, and failure handling |
 
 ## Current Technical Requirements
 
 - Keep custom work inside `apps/melura_lms`.
-- Do not modify `frappe/`, `lms/`, `frappe-ui/`, or `jitsi-meet/`.
+- Do not modify `frappe/`, `lms/`, or `frappe-ui/`.
 - Use `Bruce Student Access` as the source of pedagogical access.
 - Unlock protected content only for `Ativo` access.
 - Treat `Pendente`, `Bloqueado`, and `Expirado` as non-unlocking statuses.
@@ -48,7 +48,7 @@ Source chunks used:
 - Keep Evolution API keys and webhook secrets outside frontend and Git.
 - Redact provider response keys such as `apikey`, `api_key`, `authorization`,
   `token`, `password`, and `secret`.
-- Return Jitsi room context only after backend permission checks.
+- Return Google Meet links only after backend permission checks.
 - Do not store financial payloads in this app.
 
 ## Future Technical Requirements
@@ -65,8 +65,7 @@ Source chunks used:
 
 ## Human / Legal Decisions Needed
 
-- Controller/operator roles for Melura, Professor Bruce, external SaaS, and
-  providers.
+- Controller/operator roles for Melura, external SaaS, and providers.
 - Official privacy contact or encarregado/DPO details.
 - Legal basis for each flow, including WhatsApp operational notices.
 - Whether the product serves minors and how guardian consent is handled.

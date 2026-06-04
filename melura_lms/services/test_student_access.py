@@ -154,7 +154,7 @@ class TestStudentAccess(unittest.TestCase):
 			batch="BATCH-001",
 			starts_at="2026-06-01 19:00:00",
 			status="Agendada",
-			meeting_url="https://meet.jit.si/sala",
+			meeting_url="https://meet.google.com/abc-defg-hij",
 		)
 
 		with (
