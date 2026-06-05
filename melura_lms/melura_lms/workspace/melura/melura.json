@@ -38,7 +38,7 @@
    "is_query_report": 0,
    "label": "Aulas ao vivo",
    "link_count": 0,
-   "link_to": "Bruce Live Class",
+   "link_to": "Melura Live Class",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -90,7 +90,7 @@
    "is_query_report": 0,
    "label": "Configurações de WhatsApp",
    "link_count": 0,
-   "link_to": "Bruce Evolution Settings",
+   "link_to": "Melura WhatsApp Settings",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -101,7 +101,7 @@
    "is_query_report": 0,
    "label": "Modelos de mensagem",
    "link_count": 0,
-   "link_to": "Bruce WhatsApp Message Template",
+   "link_to": "Melura WhatsApp Message Template",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -112,7 +112,7 @@
    "is_query_report": 0,
    "label": "Logs de WhatsApp",
    "link_count": 0,
-   "link_to": "Bruce WhatsApp Notification Log",
+   "link_to": "Melura WhatsApp Notification Log",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -131,7 +131,7 @@
    "is_query_report": 0,
    "label": "Materiais didáticos",
    "link_count": 0,
-   "link_to": "Bruce Educational Material",
+   "link_to": "Melura Educational Material",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -142,7 +142,7 @@
    "is_query_report": 0,
    "label": "Questões ENEM",
    "link_count": 0,
-   "link_to": "Bruce ENEM Question",
+   "link_to": "Melura ENEM Question",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -153,7 +153,7 @@
    "is_query_report": 0,
    "label": "Listas de exercícios",
    "link_count": 0,
-   "link_to": "Bruce Exercise List",
+   "link_to": "Melura Exercise List",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -172,7 +172,7 @@
    "is_query_report": 0,
    "label": "Acessos dos alunos",
    "link_count": 0,
-   "link_to": "Bruce Student Access",
+   "link_to": "Melura Student Access",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -183,7 +183,7 @@
    "is_query_report": 0,
    "label": "Respostas dos alunos",
    "link_count": 0,
-   "link_to": "Bruce Student Answer",
+   "link_to": "Melura Student Answer",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -211,7 +211,7 @@
   {
    "doc_view": "List",
    "label": "Aulas ao vivo",
-   "link_to": "Bruce Live Class",
+   "link_to": "Melura Live Class",
    "type": "DocType"
   },
   {

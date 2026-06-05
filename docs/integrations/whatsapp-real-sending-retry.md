@@ -12,11 +12,11 @@ provider secrets.
 
 In scope:
 
-- live-class link notifications for `Bruce Live Class`;
+- live-class link notifications for `Melura Live Class`;
 - manual preview with no provider call;
 - manual real sending after backend permission checks;
 - provider calls through Evolution API or protected n8n webhook;
-- safe `Bruce WhatsApp Notification Log` updates;
+- safe `Melura WhatsApp Notification Log` updates;
 - manual retry for failed or pending live-class logs.
 
 Out of scope:
@@ -31,7 +31,7 @@ Out of scope:
 
 ## Provider Configuration
 
-`Bruce Evolution Settings` stores non-secret operational configuration only.
+`Melura WhatsApp Settings` stores non-secret operational configuration only.
 When enabled, the provider mode must be one of:
 
 - `Evolution API`, requiring `api_url`, `instance_name`, and
@@ -75,7 +75,7 @@ the frontend.
 
 Retry is intentionally conservative:
 
-- only logs linked to `Bruce Live Class` can be retried;
+- only logs linked to `Melura Live Class` can be retried;
 - only `Pendente` and `Falhou` logs are retryable;
 - `Enviado` and `Reenviado` logs are not retryable and must not trigger another
   provider call;
@@ -117,7 +117,7 @@ notifications. It is not a campaign tool. Any future UI action should:
 
 ## Operational Checklist
 
-- Confirm `Bruce Evolution Settings.enabled` is intentional before testing.
+- Confirm `Melura WhatsApp Settings.enabled` is intentional before testing.
 - Confirm provider mode and required fields are configured.
 - Confirm `EVOLUTION_API_KEY` is present outside Git for Evolution API mode.
 - Confirm n8n webhook URL is protected and not exposed to students or teachers.

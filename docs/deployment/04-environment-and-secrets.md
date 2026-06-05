@@ -74,7 +74,7 @@ It must not be:
 - logged in full;
 - stored in a public DocType field.
 
-Configurações de WhatsApp (legacy internal DocType currently named `Bruce Evolution Settings`) may store non-secret operational fields, but the API
+Configurações de WhatsApp (DocType `Melura WhatsApp Settings`) may store non-secret operational fields, but the API
 key belongs in environment configuration, `site_config.json`, or a secret
 manager.
 
@@ -99,7 +99,7 @@ an action. Treat protected webhook URLs like secrets:
 - do not log full URLs if they include tokens or unguessable paths;
 - validate backend permission before calling the webhook.
 
-For real sending through n8n, configure Configurações de WhatsApp (legacy internal DocType currently named `Bruce Evolution Settings`) with a
+For real sending through n8n, configure Configurações de WhatsApp (DocType `Melura WhatsApp Settings`) with a
 protected webhook URL only in the target environment. Avoid hardcoding webhook
 URLs in fixtures, scripts, tests, docs, or frontend code. If the webhook URL is
 rotated, update the deployment secret/config and verify that old URLs no longer
@@ -144,7 +144,7 @@ external financial/commercial SaaS. It must stay outside Git and must not be:
 - stored in a DocType field.
 
 Rotate the secret if it is exposed. Missing or invalid webhook signatures must
-fail closed before Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) is located or updated.
+fail closed before Acesso do aluno (DocType `Melura Student Access`) is located or updated.
 
 ## Database Passwords
 

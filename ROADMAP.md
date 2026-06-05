@@ -114,7 +114,7 @@ Goal: build the main LMS experience for student, teacher, and operational admin.
 Deliverables:
 
 - student access records, implemented for now by the legacy internal DocType
-  currently named `Bruce Student Access`;
+  `Melura Student Access`;
 - `Minha Aula`;
 - educational materials;
 - ENEM question bank;
@@ -201,7 +201,7 @@ Current foundation:
 - signed, provider-neutral status webhook service;
 - conservative external status mapping into Melura pedagogical statuses;
 - updates existing student access records only, implemented for now by the
-  legacy internal DocType currently named `Bruce Student Access`;
+  DocType `Melura Student Access`;
 - rejects overbroad financial/card/customer payload fields;
 - no billing, checkout, subscription, CRM, blog, newsletter, or lead capture
   logic.

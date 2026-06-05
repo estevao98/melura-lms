@@ -144,14 +144,13 @@ Credenciais de provedores nunca devem ser expostas no frontend, renderizadas em 
 
 Veja [SECURITY.md](SECURITY.md) para a política completa.
 
-Autorização backend é obrigatória. Visibilidade no frontend não é autorização. O acesso do aluno controla a liberação pedagógica: somente `Ativo` desbloqueia conteúdo, aulas, materiais, questões, listas, respostas e progresso. A implementação ainda usa o DocType interno legado atualmente chamado `Bruce Student Access`, que será renomeado em uma migração futura. Alunos não devem acessar conteúdo fora do curso ou turma permitidos.
+Autorização backend é obrigatória. Visibilidade no frontend não é autorização. O acesso do aluno controla a liberação pedagógica: somente `Ativo` desbloqueia conteúdo, aulas, materiais, questões, listas, respostas e progresso. Os DocTypes técnicos legados `Bruce ...` foram migrados para DocTypes `Melura ...`, incluindo `Melura Student Access`. Alunos não devem acessar conteúdo fora do curso ou turma permitidos.
 
 As rotas Desk preferenciais usam aliases Melura: `/app/melura-live-room/<aula>`,
 `/app/melura-professor-dashboard` e `/app/melura-operational-dashboard`. As
-rotas antigas `/app/bruce-*` permanecem temporariamente para compatibilidade, e
-os DocTypes ainda mantêm nomes técnicos legados internamente. Traduções em
-português reduzem a exposição desses nomes na UI; a renomeação técnica completa
-continua como trabalho futuro.
+rotas antigas `/app/bruce-*` permanecem temporariamente para compatibilidade.
+Referências residuais `bruce` em rotas, classes CSS ou módulos de alias são
+compatibilidade temporária; novos links gerados devem usar as rotas Melura.
 
 Leituras relacionadas:
 

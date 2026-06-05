@@ -84,7 +84,7 @@ class TestWhatsAppService(unittest.TestCase):
 		settings = SimpleNamespace(
 			enabled=1,
 			api_url="https://evolution.example",
-			instance_name="bruce",
+			instance_name="melura",
 			provider_mode="Evolution API",
 		)
 
@@ -550,7 +550,7 @@ class TestWhatsAppService(unittest.TestCase):
 		self.assertEqual(logs[0].phone, "5511999999999")
 		self.assertFalse(hasattr(logs[0], "related_live_class"))
 		post.assert_called_once()
-		self.assertEqual(post.call_args.args[0], "https://evolution.example/message/sendText/bruce")
+		self.assertEqual(post.call_args.args[0], "https://evolution.example/message/sendText/melura")
 		self.assertEqual(post.call_args.kwargs["json"]["number"], "5511999999999")
 		self.assertIn("Teste de integração", post.call_args.kwargs["json"]["text"])
 		self.assertEqual(post.call_args.kwargs["headers"]["apikey"], "secret-value")

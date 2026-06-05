@@ -193,23 +193,23 @@ def reject_overbroad_financial_payload(payload):
 
 def locate_student_access_record(payload):
 	access_name = _clean_identifier(
-		payload.get("bruce_student_access") or payload.get("access_name") or payload.get("student_access")
+		payload.get("melura_student_access") or payload.get("access_name") or payload.get("student_access")
 	)
 	external_reference = _get_external_reference(payload)
 
 	if access_name:
-		return frappe.get_doc("Bruce Student Access", access_name)
+		return frappe.get_doc("Melura Student Access", access_name)
 
 	if external_reference:
 		matches = frappe.get_all(
-			"Bruce Student Access",
+			"Melura Student Access",
 			filters={"external_reference": external_reference},
 			fields=["name"],
 			limit_page_length=2,
 		)
 
 		if len(matches) == 1:
-			return frappe.get_doc("Bruce Student Access", matches[0].get("name"))
+			return frappe.get_doc("Melura Student Access", matches[0].get("name"))
 
 		if len(matches) > 1:
 			frappe.throw(_("Referência externa duplicada para acesso pedagógico."), frappe.ValidationError)

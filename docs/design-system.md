@@ -902,13 +902,13 @@ Suggested sections:
 
 Examples:
 
-- Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`): main information, pedagogical scope, Google Meet link, WhatsApp,
+- Aula ao vivo (DocType `Melura Live Class`): main information, pedagogical scope, Google Meet link, WhatsApp,
   history.
-- Material didático (legacy internal DocType currently named `Bruce Educational Material`): main information, pedagogical scope,
+- Material didático (DocType `Melura Educational Material`): main information, pedagogical scope,
   publication, attachment.
-- Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`): main information, classification, alternatives, answer
+- Questão ENEM (DocType `Melura ENEM Question`): main information, classification, alternatives, answer
   key, commented resolution, publication.
-- Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`): student, scope, status, access window, external
+- Acesso do aluno (DocType `Melura Student Access`): student, scope, status, access window, external
   reference.
 
 ## 8. Page Patterns
@@ -1021,7 +1021,7 @@ Current reference:
 
 - `/app/minha-aula` is the current initial student route.
 - It shows live class access, materials, exercise lists, and progress based on
-  backend validation and Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`).
+  backend validation and Acesso do aluno (DocType `Melura Student Access`).
 
 Future:
 

@@ -52,7 +52,7 @@ operations.
 
 ## Permissions Checklist
 
-- [ ] Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) remains the source of pedagogical access.
+- [ ] Acesso do aluno (DocType `Melura Student Access`) remains the source of pedagogical access.
 - [ ] Only `Ativo` unlocks classes, materials, questions, lists, answers, and
       progress.
 - [ ] `Pendente`, `Bloqueado`, and `Expirado` do not unlock protected content.

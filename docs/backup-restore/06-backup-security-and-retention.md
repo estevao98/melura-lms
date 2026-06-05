@@ -68,9 +68,9 @@ Retention policy must define:
 
 Use extra care with:
 
-- Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`) and progress records;
-- Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) status and notes;
-- Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`);
+- Resposta do aluno (DocType `Melura Student Answer`) and progress records;
+- Acesso do aluno (DocType `Melura Student Access`) status and notes;
+- Log de WhatsApp (DocType `Melura WhatsApp Notification Log`);
 - Google Meet live-class link data;
 - private files and uploaded materials;
 - settings DocTypes that reference provider configuration.

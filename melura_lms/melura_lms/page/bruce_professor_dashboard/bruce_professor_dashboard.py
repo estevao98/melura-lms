@@ -94,7 +94,7 @@ def _get_week_live_classes():
 	start = now_datetime()
 	end = add_to_date(start, days=7)
 	classes = frappe.get_list(
-		"Bruce Live Class",
+		"Melura Live Class",
 		filters={
 			"status": ["in", ["Agendada", "Ao vivo"]],
 			"starts_at": ["between", [start, end]],
@@ -125,7 +125,7 @@ def _get_class_progress_summary(live_class):
 
 def _get_first_live_class(filters):
 	classes = frappe.get_list(
-		"Bruce Live Class",
+		"Melura Live Class",
 		filters=filters,
 		fields=LIVE_CLASS_FIELDS,
 		order_by="starts_at asc",
@@ -153,7 +153,7 @@ def _get_notice_logs(live_class):
 		return []
 
 	return frappe.get_all(
-		"Bruce Live Class Notice Log",
+		"Melura Live Class Notice Log",
 		filters={"related_live_class": live_class},
 		fields=["event_type", "title", "message", "status", "created_by", "created_at"],
 		order_by="created_at desc, creation desc",
@@ -190,6 +190,6 @@ def _get_whatsapp_status_label(status):
 
 def _is_whatsapp_integration_enabled():
 	try:
-		return bool(frappe.db.get_single_value("Bruce Evolution Settings", "enabled"))
+		return bool(frappe.db.get_single_value("Melura WhatsApp Settings", "enabled"))
 	except Exception:
 		return False

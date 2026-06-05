@@ -11,7 +11,7 @@ import requests
 from frappe import _
 from frappe.utils import get_url, now_datetime
 
-from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log import (
+from melura_lms.melura_lms.doctype.melura_live_class_notice_log.melura_live_class_notice_log import (
 	EVENT_INTEGRATION_DISABLED,
 	EVENT_MANUAL_SEND_ATTEMPT,
 	EVENT_SEND_FAILED,
@@ -53,7 +53,7 @@ class SafeFormatDict(dict):
 @frappe.whitelist()
 def send_live_class_link(live_class):
 	"""Send the live-class link through the configured WhatsApp provider."""
-	doc = frappe.get_doc("Bruce Live Class", live_class)
+	doc = frappe.get_doc("Melura Live Class", live_class)
 	doc.check_permission("write")
 	create_notice_log(
 		doc,
@@ -68,7 +68,7 @@ def send_live_class_link(live_class):
 @frappe.whitelist()
 def preview_live_class_link(live_class):
 	"""Preview the WhatsApp message for a live class without sending it."""
-	doc = frappe.get_doc("Bruce Live Class", live_class)
+	doc = frappe.get_doc("Melura Live Class", live_class)
 	doc.check_permission("write")
 	result = build_live_class_link_preview(doc)
 	create_notice_log(
@@ -92,7 +92,7 @@ def preview_live_class_link(live_class):
 @frappe.whitelist()
 def test_evolution_configuration():
 	"""Validate the stored Evolution API configuration without sending messages."""
-	if not frappe.has_permission("Bruce Evolution Settings", "read"):
+	if not frappe.has_permission("Melura WhatsApp Settings", "read"):
 		frappe.throw(_("Você não tem permissão para testar a configuração da Evolution API."))
 
 	result = validate_evolution_configuration()
@@ -103,7 +103,7 @@ def test_evolution_configuration():
 @frappe.whitelist()
 def send_evolution_test_message(phone):
 	"""Send one controlled test message through Evolution API to a manually provided phone."""
-	if not frappe.has_permission("Bruce Evolution Settings", "write"):
+	if not frappe.has_permission("Melura WhatsApp Settings", "write"):
 		frappe.throw(_("Você não tem permissão para enviar mensagem de teste pela Evolution API."))
 
 	recipient = {
@@ -148,7 +148,7 @@ def send_evolution_test_message(phone):
 @frappe.whitelist()
 def retry_live_class_notification(log_name):
 	"""Retry a failed or pending live-class WhatsApp notification log."""
-	log = frappe.get_doc("Bruce WhatsApp Notification Log", log_name)
+	log = frappe.get_doc("Melura WhatsApp Notification Log", log_name)
 	live_class = get_retry_live_class(log)
 	check_retry_permission(log, live_class)
 
@@ -192,14 +192,14 @@ def get_retry_live_class(log):
 	if not getattr(log, "related_live_class", None):
 		frappe.throw(_("Somente notificações vinculadas a uma aula ao vivo podem ser reenviadas."))
 
-	return frappe.get_doc("Bruce Live Class", log.related_live_class)
+	return frappe.get_doc("Melura Live Class", log.related_live_class)
 
 
 def check_retry_permission(log, live_class):
-	if frappe.has_permission("Bruce WhatsApp Notification Log", "write", doc=log):
+	if frappe.has_permission("Melura WhatsApp Notification Log", "write", doc=log):
 		return
 
-	if live_class and frappe.has_permission("Bruce Live Class", "write", doc=live_class):
+	if live_class and frappe.has_permission("Melura Live Class", "write", doc=live_class):
 		return
 
 	frappe.throw(_("Você não tem permissão para reenviar esta notificação de WhatsApp."))
@@ -369,7 +369,7 @@ def send_logged_message(live_class, recipient, message, log, retry=False):
 
 def get_settings():
 	try:
-		return frappe.get_single("Bruce Evolution Settings")
+		return frappe.get_single("Melura WhatsApp Settings")
 	except frappe.DoesNotExistError:
 		return None
 
@@ -555,7 +555,7 @@ def build_live_class_message(live_class, recipient):
 
 def get_active_template():
 	templates = frappe.get_all(
-		"Bruce WhatsApp Message Template",
+		"Melura WhatsApp Message Template",
 		filters={"enabled": 1, "event_type": TEMPLATE_EVENT_TYPE},
 		fields=["name", "message_body"],
 		order_by="modified desc",
@@ -609,7 +609,7 @@ def strip_html(value):
 
 def create_notification_log(live_class, recipient, message):
 	values = {
-		"doctype": "Bruce WhatsApp Notification Log",
+		"doctype": "Melura WhatsApp Notification Log",
 		"recipient_name": recipient.get("recipient_name") or _("Destinatário não informado"),
 		"phone": recipient.get("phone") or _("Não informado"),
 		"message": message,
@@ -648,7 +648,7 @@ def update_live_class_whatsapp_status(live_class, results, retry=False):
 	status = LOG_STATUS_RESENT if retry and results and all(result["status"] == "sent" for result in results) else "Enviado"
 	if not (results and all(result["status"] == "sent" for result in results)):
 		status = "Falhou"
-	frappe.db.set_value("Bruce Live Class", live_class.name, "whatsapp_status", status, update_modified=True)
+	frappe.db.set_value("Melura Live Class", live_class.name, "whatsapp_status", status, update_modified=True)
 
 
 def summarize_results(results):

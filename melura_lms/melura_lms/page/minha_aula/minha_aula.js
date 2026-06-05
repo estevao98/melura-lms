@@ -305,7 +305,7 @@ class BruceStudentDashboard {
 			}
 
 			if (materialName) {
-				frappe.set_route("Form", "Bruce Educational Material", materialName);
+				frappe.set_route("Form", "Melura Educational Material", materialName);
 			}
 		});
 	}

@@ -172,7 +172,7 @@ class TestStudentAccess(unittest.TestCase):
 
 		self.assertEqual(result[0]["name"], "BLC-2026-00001")
 		get_all.assert_called_once_with(
-			"Bruce Live Class",
+			"Melura Live Class",
 			filters={
 				"status": ["in", ("Agendada",)],
 				"starts_at": [">=", "2026-06-01 00:00:00"],
@@ -240,7 +240,7 @@ class TestStudentAccess(unittest.TestCase):
 		self.assertEqual([material["name"] for material in result], ["BEM-2026-00002", "BEM-2026-00001"])
 		self.assertEqual(get_all.call_count, 2)
 		get_all.assert_any_call(
-			"Bruce Educational Material",
+			"Melura Educational Material",
 			filters={
 				"published": 1,
 				"visibility": "Aluno",
@@ -262,7 +262,7 @@ class TestStudentAccess(unittest.TestCase):
 			limit_page_length=5,
 		)
 		get_all.assert_any_call(
-			"Bruce Educational Material",
+			"Melura Educational Material",
 			filters={
 				"published": 1,
 				"visibility": "Aluno",
@@ -369,7 +369,7 @@ class TestStudentAccess(unittest.TestCase):
 		self.assertNotIn("commented_resolution", result[0])
 		self.assertEqual(result[0]["alternatives"], [{"option_label": "A", "option_text": "Alternativa A"}])
 		get_all.assert_any_call(
-			"Bruce ENEM Question",
+			"Melura ENEM Question",
 			filters={
 				"published": 1,
 				"related_batch": "BATCH-001",
@@ -462,7 +462,7 @@ class TestStudentAccess(unittest.TestCase):
 		self.assertEqual(result[0]["name"], "BEL-2026-00001")
 		self.assertEqual(result[0]["question_count"], 1)
 		get_all.assert_any_call(
-			"Bruce Exercise List",
+			"Melura Exercise List",
 			filters={
 				"published": 1,
 				"batch": "BATCH-001",
@@ -503,7 +503,7 @@ class TestStudentAccess(unittest.TestCase):
 
 		self.assertEqual(result, [])
 		get_all.assert_any_call(
-			"Bruce Exercise List",
+			"Melura Exercise List",
 			filters={
 				"published": 1,
 				"batch": "BATCH-001",
@@ -625,13 +625,13 @@ class TestStudentAccess(unittest.TestCase):
 		]
 
 		def get_all_side_effect(doctype, filters=None, fields=None, order_by=None, limit_page_length=None):
-			if doctype == "Bruce Student Access":
+			if doctype == "Melura Student Access":
 				return access_records
-			if doctype == "Bruce Exercise List":
+			if doctype == "Melura Exercise List":
 				return [exercise_list]
-			if doctype == "Bruce Exercise List Item":
+			if doctype == "Melura Exercise List Item":
 				return [frappe._dict(parent="BEL-2026-00001")]
-			if doctype == "Bruce Student Answer":
+			if doctype == "Melura Student Answer":
 				self.assertEqual(filters["student_user"], "aluno@example.com")
 				return answers
 			return []
@@ -705,13 +705,13 @@ class TestStudentAccess(unittest.TestCase):
 		]
 
 		def get_all_side_effect(doctype, filters=None, fields=None, order_by=None, limit_page_length=None):
-			if doctype == "Bruce Student Access":
+			if doctype == "Melura Student Access":
 				return access_records
-			if doctype == "Bruce Exercise List":
+			if doctype == "Melura Exercise List":
 				return [exercise_list]
-			if doctype == "Bruce Exercise List Item":
+			if doctype == "Melura Exercise List Item":
 				return [frappe._dict(parent="BEL-2026-00001")]
-			if doctype == "Bruce Student Answer":
+			if doctype == "Melura Student Answer":
 				return answers
 			return []
 

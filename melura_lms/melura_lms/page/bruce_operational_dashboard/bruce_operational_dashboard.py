@@ -73,7 +73,7 @@ def _get_overview(student_access, classes, content, exercises_progress):
 
 def _get_student_access_summary():
 	records = frappe.get_all(
-		"Bruce Student Access",
+		"Melura Student Access",
 		fields=["student", "access_status"],
 		limit_page_length=5000,
 	)
@@ -98,7 +98,7 @@ def _get_classes_summary():
 	start = now_datetime()
 	end = add_to_date(start, days=7)
 	week_classes = frappe.get_all(
-		"Bruce Live Class",
+		"Melura Live Class",
 		filters={
 			"status": ["in", ["Agendada", "Ao vivo"]],
 			"starts_at": ["between", [start, end]],
@@ -121,15 +121,15 @@ def _get_classes_summary():
 
 def _get_content_summary():
 	return {
-		"published_materials": frappe.db.count("Bruce Educational Material", {"published": 1}),
-		"published_questions": frappe.db.count("Bruce ENEM Question", {"published": 1}),
-		"published_exercise_lists": frappe.db.count("Bruce Exercise List", {"published": 1}),
+		"published_materials": frappe.db.count("Melura Educational Material", {"published": 1}),
+		"published_questions": frappe.db.count("Melura ENEM Question", {"published": 1}),
+		"published_exercise_lists": frappe.db.count("Melura Exercise List", {"published": 1}),
 	}
 
 
 def _get_exercises_progress_summary():
 	answers = frappe.get_all(
-		"Bruce Student Answer",
+		"Melura Student Answer",
 		fields=["student_user", "is_correct", "answered_at"],
 		order_by="answered_at desc",
 		limit_page_length=5000,
@@ -148,7 +148,7 @@ def _get_exercises_progress_summary():
 
 def _get_inactive_students(answers=None):
 	active_access_records = frappe.get_all(
-		"Bruce Student Access",
+		"Melura Student Access",
 		filters={"access_status": "Ativo"},
 		fields=["student"],
 		limit_page_length=5000,
@@ -158,7 +158,7 @@ def _get_inactive_students(answers=None):
 		return []
 
 	answers = answers if answers is not None else frappe.get_all(
-		"Bruce Student Answer",
+		"Melura Student Answer",
 		filters={"student_user": ["in", active_students]},
 		fields=["student_user", "answered_at"],
 		order_by="answered_at desc",

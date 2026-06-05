@@ -46,7 +46,7 @@ pelo backend. O frontend apenas solicita a ação autorizada e nunca recebe toke
 API keys ou endpoints sensíveis além do próprio link da aula já registrado.
 
 O provedor ativo será definido em `Configurações de WhatsApp`, implementadas
-pelo DocType interno legado atualmente chamado `Bruce Evolution Settings`:
+pelo DocType `Melura WhatsApp Settings`:
 
 - `Evolution API`: backend chama a Evolution API diretamente;
 - `n8n`: backend chama um webhook n8n, e o n8n executa a integração externa.

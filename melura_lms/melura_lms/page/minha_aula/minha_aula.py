@@ -100,14 +100,14 @@ def _get_exercise_lists(limit=6):
 def _with_material_display_values(material):
 	material["course_title"] = _get_link_title("LMS Course", material.get("course"))
 	material["batch_title"] = _get_link_title("LMS Batch", material.get("batch"))
-	material["related_live_class_title"] = _get_link_title("Bruce Live Class", material.get("related_live_class"))
+	material["related_live_class_title"] = _get_link_title("Melura Live Class", material.get("related_live_class"))
 	return material
 
 
 def _with_exercise_list_display_values(exercise_list):
 	exercise_list["course_title"] = _get_link_title("LMS Course", exercise_list.get("course"))
 	exercise_list["batch_title"] = _get_link_title("LMS Batch", exercise_list.get("batch"))
-	exercise_list["related_live_class_title"] = _get_link_title("Bruce Live Class", exercise_list.get("related_live_class"))
+	exercise_list["related_live_class_title"] = _get_link_title("Melura Live Class", exercise_list.get("related_live_class"))
 	return exercise_list
 
 

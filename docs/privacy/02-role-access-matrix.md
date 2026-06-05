@@ -13,12 +13,12 @@ neutral Melura names.
 
 | Role | Can Access | Must Not Access | Sensitive Assets To Protect | Backend Checks Expected | Future Tests |
 | --- | --- | --- | --- | --- | --- |
-| Student / LMS Student | Own `Minha Aula` dashboard; published materials, ENEM questions, exercise lists, own progress, and live-room context only when Acesso do aluno is `Ativo` and in course/batch scope | Operational dashboard; WhatsApp logs/settings; other students' answers/progress; unpublished/internal materials; answer keys in list payloads; Google Meet links outside scope | Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`); Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`); Material didático (legacy internal DocType currently named `Bruce Educational Material`); Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`); Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`); Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`); `bruce-live-room`; `minha-aula` | Use `frappe.session.user`; reject Guest; require `Ativo`; enforce course/batch scope; return locked progress for non-active status; compute answer correctness server-side | Direct API calls as LMS Student for each whitelisted method; blocked/expired/pending status matrix for live room, materials, questions, lists, answers, progress |
-| Professor / instructor role | Professor dashboard; own or assigned live class operations; relevant class notices; progress summaries only where the role is in the progress manager set | Evolution API keys; global provider secrets; unrelated courses/batches unless explicitly authorized; operational dashboard unless also assigned admin role; financial/commercial data | `bruce-professor-dashboard`; Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`); Histórico da aula ao vivo (legacy internal DocType currently named `Bruce Live Class Notice Log`); WhatsApp preview/send methods | Rely on Frappe DocType permissions for class list/read/write; use live-room staff check for instructor; keep progress summary guarded by manager roles | Test professor cannot open another instructor's room unless another permitted role grants it; test professor dashboard data respects DocType permissions in integration environment |
-| Operational admin | Operational dashboard aggregates; live class operational status; content counts; inactive student alerts; WhatsApp operational logs when allowed | Provider secrets; full financial payloads; unrestricted system maintenance; raw production dumps; student content outside operational need | `bruce-operational-dashboard`; Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`); Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`); Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`); Histórico da aula ao vivo (legacy internal DocType currently named `Bruce Live Class Notice Log`) | Explicit role gate in operational dashboard; return only needed aggregate/detail fields; avoid secrets and full provider payloads | Tests for each operational role; tests that LMS Student, Guest, and unrelated roles are denied |
+| Student / LMS Student | Own `Minha Aula` dashboard; published materials, ENEM questions, exercise lists, own progress, and live-room context only when Acesso do aluno is `Ativo` and in course/batch scope | Operational dashboard; WhatsApp logs/settings; other students' answers/progress; unpublished/internal materials; answer keys in list payloads; Google Meet links outside scope | Acesso do aluno (DocType `Melura Student Access`); Aula ao vivo (DocType `Melura Live Class`); Material didático (DocType `Melura Educational Material`); Questão ENEM (DocType `Melura ENEM Question`); Lista de exercícios (DocType `Melura Exercise List`); Resposta do aluno (DocType `Melura Student Answer`); `bruce-live-room`; `minha-aula` | Use `frappe.session.user`; reject Guest; require `Ativo`; enforce course/batch scope; return locked progress for non-active status; compute answer correctness server-side | Direct API calls as LMS Student for each whitelisted method; blocked/expired/pending status matrix for live room, materials, questions, lists, answers, progress |
+| Professor / instructor role | Professor dashboard; own or assigned live class operations; relevant class notices; progress summaries only where the role is in the progress manager set | Evolution API keys; global provider secrets; unrelated courses/batches unless explicitly authorized; operational dashboard unless also assigned admin role; financial/commercial data | `bruce-professor-dashboard`; Aula ao vivo (DocType `Melura Live Class`); Histórico da aula ao vivo (DocType `Melura Live Class Notice Log`); WhatsApp preview/send methods | Rely on Frappe DocType permissions for class list/read/write; use live-room staff check for instructor; keep progress summary guarded by manager roles | Test professor cannot open another instructor's room unless another permitted role grants it; test professor dashboard data respects DocType permissions in integration environment |
+| Operational admin | Operational dashboard aggregates; live class operational status; content counts; inactive student alerts; WhatsApp operational logs when allowed | Provider secrets; full financial payloads; unrestricted system maintenance; raw production dumps; student content outside operational need | `bruce-operational-dashboard`; Acesso do aluno (DocType `Melura Student Access`); Resposta do aluno (DocType `Melura Student Answer`); Log de WhatsApp (DocType `Melura WhatsApp Notification Log`); Histórico da aula ao vivo (DocType `Melura Live Class Notice Log`) | Explicit role gate in operational dashboard; return only needed aggregate/detail fields; avoid secrets and full provider payloads | Tests for each operational role; tests that LMS Student, Guest, and unrelated roles are denied |
 | System Manager / Administrator | Technical maintenance, migrations, app configuration, emergency recovery, high-privilege diagnostics | Routine teaching or daily operations as `Administrator`; committing secrets or dumps; using admin power to bypass product permission design without audit | All custom DocTypes, settings, logs, hooks, patches, site config outside Git | Frappe built-in permissions plus operational discipline; secrets must stay in environment/site config, not frontend or repository | Smoke tests for settings methods; manual review that `Administrator` is not required for teacher operations |
-| Integration/bot user | Future protected automation: WhatsApp callbacks, n8n/Evolution status updates, external access-status webhooks, scheduled jobs with minimal scope | Human Desk screens; broad admin actions; user/course/batch edits outside integration contract; secrets in frontend; financial payload storage | Future webhook endpoints; Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`); `Bruce Student Access.external_reference`; notification status updates | Authenticate origin; verify webhook signature/secret; idempotent writes; minimal payload; scoped technical credential; safe logs | Tests for invalid signature, replay/idempotency, forbidden fields, and no payload/secret logging |
-| Future external financial SaaS | Future server-to-server update of pedagogical access status and opaque references after verification | Checkout/billing implementation inside Frappe; direct student UI authorization; card data; subscription internals; CRM/lead/newsletter data; full financial payloads | Future external access endpoint; Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) status/source/external reference fields | Verify webhook; map student/course/batch server-side; accept only allowed statuses; reject billing data; log minimal correlation | Contract tests for payload schema, invalid status, spoofing, idempotency, and no commercial data persistence |
+| Integration/bot user | Future protected automation: WhatsApp callbacks, n8n/Evolution status updates, external access-status webhooks, scheduled jobs with minimal scope | Human Desk screens; broad admin actions; user/course/batch edits outside integration contract; secrets in frontend; financial payload storage | Future webhook endpoints; Log de WhatsApp (DocType `Melura WhatsApp Notification Log`); `Melura Student Access.external_reference`; notification status updates | Authenticate origin; verify webhook signature/secret; idempotent writes; minimal payload; scoped technical credential; safe logs | Tests for invalid signature, replay/idempotency, forbidden fields, and no payload/secret logging |
+| Future external financial SaaS | Future server-to-server update of pedagogical access status and opaque references after verification | Checkout/billing implementation inside Frappe; direct student UI authorization; card data; subscription internals; CRM/lead/newsletter data; full financial payloads | Future external access endpoint; Acesso do aluno (DocType `Melura Student Access`) status/source/external reference fields | Verify webhook; map student/course/batch server-side; accept only allowed statuses; reject billing data; log minimal correlation | Contract tests for payload schema, invalid status, spoofing, idempotency, and no commercial data persistence |
 
 ## Sensitive Methods And Pages
 
@@ -38,12 +38,12 @@ Teacher/admin methods/pages:
 - `melura_lms.melura_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_next_live_class`
 - `melura_lms.melura_lms.page.bruce_professor_dashboard.bruce_professor_dashboard.get_dashboard_data`
 - `melura_lms.melura_lms.page.bruce_operational_dashboard.bruce_operational_dashboard.get_dashboard_data`
-- `melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class.start_live_class`
+- `melura_lms.melura_lms.doctype.melura_live_class.melura_live_class.start_live_class`
 - `melura_lms.services.student_access.get_class_progress_summary`
 - `melura_lms.services.whatsapp.preview_live_class_link`
 - `melura_lms.services.whatsapp.send_live_class_link`
-- `melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event`
-- `melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.get_live_class_notice_logs`
+- `melura_lms.melura_lms.doctype.melura_live_class_notice_log.melura_live_class_notice_log.record_live_class_notice_event`
+- `melura_lms.melura_lms.doctype.melura_live_class_notice_log.melura_live_class_notice_log.get_live_class_notice_logs`
 
 Settings/test methods:
 
@@ -54,23 +54,23 @@ Settings/test methods:
 
 High-priority protection:
 
-- Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`)
-- Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`)
-- Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`)
-- Material didático (legacy internal DocType currently named `Bruce Educational Material`)
-- Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`)
-- Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`)
-- Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`)
-- Histórico da aula ao vivo (legacy internal DocType currently named `Bruce Live Class Notice Log`)
-- Configurações de WhatsApp (legacy internal DocType currently named `Bruce Evolution Settings`)
-- Configuração legada de vídeo (legacy internal DocType currently named `Bruce Jitsi Settings`) legacy compatibility settings, obsolete for the MVP
+- Acesso do aluno (DocType `Melura Student Access`)
+- Resposta do aluno (DocType `Melura Student Answer`)
+- Aula ao vivo (DocType `Melura Live Class`)
+- Material didático (DocType `Melura Educational Material`)
+- Questão ENEM (DocType `Melura ENEM Question`)
+- Lista de exercícios (DocType `Melura Exercise List`)
+- Log de WhatsApp (DocType `Melura WhatsApp Notification Log`)
+- Histórico da aula ao vivo (DocType `Melura Live Class Notice Log`)
+- Configurações de WhatsApp (DocType `Melura WhatsApp Settings`)
+- Configuração legada de vídeo (DocType `Melura Legacy Video Settings`) legacy compatibility settings, obsolete for the MVP
   video flow.
-- Modelo de mensagem (legacy internal DocType currently named `Bruce WhatsApp Message Template`)
+- Modelo de mensagem (DocType `Melura WhatsApp Message Template`)
 
 Child tables that inherit parent sensitivity:
 
-- Alternativa da questão ENEM (legacy internal child DocType currently named `Bruce ENEM Question Alternative`)
-- Item da lista de exercícios (legacy internal child DocType currently named `Bruce Exercise List Item`)
+- Alternativa da questão ENEM (DocType `Melura ENEM Question Alternative`)
+- Item da lista de exercícios (DocType `Melura Exercise List Item`)
 
 ## Backend Checks Expected
 
@@ -79,7 +79,7 @@ Child tables that inherit parent sensitivity:
 - Active access means only `Ativo` and within date bounds.
 - `Pendente`, `Bloqueado`, and `Expirado` do not unlock classes, materials,
   questions, exercise lists, answers, or progress metrics.
-- Course/batch scope is derived from Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`).
+- Course/batch scope is derived from Acesso do aluno (DocType `Melura Student Access`).
 - Live-room context validates login, class status, room data, URL shape, and
   staff/student permission before returning Google Meet link data.
 - Student question payloads exclude answer keys and commented resolutions.
@@ -87,7 +87,7 @@ Child tables that inherit parent sensitivity:
 - Operational dashboards reject normal students and guests.
 - WhatsApp preview/send methods use backend permissions and must not return or
   log provider secrets.
-- Settings methods must check `Bruce Evolution Settings` read/write permission.
+- Settings methods must check `Melura WhatsApp Settings` read/write permission.
 
 ## Notes For Future Tests
 

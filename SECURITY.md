@@ -17,7 +17,7 @@ Frontend visibility is not authorization. Hiding a button in Vue, Desk, or a
 custom page does not protect the action. Every sensitive operation must be
 protected by backend checks, and student access must be controlled through
 student access records. The implementation still uses the legacy internal
-DocType currently named `Bruce Student Access`.
+DocType `Melura Student Access`.
 
 Core principles:
 
@@ -38,10 +38,10 @@ Project examples:
 - live classes and the live-room route must validate access before returning a
   Google Meet link.
 - Materials, ENEM questions, exercise lists, student answers, and student
-  progress APIs must be scoped by active student access. The current internal
-  technical DocTypes still use legacy names such as `Bruce Educational
-  Material`, `Bruce ENEM Question`, `Bruce Exercise List`, `Bruce Student
-  Answer`, and `Bruce Student Access`.
+  progress APIs must be scoped by active student access. The technical DocTypes
+  now use Melura names such as `Melura Educational Material`, `Melura ENEM
+  Question`, `Melura Exercise List`, `Melura Student Answer`, and
+  `Melura Student Access`.
 
 ## 2. Supported Versions
 
@@ -265,8 +265,8 @@ Accounts should be separated by responsibility:
 ## 11. Student Access Security
 
 Student access is the source of pedagogical access inside this Frappe app. The
-implementation still uses the legacy internal DocType currently named
-`Bruce Student Access`.
+technical DocType is now `Melura Student Access` after the legacy `Bruce ...`
+DocType migration.
 
 User-facing statuses must stay in Brazilian Portuguese:
 
@@ -312,8 +312,7 @@ The live-room route must validate:
 - live class exists;
 - class has a valid Google Meet `meeting_url`;
 - student has active access with status `Ativo` for the correct course or
-  batch, stored for now in the legacy internal DocType currently named
-  `Bruce Student Access`;
+  batch, stored in `Melura Student Access`;
 - teacher/admin has the correct role;
 - class status allows access.
 
@@ -345,7 +344,7 @@ in Brazilian Portuguese.
 ## 14. Educational Materials Security
 
 Rules for Material didático, implemented by the legacy internal DocType
-currently named `Bruce Educational Material`:
+`Melura Educational Material`:
 
 - student materials must be published;
 - student materials must have visibility `Aluno`;
@@ -360,7 +359,7 @@ currently named `Bruce Educational Material`:
 ## 15. ENEM Question Bank Security
 
 Rules for Questão ENEM, implemented by the legacy internal DocType currently
-named `Bruce ENEM Question`:
+named `Melura ENEM Question`:
 
 - student-visible questions must be published;
 - published questions must have answer key configured;
@@ -375,8 +374,8 @@ named `Bruce ENEM Question`:
 ## 16. Exercise Lists and Student Answers Security
 
 Rules for Lista de exercícios and Resposta do aluno, implemented by the legacy
-internal DocTypes currently named `Bruce Exercise List` and
-`Bruce Student Answer`:
+internal DocTypes `Melura Exercise List` and
+`Melura Student Answer`:
 
 - student-visible lists must be published;
 - published list must have at least one question;
@@ -644,7 +643,7 @@ If a secret was committed:
 - [ ] New endpoints validate authentication.
 - [ ] New endpoints validate authorization server-side.
 - [ ] Student data queries are scoped to `frappe.session.user` and
-      the legacy internal DocType currently named `Bruce Student Access`.
+      the DocType `Melura Student Access`.
 - [ ] Course/batch parameters from frontend do not grant access.
 - [ ] Admin-only APIs reject `LMS Student`.
 - [ ] Teacher/admin actions validate role.
@@ -662,7 +661,7 @@ If a secret was committed:
 
 | Area | Main Rule | Risk if Broken |
 | ---- | --------- | -------------- |
-| Student access | Student access controls pedagogical access; the implementation still uses the legacy internal DocType currently named `Bruce Student Access`. | Blocked or unauthorized students may access protected content. |
+| Student access | Student access controls pedagogical access; the implementation still uses the DocType `Melura Student Access`. | Blocked or unauthorized students may access protected content. |
 | Live class/Google Meet | Google Meet links are returned only after backend permission checks. | Unauthorized users may enter live classes. |
 | Materials | Student materials must be published and allowed for the user scope. | Private or internal materials may leak. |
 | ENEM questions | Student APIs must not expose answer keys too early. | Students may see answers before attempting questions. |

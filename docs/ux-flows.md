@@ -14,22 +14,15 @@ neutros em português brasileiro para agenda de aulas ao vivo, aulas ao vivo,
 `Minha Aula`, `Painel do professor`, `Painel operacional`, WhatsApp, conteúdo
 pedagógico e acessos dos alunos.
 
-Alguns destinos ainda apontam para DocTypes técnicos legados, como o DocType
-interno legado atualmente chamado Acesso do aluno (legacy internal DocType
-currently named `Bruce Student Access`). As rotas preferenciais de páginas Desk
-são `/app/melura-professor-dashboard`, `/app/melura-operational-dashboard` e
-`/app/melura-live-room/<aula>`. As rotas antigas `/app/bruce-*` continuam
-temporariamente por compatibilidade. Esses nomes legados devem permanecer
-internos nesta etapa; o usuário deve ver `Melura` ou nomes neutros, não os
-identificadores legados.
+Os DocTypes técnicos legados `Bruce ...` foram migrados para DocTypes
+`Melura ...`, como Acesso do aluno (DocType `Melura Student Access`). As rotas
+preferenciais de páginas Desk são `/app/melura-professor-dashboard`,
+`/app/melura-operational-dashboard` e `/app/melura-live-room/<aula>`. As rotas
+antigas `/app/bruce-*` continuam temporariamente por compatibilidade.
 
-O polimento atual melhora rótulos, traduções, títulos de formulário/lista e
-links gerados, mas não renomeia DocTypes, tabelas, módulos Python, pastas ou
-rotas técnicas. Algumas áreas nativas do Frappe, como breadcrumbs, URLs de
-DocType, permissões, metadados e títulos gerados fora dos hooks customizados,
-podem continuar exibindo nomes técnicos legados até uma futura migração de
-renomeação técnica. A rota técnica `/app/bruce-live-class` e as rotas
-compatíveis `/app/bruce-*` permanecem válidas nesta etapa.
+Novos links gerados devem usar as rotas Melura. Referências residuais `bruce`
+em rotas, classes CSS ou módulos de alias são compatibilidade temporária, não
+nomes de produto.
 
 ## Papéis
 
@@ -130,13 +123,13 @@ A tela valida o aluno logado no backend e mostra a primeira aula ao vivo
 permitida pelo status pedagógico e pelo vínculo de curso/turma, priorizando aula
 `Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro. A
 A implementação ainda usa o DocType interno legado atualmente chamado
-Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`). A tela exibe título, curso, turma, data e horário, status da
+Aula ao vivo (DocType `Melura Live Class`). A tela exibe título, curso, turma, data e horário, status da
 aula e ações `Entrar na aula` e `Copiar link`. `Entrar na aula` abre a página da
 aula na Melura, que valida o acesso no backend antes de mostrar o link externo
 do Google Meet.
 
 O status de acesso do aluno é controlado pelo Acesso do aluno, implementado pelo
-DocType interno legado atualmente chamado Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`):
+DocType interno legado atualmente chamado Acesso do aluno (DocType `Melura Student Access`):
 
 - `Pendente`: não libera aula e orienta contato/aguardo;
 - `Ativo`: libera apenas aulas da turma ou curso configurados;

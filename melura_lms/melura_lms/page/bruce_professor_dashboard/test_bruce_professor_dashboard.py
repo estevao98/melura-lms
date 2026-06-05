@@ -49,7 +49,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertEqual(result["notice_logs"], [])
 		get_list.assert_called_once()
 		get_list.assert_called_with(
-			"Bruce Live Class",
+			"Melura Live Class",
 			filters={"status": "Ao vivo"},
 			fields=[
 				"name",
@@ -65,7 +65,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 			limit_page_length=1,
 		)
 		get_all.assert_called_once_with(
-			"Bruce Live Class Notice Log",
+			"Melura Live Class Notice Log",
 			filters={"related_live_class": live_class["name"]},
 			fields=["event_type", "title", "message", "status", "created_by", "created_at"],
 			order_by="created_at desc, creation desc",
@@ -105,7 +105,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertEqual(result["notice_logs"], [])
 		self.assertEqual(get_list.call_count, 2)
 		get_list.assert_any_call(
-			"Bruce Live Class",
+			"Melura Live Class",
 			filters={"status": "Ao vivo"},
 			fields=[
 				"name",
@@ -121,7 +121,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 			limit_page_length=1,
 		)
 		get_all.assert_called_once_with(
-			"Bruce Live Class Notice Log",
+			"Melura Live Class Notice Log",
 			filters={"related_live_class": scheduled_class["name"]},
 			fields=["event_type", "title", "message", "status", "created_by", "created_at"],
 			order_by="created_at desc, creation desc",
@@ -273,7 +273,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertEqual(result[0]["notice_logs"], [])
 		add_to_date.assert_called_once_with("2026-05-30 12:00:00", days=7)
 		get_list.assert_called_once_with(
-			"Bruce Live Class",
+			"Melura Live Class",
 			filters={
 				"status": ["in", ["Agendada", "Ao vivo"]],
 				"starts_at": ["between", ["2026-05-30 12:00:00", "2026-06-06 12:00:00"]],

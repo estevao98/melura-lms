@@ -195,12 +195,12 @@ class TestExternalStudentStatus(unittest.TestCase):
 			result = process_external_student_status(raw_body=body, signature=signature)
 
 		get_all.assert_called_once_with(
-			"Bruce Student Access",
+			"Melura Student Access",
 			filters={"external_reference": "ext-access-001"},
 			fields=["name"],
 			limit_page_length=2,
 		)
-		get_doc.assert_called_once_with("Bruce Student Access", "BSA-2026-00001")
+		get_doc.assert_called_once_with("Melura Student Access", "BSA-2026-00001")
 		self.assertEqual(result["status"], ACCESS_EXPIRED)
 
 

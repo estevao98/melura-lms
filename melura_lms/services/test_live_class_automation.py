@@ -18,7 +18,7 @@ class FakeLiveClass:
 	def __init__(self, values):
 		self.__dict__.update(values)
 		self.name = "BLC-2026-00001"
-		self.doctype = "Bruce Live Class"
+		self.doctype = "Melura Live Class"
 		self.insert_called = False
 
 	def insert(self, ignore_permissions=False):
@@ -63,7 +63,7 @@ class TestLiveClassAutomation(unittest.TestCase):
 	def make_live_class(self, **values):
 		doc = SimpleNamespace(
 			name="BLC-2026-00001",
-			doctype="Bruce Live Class",
+			doctype="Melura Live Class",
 			title="História ENEM - 08/06/2026",
 			course="COURSE-001",
 			batch="BATCH-001",

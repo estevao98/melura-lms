@@ -1,6 +1,7 @@
 [pre_model_sync]
 # Patches added in this section will be executed before doctypes are migrated
 # Read docs to understand patches: https://frappeframework.com/docs/v14/user/en/database-migrations
+melura_lms.patches.v0_0_2.rename_bruce_doctypes_to_melura
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated

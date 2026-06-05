@@ -126,23 +126,23 @@ app_license = "mit"
 # }
 
 permission_query_conditions = {
-	"Bruce Live Class": "melura_lms.services.student_access.get_live_class_permission_query_conditions",
-	"Bruce Educational Material": (
+	"Melura Live Class": "melura_lms.services.student_access.get_live_class_permission_query_conditions",
+	"Melura Educational Material": (
 		"melura_lms.services.student_access.get_educational_material_permission_query_conditions"
 	),
-	"Bruce ENEM Question": (
+	"Melura ENEM Question": (
 		"melura_lms.services.student_access.get_enem_question_permission_query_conditions"
 	),
-	"Bruce Exercise List": (
+	"Melura Exercise List": (
 		"melura_lms.services.student_access.get_exercise_list_permission_query_conditions"
 	),
 }
 
 has_permission = {
-	"Bruce Live Class": "melura_lms.services.student_access.has_live_class_permission",
-	"Bruce Educational Material": "melura_lms.services.student_access.has_educational_material_permission",
-	"Bruce ENEM Question": "melura_lms.services.student_access.has_enem_question_permission",
-	"Bruce Exercise List": "melura_lms.services.student_access.has_exercise_list_permission",
+	"Melura Live Class": "melura_lms.services.student_access.has_live_class_permission",
+	"Melura Educational Material": "melura_lms.services.student_access.has_educational_material_permission",
+	"Melura ENEM Question": "melura_lms.services.student_access.has_enem_question_permission",
+	"Melura Exercise List": "melura_lms.services.student_access.has_exercise_list_permission",
 }
 
 # DocType Class

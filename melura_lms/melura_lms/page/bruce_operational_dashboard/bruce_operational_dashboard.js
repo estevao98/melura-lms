@@ -238,7 +238,7 @@ class BruceOperationalDashboard {
 
 	bind_actions() {
 		this.container.find(".bruce-operational-dashboard__open-class").on("click", (event) => {
-			frappe.set_route("Form", "Bruce Live Class", $(event.currentTarget).data("name"));
+			frappe.set_route("Form", "Melura Live Class", $(event.currentTarget).data("name"));
 		});
 		this.container.find(".bruce-operational-dashboard__open-student").on("click", (event) => {
 			frappe.set_route("Form", "User", $(event.currentTarget).data("name"));

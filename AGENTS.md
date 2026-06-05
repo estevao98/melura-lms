@@ -100,8 +100,9 @@ The preferred path is extension, not core modification.
 
 ## 7. Student Access Rules
 
-Student access is the source of pedagogical access. The implementation still
-uses the legacy internal DocType currently named `Bruce Student Access`.
+Student access is the source of pedagogical access. The technical DocType is
+now named `Melura Student Access` after the legacy `Bruce Student Access`
+migration.
 
 Allowed statuses:
 

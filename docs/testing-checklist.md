@@ -28,7 +28,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Abrir `/app`.
 - Confirmar que o Workspace `Melura` aparece no Frappe Desk.
 - Confirmar que `Agenda de aulas ao vivo` abre o DocType `Melura Live Class Schedule`.
-- Confirmar que `Aulas ao vivo` abre o DocType técnico (legacy internal DocType currently named `Bruce Live Class`), mas
+- Confirmar que `Aulas ao vivo` abre o DocType técnico (DocType `Melura Live Class`), mas
   o rótulo visível no Workspace não expõe o nome legado.
 - Confirmar que `Minha Aula` abre `/app/minha-aula`.
 - Confirmar que `Painel do professor` abre `/app/melura-professor-dashboard`.
@@ -84,10 +84,9 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
   `/app/melura-live-room/<aula>`.
 - Confirmar que rótulos visíveis traduzidos não expõem `Bruce` onde a tradução
   se aplica.
-- Confirmar que nomes técnicos de DocType ainda podem aparecer internamente
-  enquanto a renomeação técnica completa não for executada.
-- Confirmar que esta etapa não renomeou DocTypes, tabelas, módulos Python,
-  pastas nem removeu rotas legadas.
+- Confirmar que DocTypes técnicos usam nomes `Melura ...` após a migração.
+- Confirmar que referências residuais `bruce` aparecem apenas em rotas antigas,
+  classes CSS ou módulos de alias mantidos por compatibilidade.
 
 ## Polimento de formulários e listas no Desk
 

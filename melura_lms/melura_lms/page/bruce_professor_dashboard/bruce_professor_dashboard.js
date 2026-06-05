@@ -161,7 +161,7 @@ class BruceProfessorDashboard {
 		});
 
 		this.container.find(".bruce-professor-dashboard__desk").on("click", () => {
-			frappe.set_route("Form", "Bruce Live Class", liveClass.name);
+			frappe.set_route("Form", "Melura Live Class", liveClass.name);
 		});
 
 		if (canStart) {
@@ -326,7 +326,7 @@ class BruceProfessorDashboard {
 		});
 
 		this.container.find(".bruce-professor-dashboard__week-details").on("click", (event) => {
-			frappe.set_route("Form", "Bruce Live Class", $(event.currentTarget).data("name"));
+			frappe.set_route("Form", "Melura Live Class", $(event.currentTarget).data("name"));
 		});
 	}
 
@@ -345,7 +345,7 @@ class BruceProfessorDashboard {
 
 	start_live_class(name) {
 		frappe.call({
-			method: "melura_lms.melura_lms.doctype.bruce_live_class.bruce_live_class.start_live_class",
+			method: "melura_lms.melura_lms.doctype.melura_live_class.melura_live_class.start_live_class",
 			args: { name },
 			freeze: true,
 			freeze_message: __("Iniciando aula..."),
@@ -485,7 +485,7 @@ class BruceProfessorDashboard {
 
 	record_notice_event(liveClass, eventType, title, message, status, callback) {
 		frappe.call({
-			method: "melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log.record_live_class_notice_event",
+			method: "melura_lms.melura_lms.doctype.melura_live_class_notice_log.melura_live_class_notice_log.record_live_class_notice_event",
 			args: {
 				live_class: liveClass,
 				event_type: eventType,

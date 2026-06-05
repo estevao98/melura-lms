@@ -32,7 +32,7 @@ def get_live_room_context(live_class):
 		frappe.throw(_("Informe a aula ao vivo."), frappe.ValidationError)
 
 	_assert_logged_user()
-	doc = frappe.get_doc("Bruce Live Class", live_class)
+	doc = frappe.get_doc("Melura Live Class", live_class)
 	_validate_live_class_can_be_opened(doc)
 	_assert_can_open_live_room(doc)
 

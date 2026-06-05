@@ -109,7 +109,7 @@ def get_current_student_access_status():
 def can_current_student_access_live_class(live_class):
 	"""Return whether the logged student may access the given live class."""
 	if isinstance(live_class, str):
-		live_class = frappe.get_doc("Bruce Live Class", live_class)
+		live_class = frappe.get_doc("Melura Live Class", live_class)
 
 	if not live_class or _get_value(live_class, "status") not in LIVE_CLASS_VISIBLE_STATUSES:
 		return False
@@ -135,7 +135,7 @@ def get_permitted_live_classes_for_current_student(statuses=None, starts_from=No
 		filters.update(scope_filter)
 
 		for live_class in frappe.get_all(
-			"Bruce Live Class",
+			"Melura Live Class",
 			filters=filters,
 			fields=LIVE_CLASS_FIELDS,
 			order_by="starts_at asc",
@@ -164,7 +164,7 @@ def get_permitted_educational_materials_for_current_student(limit=10):
 			filters.update(scope_filter)
 
 			for material in frappe.get_all(
-				"Bruce Educational Material",
+				"Melura Educational Material",
 				filters=filters,
 				fields=EDUCATIONAL_MATERIAL_FIELDS,
 				order_by="published_at desc, modified desc",
@@ -213,7 +213,7 @@ def get_class_progress_summary(batch=None, course=None, limit=50):
 		access_filters["course"] = course
 
 	access_records = frappe.get_all(
-		"Bruce Student Access",
+		"Melura Student Access",
 		filters=access_filters,
 		fields=STUDENT_ACCESS_FIELDS,
 		order_by="student asc, modified desc",
@@ -275,7 +275,7 @@ def _get_permitted_exercise_lists(access_records, limit=10):
 			filters.update(scope_filter)
 
 			for exercise_list in frappe.get_all(
-				"Bruce Exercise List",
+				"Melura Exercise List",
 				filters=filters,
 				fields=EXERCISE_LIST_FIELDS,
 				order_by="published_at desc, modified desc",
@@ -366,7 +366,7 @@ def get_permitted_enem_questions_for_current_student(limit=20):
 			filters.update(scope_filter)
 
 			for question in frappe.get_all(
-				"Bruce ENEM Question",
+				"Melura ENEM Question",
 				filters=filters,
 				fields=ENEM_QUESTION_FIELDS,
 				order_by="published_at desc, modified desc",
@@ -390,7 +390,7 @@ def get_exercise_list_for_current_student(exercise_list):
 	if not exercise_list:
 		frappe.throw(_("Informe a lista de exercícios."), frappe.ValidationError)
 
-	doc = frappe.get_doc("Bruce Exercise List", exercise_list)
+	doc = frappe.get_doc("Melura Exercise List", exercise_list)
 	assert_current_student_can_access_exercise_list(doc)
 
 	items = _get_exercise_list_items(doc.name)
@@ -424,18 +424,18 @@ def save_student_answer(exercise_list, question, selected_option):
 	if not is_current_student_active():
 		frappe.throw(_("Seu acesso ainda não está ativo. Entre em contato com o suporte."), frappe.PermissionError)
 
-	doc = frappe.get_doc("Bruce Exercise List", exercise_list)
+	doc = frappe.get_doc("Melura Exercise List", exercise_list)
 	assert_current_student_can_access_exercise_list(doc)
 
 	if not _exercise_list_contains_question(doc.name, question):
 		frappe.throw(_("Esta questão não pertence à lista informada."), frappe.PermissionError)
 
-	correct_option = frappe.db.get_value("Bruce ENEM Question", question, "correct_option")
+	correct_option = frappe.db.get_value("Melura ENEM Question", question, "correct_option")
 	if not correct_option:
 		frappe.throw(_("A questão ainda não possui gabarito cadastrado."), frappe.ValidationError)
 
 	answer_name = frappe.db.get_value(
-		"Bruce Student Answer",
+		"Melura Student Answer",
 		{
 			"exercise_list": doc.name,
 			"question": question,
@@ -443,7 +443,7 @@ def save_student_answer(exercise_list, question, selected_option):
 		},
 		"name",
 	)
-	answer_doc = frappe.get_doc("Bruce Student Answer", answer_name) if answer_name else frappe.new_doc("Bruce Student Answer")
+	answer_doc = frappe.get_doc("Melura Student Answer", answer_name) if answer_name else frappe.new_doc("Melura Student Answer")
 	answer_doc.exercise_list = doc.name
 	answer_doc.question = question
 	answer_doc.student_user = frappe.session.user
@@ -471,7 +471,7 @@ def get_active_student_access_records(user=None):
 		return []
 
 	records = frappe.get_all(
-		"Bruce Student Access",
+		"Melura Student Access",
 		filters={"student": user},
 		fields=STUDENT_ACCESS_FIELDS,
 		order_by="modified desc",
@@ -574,7 +574,7 @@ def get_live_class_permission_query_conditions(user=None):
 	conditions = [condition for condition in conditions if condition]
 
 	if not conditions:
-		return "`tabBruce Live Class`.`name` is null"
+		return "`tabMelura Live Class`.`name` is null"
 
 	return "(" + " or ".join(conditions) + ")"
 
@@ -590,11 +590,11 @@ def get_educational_material_permission_query_conditions(user=None):
 	conditions = [condition for condition in conditions if condition]
 
 	if not conditions:
-		return "`tabBruce Educational Material`.`name` is null"
+		return "`tabMelura Educational Material`.`name` is null"
 
 	return (
-		"`tabBruce Educational Material`.`published` = 1"
-		" and `tabBruce Educational Material`.`visibility` = 'Aluno'"
+		"`tabMelura Educational Material`.`published` = 1"
+		" and `tabMelura Educational Material`.`visibility` = 'Aluno'"
 		" and (" + " or ".join(conditions) + ")"
 	)
 
@@ -610,9 +610,9 @@ def get_enem_question_permission_query_conditions(user=None):
 	conditions = [condition for condition in conditions if condition]
 
 	if not conditions:
-		return "`tabBruce ENEM Question`.`name` is null"
+		return "`tabMelura ENEM Question`.`name` is null"
 
-	return "`tabBruce ENEM Question`.`published` = 1 and (" + " or ".join(conditions) + ")"
+	return "`tabMelura ENEM Question`.`published` = 1 and (" + " or ".join(conditions) + ")"
 
 
 def get_exercise_list_permission_query_conditions(user=None):
@@ -626,9 +626,9 @@ def get_exercise_list_permission_query_conditions(user=None):
 	conditions = [condition for condition in conditions if condition]
 
 	if not conditions:
-		return "`tabBruce Exercise List`.`name` is null"
+		return "`tabMelura Exercise List`.`name` is null"
 
-	return "`tabBruce Exercise List`.`published` = 1 and (" + " or ".join(conditions) + ")"
+	return "`tabMelura Exercise List`.`published` = 1 and (" + " or ".join(conditions) + ")"
 
 
 def _get_student_access_status(user):
@@ -636,7 +636,7 @@ def _get_student_access_status(user):
 		return ACCESS_PENDING
 
 	records = frappe.get_all(
-		"Bruce Student Access",
+		"Melura Student Access",
 		filters={"student": user},
 		fields=STUDENT_ACCESS_FIELDS,
 		order_by="modified desc",
@@ -676,7 +676,7 @@ def _get_student_answers_for_lists(student, exercise_lists):
 	return [
 		dict(answer)
 		for answer in frappe.get_all(
-			"Bruce Student Answer",
+			"Melura Student Answer",
 			filters={
 				"student_user": student,
 				"exercise_list": ["in", exercise_lists],
@@ -891,10 +891,10 @@ def _get_exercise_list_scope_filters(access):
 
 def _get_live_class_sql_condition(access):
 	if access.get("batch"):
-		return f"`tabBruce Live Class`.`batch` = {frappe.db.escape(access.get('batch'))}"
+		return f"`tabMelura Live Class`.`batch` = {frappe.db.escape(access.get('batch'))}"
 
 	if access.get("course"):
-		return f"`tabBruce Live Class`.`course` = {frappe.db.escape(access.get('course'))}"
+		return f"`tabMelura Live Class`.`course` = {frappe.db.escape(access.get('course'))}"
 
 	return None
 
@@ -902,18 +902,18 @@ def _get_live_class_sql_condition(access):
 def _get_material_sql_condition(access):
 	if access.get("batch") and access.get("course"):
 		return (
-			f"`tabBruce Educational Material`.`batch` = {frappe.db.escape(access.get('batch'))}"
+			f"`tabMelura Educational Material`.`batch` = {frappe.db.escape(access.get('batch'))}"
 			" or ("
-			f"`tabBruce Educational Material`.`course` = {frappe.db.escape(access.get('course'))}"
-			" and ifnull(`tabBruce Educational Material`.`batch`, '') = ''"
+			f"`tabMelura Educational Material`.`course` = {frappe.db.escape(access.get('course'))}"
+			" and ifnull(`tabMelura Educational Material`.`batch`, '') = ''"
 			")"
 		)
 
 	if access.get("batch"):
-		return f"`tabBruce Educational Material`.`batch` = {frappe.db.escape(access.get('batch'))}"
+		return f"`tabMelura Educational Material`.`batch` = {frappe.db.escape(access.get('batch'))}"
 
 	if access.get("course"):
-		return f"`tabBruce Educational Material`.`course` = {frappe.db.escape(access.get('course'))}"
+		return f"`tabMelura Educational Material`.`course` = {frappe.db.escape(access.get('course'))}"
 
 	return None
 
@@ -921,18 +921,18 @@ def _get_material_sql_condition(access):
 def _get_question_sql_condition(access):
 	if access.get("batch") and access.get("course"):
 		return (
-			f"`tabBruce ENEM Question`.`related_batch` = {frappe.db.escape(access.get('batch'))}"
+			f"`tabMelura ENEM Question`.`related_batch` = {frappe.db.escape(access.get('batch'))}"
 			" or ("
-			f"`tabBruce ENEM Question`.`related_course` = {frappe.db.escape(access.get('course'))}"
-			" and ifnull(`tabBruce ENEM Question`.`related_batch`, '') = ''"
+			f"`tabMelura ENEM Question`.`related_course` = {frappe.db.escape(access.get('course'))}"
+			" and ifnull(`tabMelura ENEM Question`.`related_batch`, '') = ''"
 			")"
 		)
 
 	if access.get("batch"):
-		return f"`tabBruce ENEM Question`.`related_batch` = {frappe.db.escape(access.get('batch'))}"
+		return f"`tabMelura ENEM Question`.`related_batch` = {frappe.db.escape(access.get('batch'))}"
 
 	if access.get("course"):
-		return f"`tabBruce ENEM Question`.`related_course` = {frappe.db.escape(access.get('course'))}"
+		return f"`tabMelura ENEM Question`.`related_course` = {frappe.db.escape(access.get('course'))}"
 
 	return None
 
@@ -940,18 +940,18 @@ def _get_question_sql_condition(access):
 def _get_exercise_list_sql_condition(access):
 	if access.get("batch") and access.get("course"):
 		return (
-			f"`tabBruce Exercise List`.`batch` = {frappe.db.escape(access.get('batch'))}"
+			f"`tabMelura Exercise List`.`batch` = {frappe.db.escape(access.get('batch'))}"
 			" or ("
-			f"`tabBruce Exercise List`.`course` = {frappe.db.escape(access.get('course'))}"
-			" and ifnull(`tabBruce Exercise List`.`batch`, '') = ''"
+			f"`tabMelura Exercise List`.`course` = {frappe.db.escape(access.get('course'))}"
+			" and ifnull(`tabMelura Exercise List`.`batch`, '') = ''"
 			")"
 		)
 
 	if access.get("batch"):
-		return f"`tabBruce Exercise List`.`batch` = {frappe.db.escape(access.get('batch'))}"
+		return f"`tabMelura Exercise List`.`batch` = {frappe.db.escape(access.get('batch'))}"
 
 	if access.get("course"):
-		return f"`tabBruce Exercise List`.`course` = {frappe.db.escape(access.get('course'))}"
+		return f"`tabMelura Exercise List`.`course` = {frappe.db.escape(access.get('course'))}"
 
 	return None
 
@@ -979,10 +979,10 @@ def _add_visible_question_alternatives(questions):
 	alternatives_by_question = {name: [] for name in question_names}
 
 	for alternative in frappe.get_all(
-		"Bruce ENEM Question Alternative",
+		"Melura ENEM Question Alternative",
 		filters={
 			"parent": ["in", question_names],
-			"parenttype": "Bruce ENEM Question",
+			"parenttype": "Melura ENEM Question",
 		},
 		fields=ENEM_QUESTION_ALTERNATIVE_FIELDS,
 		order_by="parent asc, idx asc",
@@ -1010,10 +1010,10 @@ def _add_exercise_list_question_counts(exercise_lists):
 	counts = {name: 0 for name in exercise_list_names}
 
 	for item in frappe.get_all(
-		"Bruce Exercise List Item",
+		"Melura Exercise List Item",
 		filters={
 			"parent": ["in", exercise_list_names],
-			"parenttype": "Bruce Exercise List",
+			"parenttype": "Melura Exercise List",
 		},
 		fields=["parent"],
 	):
@@ -1027,10 +1027,10 @@ def _get_exercise_list_items(exercise_list):
 	return [
 		dict(item)
 		for item in frappe.get_all(
-			"Bruce Exercise List Item",
+			"Melura Exercise List Item",
 			filters={
 				"parent": exercise_list,
-				"parenttype": "Bruce Exercise List",
+				"parenttype": "Melura Exercise List",
 			},
 			fields=EXERCISE_LIST_ITEM_FIELDS,
 			order_by="`order` asc, idx asc",
@@ -1046,7 +1046,7 @@ def _get_visible_questions_for_exercise_items(items):
 	questions_by_name = {}
 
 	for question in frappe.get_all(
-		"Bruce ENEM Question",
+		"Melura ENEM Question",
 		filters={
 			"name": ["in", question_names],
 			"published": 1,
@@ -1075,10 +1075,10 @@ def _exercise_list_contains_question(exercise_list, question):
 
 	return bool(
 		frappe.db.exists(
-			"Bruce Exercise List Item",
+			"Melura Exercise List Item",
 			{
 				"parent": exercise_list,
-				"parenttype": "Bruce Exercise List",
+				"parenttype": "Melura Exercise List",
 				"question": question,
 			},
 		)

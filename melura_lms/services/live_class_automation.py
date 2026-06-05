@@ -8,7 +8,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_to_date, cint, get_datetime, get_url, now_datetime, today
 
-from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_notice_log import (
+from melura_lms.melura_lms.doctype.melura_live_class_notice_log.melura_live_class_notice_log import (
 	EVENT_INTEGRATION_DISABLED,
 	STATUS_WARNING,
 	create_notice_log,
@@ -104,7 +104,7 @@ def generate_live_classes_for_schedule(schedule, today=None):
 
 		doc = frappe.get_doc(
 			{
-				"doctype": "Bruce Live Class",
+				"doctype": "Melura Live Class",
 				"title": _build_generated_title(schedule, starts_at),
 				"status": "Agendada",
 				"whatsapp_status": "Não enviado",
@@ -128,7 +128,7 @@ def generate_live_classes_for_schedule(schedule, today=None):
 
 def find_existing_generated_class(schedule, starts_at):
 	return frappe.db.exists(
-		"Bruce Live Class",
+		"Melura Live Class",
 		{
 			"generated_from_schedule": _get(schedule, "name"),
 			"starts_at": get_datetime(starts_at),
@@ -139,7 +139,7 @@ def find_existing_generated_class(schedule, starts_at):
 def send_due_live_class_reminders(now=None):
 	now_value = get_datetime(now) if now else now_datetime()
 	classes = frappe.get_all(
-		"Bruce Live Class",
+		"Melura Live Class",
 		filters={
 			"status": ["in", ["Agendada", "Ao vivo"]],
 			"meeting_url": ["is", "set"],
@@ -195,7 +195,7 @@ def send_student_reminders_for_live_class(live_class):
 
 	whatsapp.update_live_class_whatsapp_status(doc, results)
 	if results and all(result["status"] == "sent" for result in results):
-		frappe.db.set_value("Bruce Live Class", doc.name, "reminder_sent_at", now_datetime(), update_modified=True)
+		frappe.db.set_value("Melura Live Class", doc.name, "reminder_sent_at", now_datetime(), update_modified=True)
 		return {"live_class": doc.name, "status": "sent", "sent": True}
 
 	return {"live_class": doc.name, "status": "failed", "sent": False}
@@ -227,7 +227,7 @@ def send_professor_reminder_for_live_class(live_class):
 
 	if result["status"] == "sent":
 		frappe.db.set_value(
-			"Bruce Live Class",
+			"Melura Live Class",
 			doc.name,
 			"professor_reminder_sent_at",
 			now_datetime(),
@@ -254,7 +254,7 @@ def _student_has_active_access(live_class, student):
 		scope_filters.append({**filters, "course": live_class.course})
 
 	for scope_filter in scope_filters:
-		if frappe.db.exists("Bruce Student Access", scope_filter):
+		if frappe.db.exists("Melura Student Access", scope_filter):
 			return True
 
 	return False
@@ -301,12 +301,12 @@ def _is_within_due_window(starts_at, minutes_before, now_value):
 
 def _ensure_live_class_doc(live_class):
 	if isinstance(live_class, str):
-		return frappe.get_doc("Bruce Live Class", live_class)
+		return frappe.get_doc("Melura Live Class", live_class)
 
-	if getattr(live_class, "doctype", None) == "Bruce Live Class":
+	if getattr(live_class, "doctype", None) == "Melura Live Class":
 		return live_class
 
-	return frappe.get_doc("Bruce Live Class", _get(live_class, "name"))
+	return frappe.get_doc("Melura Live Class", _get(live_class, "name"))
 
 
 def _get_live_class_public_link(live_class):
