@@ -14,10 +14,14 @@ neutros em português brasileiro para agenda de aulas ao vivo, aulas ao vivo,
 `Minha Aula`, `Painel do professor`, `Painel operacional`, WhatsApp, conteúdo
 pedagógico e acessos dos alunos.
 
-Alguns destinos ainda apontam para rotas ou DocTypes técnicos legados, como
-o dashboard do professor (legacy internal route `bruce-professor-dashboard`) ou o DocType interno legado atualmente chamado
-Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`). Esses nomes devem permanecer internos nesta etapa; o
-usuário deve ver `Melura` ou nomes neutros, não os identificadores legados.
+Alguns destinos ainda apontam para DocTypes técnicos legados, como o DocType
+interno legado atualmente chamado Acesso do aluno (legacy internal DocType
+currently named `Bruce Student Access`). As rotas preferenciais de páginas Desk
+são `/app/melura-professor-dashboard`, `/app/melura-operational-dashboard` e
+`/app/melura-live-room/<aula>`. As rotas antigas `/app/bruce-*` continuam
+temporariamente por compatibilidade. Esses nomes legados devem permanecer
+internos nesta etapa; o usuário deve ver `Melura` ou nomes neutros, não os
+identificadores legados.
 
 ## Papéis
 
@@ -100,7 +104,7 @@ Regras de UX:
 3. Visualiza aula disponível.
 4. Clica em `Entrar na aula`.
 5. Sistema valida matrícula e disponibilidade.
-6. Aula abre em `/app/bruce-live-room/<aula>` (legacy internal route), com página da Melura para abrir o Google Meet externo.
+6. Aula abre em `/app/melura-live-room/<aula>`, com página da Melura para abrir o Google Meet externo.
 
 Estados de tela:
 
@@ -565,9 +569,11 @@ do Desk.
 
 ### Base atual para sala ao vivo com Google Meet
 
-A rota legada `/app/bruce-live-room/<aula>` (legacy internal route) mostra uma página interna para a aula ao
-vivo. Ela carrega título, curso, turma, status, provedor `Google Meet` e ações
-`Entrar na aula` e `Copiar link`.
+A rota preferencial `/app/melura-live-room/<aula>` mostra uma página interna
+para a aula ao vivo. A rota legada `/app/bruce-live-room/<aula>` continua
+funcionando temporariamente como compatibilidade. A página carrega título,
+curso, turma, status, provedor `Google Meet` e ações `Entrar na aula` e
+`Copiar link`.
 
 O frontend informa apenas o identificador da aula na rota. A liberação real é
 feita no backend, que valida usuário logado, status da aula, link válido do
@@ -608,7 +614,9 @@ Regras de UX:
 ### Versão atual no Desk
 
 A versão inicial do painel administrativo é uma Page Desk chamada `Painel
-Operacional`, disponível pela rota legada `/app/bruce-operational-dashboard` (legacy internal route).
+Operacional`, disponível pela rota preferencial
+`/app/melura-operational-dashboard`. A rota legada
+`/app/bruce-operational-dashboard` continua temporariamente por compatibilidade.
 
 A tela é funcional e enxuta, com seções em português brasileiro:
 

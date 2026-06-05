@@ -290,7 +290,7 @@ class BruceStudentDashboard {
 	}
 
 	open_live_room(liveClass) {
-		frappe.set_route("bruce-live-room", liveClass);
+		frappe.set_route("melura-live-room", liveClass);
 	}
 
 	bind_material_actions() {

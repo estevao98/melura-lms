@@ -31,9 +31,9 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que `Aulas ao vivo` abre o DocType técnico (legacy internal DocType currently named `Bruce Live Class`), mas
   o rótulo visível no Workspace não expõe o nome legado.
 - Confirmar que `Minha Aula` abre `/app/minha-aula`.
-- Confirmar que `Painel do professor` abre o dashboard técnico (legacy internal route `/app/bruce-professor-dashboard`)
+- Confirmar que `Painel do professor` abre `/app/melura-professor-dashboard`.
   com rótulo visível neutro.
-- Confirmar que `Painel operacional` abre o dashboard técnico (legacy internal route `/app/bruce-operational-dashboard`)
+- Confirmar que `Painel operacional` abre `/app/melura-operational-dashboard`.
   com rótulo visível neutro.
 - Confirmar que `Configurações de WhatsApp`, `Modelos de mensagem` e
   `Logs de WhatsApp` abrem seus DocTypes técnicos existentes sem expor o nome
@@ -45,9 +45,12 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que nenhum rótulo visível do Workspace usa o nome pessoal legado.
 - Confirmar que o Workspace não exibe `Bruce`, `bruce`, `Professor Bruce` ou
   `Bruce's` em rótulos, cards, atalhos ou descrições visíveis.
-- Confirmar que as rotas diretas existentes, como `/app/minha-aula`,
-  `/app/bruce-professor-dashboard`, `/app/bruce-operational-dashboard` e
-  `/app/bruce-live-room/<aula>`, continuam funcionando conforme permissões.
+- Confirmar que as rotas diretas preferenciais, como `/app/minha-aula`,
+  `/app/melura-professor-dashboard`, `/app/melura-operational-dashboard` e
+  `/app/melura-live-room/<aula>`, funcionam conforme permissões.
+- Confirmar que as rotas legadas `/app/bruce-professor-dashboard`,
+  `/app/bruce-operational-dashboard` e `/app/bruce-live-room/<aula>` continuam
+  funcionando temporariamente conforme permissões.
 
 ## Remoção de nomenclatura legada visível
 
@@ -63,6 +66,26 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que textos de interface não expõem o nome pessoal legado.
 - Confirmar que a rota legada `/app/bruce-live-room/<aula>` continua
   funcionando conforme permissões.
+- Confirmar que a rota preferencial `/app/melura-live-room/<aula>` funciona
+  com a mesma página e validação backend.
+
+## Aliases de rota e traduções visíveis
+
+- Abrir `/app/melura-live-room/BLC-2026-00017`.
+- Confirmar que ela renderiza a mesma página e funcionalidade da sala ao vivo
+  antiga.
+- Abrir `/app/bruce-live-room/BLC-2026-00017`.
+- Confirmar que a rota antiga ainda funciona conforme permissões.
+- Abrir `/app/melura-professor-dashboard`.
+- Abrir `/app/melura-operational-dashboard`.
+- Confirmar que botões e links gerados pela Melura apontam para `/app/melura-*`.
+- Confirmar que o Workspace `Melura` usa as rotas preferenciais para painéis.
+- Confirmar que previews e mensagens enviadas por WhatsApp usam
+  `/app/melura-live-room/<aula>`.
+- Confirmar que rótulos visíveis traduzidos não expõem `Bruce` onde a tradução
+  se aplica.
+- Confirmar que nomes técnicos de DocType ainda podem aparecer internamente
+  enquanto a renomeação técnica completa não for executada.
 
 ## Permissões e papéis
 
@@ -79,7 +102,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 
 ## Permission hardening validation
 
-- Direct API calls to the professor dashboard (legacy internal route `bruce-professor-dashboard`) reject `LMS Student` and
+- Direct API calls to the professor dashboard backend methods reject `LMS Student` and
   `Guest` users before returning live class, notice log, or progress data.
 - Student-facing methods derive the student from `frappe.session.user`; calls
   must not accept `student_user`, `user`, `email`, `student`, or `owner` as
@@ -122,8 +145,10 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Aula encerrada não permite nova entrada indevida.
 - Aula cancelada não pode ser iniciada sem regra explícita.
 - Nenhuma credencial sensível aparece no HTML, JS ou resposta da API.
-- `/app/bruce-live-room/<aula>` (legacy internal route) retorna `external_url` somente após validação
+- `/app/melura-live-room/<aula>` retorna `external_url` somente após validação
   backend e não retorna campos antigos de sala embutida.
+- `/app/bruce-live-room/<aula>` continua funcionando temporariamente com a
+  mesma validação backend.
 - A página não carrega scripts de vídeo externo, não cria iframe de vídeo e
   abre o Google Meet em nova aba/app.
 
@@ -148,7 +173,9 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que o fluxo do professor abre/inicia a aula com conta operacional
   não-`Administrator`.
 - Confirmar que o fluxo do aluno `Ativo` entra na sala correta a partir de
-  `Minha Aula` ou da rota legada `/app/bruce-live-room/<aula>`.
+  `Minha Aula` ou da rota preferencial `/app/melura-live-room/<aula>`.
+- Confirmar que a rota legada `/app/bruce-live-room/<aula>` ainda abre a mesma
+  sala para links antigos.
 - Confirmar em staging que aluno `Pendente`, `Bloqueado`, `Expirado`, sem
   acesso ou de outra turma/curso não recebe `meeting_url` nem `external_url`.
 - Confirmar que professor/admin autorizado consegue abrir a sala sem usar

@@ -1,22 +1,26 @@
-frappe.pages["bruce-live-room"].on_page_load = function (wrapper) {
-	const page = frappe.ui.make_app_page({
-		parent: wrapper,
-		title: __("Aula ao vivo"),
-		single_column: true,
-	});
+["bruce-live-room", "melura-live-room"].forEach((pageName) => {
+	frappe.pages[pageName] = frappe.pages[pageName] || {};
 
-	page.main.addClass("bruce-live-room");
-	const liveRoom = new BruceLiveRoom(page);
+	frappe.pages[pageName].on_page_load = function (wrapper) {
+		const page = frappe.ui.make_app_page({
+			parent: wrapper,
+			title: __("Aula ao vivo"),
+			single_column: true,
+		});
 
-	page.set_primary_action(__("Atualizar"), () => liveRoom.load(), "refresh");
-	liveRoom.load();
-};
+		page.main.addClass("bruce-live-room");
+		const liveRoom = new BruceLiveRoom(page);
 
-frappe.pages["bruce-live-room"].on_page_show = function (wrapper) {
-	if (wrapper.bruce_live_room) {
-		wrapper.bruce_live_room.load();
-	}
-};
+		page.set_primary_action(__("Atualizar"), () => liveRoom.load(), "refresh");
+		liveRoom.load();
+	};
+
+	frappe.pages[pageName].on_page_show = function (wrapper) {
+		if (wrapper.bruce_live_room) {
+			wrapper.bruce_live_room.load();
+		}
+	};
+});
 
 class BruceLiveRoom {
 	constructor(page) {

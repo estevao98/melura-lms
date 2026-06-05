@@ -156,7 +156,7 @@ class TestMinhaAula(unittest.TestCase):
 
 		self.assertEqual(result["name"], live_class["name"])
 		self.assertEqual(result["class_status_label"], "Aula ao vivo")
-		self.assertEqual(result["live_room_route"], "/app/bruce-live-room/BLC-2026-00001")
+		self.assertEqual(result["live_room_route"], "/app/melura-live-room/BLC-2026-00001")
 		get_permitted_live_classes.assert_called_once_with(statuses=("Ao vivo",), starts_from=None, limit=1)
 
 	def test_get_next_visible_live_class_returns_next_scheduled_when_no_live_class_exists(self):
@@ -184,7 +184,7 @@ class TestMinhaAula(unittest.TestCase):
 
 		self.assertEqual(result["name"], scheduled_class["name"])
 		self.assertEqual(result["class_status_label"], "Aula agendada")
-		self.assertEqual(result["live_room_route"], "/app/bruce-live-room/BLC-2026-00002")
+		self.assertEqual(result["live_room_route"], "/app/melura-live-room/BLC-2026-00002")
 		self.assertEqual(get_permitted_live_classes.call_count, 2)
 		get_permitted_live_classes.assert_any_call(
 			statuses=("Agendada",),

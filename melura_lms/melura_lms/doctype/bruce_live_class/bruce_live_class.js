@@ -121,7 +121,7 @@ function get_meeting_url(frm) {
 }
 
 function open_live_room(liveClass) {
-	frappe.set_route("bruce-live-room", liveClass);
+	frappe.set_route("melura-live-room", liveClass);
 }
 
 function show_missing_meeting_url() {

@@ -1,0 +1,1 @@
+../bruce_operational_dashboard/bruce_operational_dashboard.js

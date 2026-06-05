@@ -147,6 +147,12 @@ See [SECURITY.md](SECURITY.md) for the full policy.
 
 Backend authorization is mandatory. Frontend visibility is not authorization. Student access controls pedagogical access: only `Ativo` unlocks content, classes, materials, questions, lists, answers, and progress. The implementation still uses the legacy internal DocType currently named `Bruce Student Access`, which should be renamed in a future migration. Students must not access content outside their allowed course or batch.
 
+Preferred Desk routes now use Melura aliases: `/app/melura-live-room/<class>`,
+`/app/melura-professor-dashboard`, and `/app/melura-operational-dashboard`.
+Legacy `/app/bruce-*` routes remain temporarily for compatibility, and DocTypes
+still keep legacy technical names internally. Portuguese translations reduce
+visible legacy names in the UI; the full technical rename remains future work.
+
 Related reading:
 
 - [SECURITY.md](SECURITY.md)

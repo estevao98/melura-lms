@@ -45,7 +45,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertIsNone(result["course_title"])
 		self.assertIsNone(result["batch_title"])
 		self.assertEqual(result["class_status_label"], "Aula ao vivo")
-		self.assertEqual(result["live_room_route"], "/app/bruce-live-room/BLC-2026-00001")
+		self.assertEqual(result["live_room_route"], "/app/melura-live-room/BLC-2026-00001")
 		self.assertEqual(result["notice_logs"], [])
 		get_list.assert_called_once()
 		get_list.assert_called_with(
@@ -101,7 +101,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 
 		self.assertEqual(result["name"], scheduled_class["name"])
 		self.assertEqual(result["status"], scheduled_class["status"])
-		self.assertEqual(result["live_room_route"], "/app/bruce-live-room/BLC-2026-00002")
+		self.assertEqual(result["live_room_route"], "/app/melura-live-room/BLC-2026-00002")
 		self.assertEqual(result["notice_logs"], [])
 		self.assertEqual(get_list.call_count, 2)
 		get_list.assert_any_call(
@@ -269,7 +269,7 @@ class TestBruceProfessorDashboard(unittest.TestCase):
 		self.assertEqual(result[0]["batch_title"], "Turma Maio")
 		self.assertEqual(result[0]["class_status_label"], "Aula agendada")
 		self.assertEqual(result[0]["whatsapp_status_label"], "WhatsApp pendente")
-		self.assertEqual(result[0]["live_room_route"], "/app/bruce-live-room/BLC-2026-00002")
+		self.assertEqual(result[0]["live_room_route"], "/app/melura-live-room/BLC-2026-00002")
 		self.assertEqual(result[0]["notice_logs"], [])
 		add_to_date.assert_called_once_with("2026-05-30 12:00:00", days=7)
 		get_list.assert_called_once_with(

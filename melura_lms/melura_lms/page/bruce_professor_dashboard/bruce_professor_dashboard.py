@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.utils import add_to_date, now_datetime
 
+from melura_lms.services.routes import get_live_room_route
 from melura_lms.services.student_access import get_progress_summary_for_scope
 
 
@@ -142,7 +143,7 @@ def _with_display_values(live_class, include_notice_logs=True):
 	live_class["batch_title"] = _get_link_title("LMS Batch", live_class.get("batch"))
 	live_class["class_status_label"] = _get_class_status_label(live_class.get("status"))
 	live_class["whatsapp_status_label"] = _get_whatsapp_status_label(live_class.get("whatsapp_status"))
-	live_class["live_room_route"] = f"/app/bruce-live-room/{live_class.get('name')}"
+	live_class["live_room_route"] = get_live_room_route(live_class.get("name"))
 	live_class["notice_logs"] = _get_notice_logs(live_class.get("name")) if include_notice_logs else []
 	return live_class
 

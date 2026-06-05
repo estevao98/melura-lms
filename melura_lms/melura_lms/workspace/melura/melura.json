@@ -60,7 +60,7 @@
    "is_query_report": 0,
    "label": "Painel do professor",
    "link_count": 0,
-   "link_to": "bruce-professor-dashboard",
+   "link_to": "melura-professor-dashboard",
    "link_type": "Page",
    "onboard": 0,
    "type": "Link"
@@ -71,7 +71,7 @@
    "is_query_report": 0,
    "label": "Painel operacional",
    "link_count": 0,
-   "link_to": "bruce-operational-dashboard",
+   "link_to": "melura-operational-dashboard",
    "link_type": "Page",
    "onboard": 0,
    "type": "Link"
@@ -221,12 +221,12 @@
   },
   {
    "label": "Painel do professor",
-   "link_to": "bruce-professor-dashboard",
+   "link_to": "melura-professor-dashboard",
    "type": "Page"
   },
   {
    "label": "Painel operacional",
-   "link_to": "bruce-operational-dashboard",
+   "link_to": "melura-operational-dashboard",
    "type": "Page"
   }
  ],

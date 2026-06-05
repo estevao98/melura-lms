@@ -14,6 +14,7 @@ from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_
 	create_notice_log,
 )
 from melura_lms.services.live_class_automation import validate_google_meet_url
+from melura_lms.services.routes import get_live_room_route
 
 
 JITSI_SETTINGS_CACHE_KEY = "melura_lms:v1:jitsi-settings:public"
@@ -67,7 +68,7 @@ def start_live_class(name):
 			"name": doc.name,
 			"status": doc.status,
 			"meeting_url": doc.meeting_url,
-			"live_room_route": f"/app/bruce-live-room/{doc.name}",
+			"live_room_route": get_live_room_route(doc.name),
 			"message": _("A aula já está ao vivo."),
 		}
 
@@ -88,6 +89,6 @@ def start_live_class(name):
 		"name": doc.name,
 		"status": doc.status,
 		"meeting_url": doc.meeting_url,
-		"live_room_route": f"/app/bruce-live-room/{doc.name}",
+		"live_room_route": get_live_room_route(doc.name),
 		"message": _("A aula foi marcada como ao vivo."),
 	}

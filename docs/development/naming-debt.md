@@ -14,7 +14,13 @@ a careful migration to rename safely.
 Known compatibility names kept for this phase:
 
 - `Bruce ...` DocTypes and related Python/JavaScript class names.
-- `/app/bruce-live-room/<class>` and other `bruce_*` route/module paths.
+- Preferred Desk routes now use Melura aliases:
+  `/app/melura-live-room/<class>`, `/app/melura-professor-dashboard`, and
+  `/app/melura-operational-dashboard`.
+- `/app/bruce-live-room/<class>`, `/app/bruce-professor-dashboard`,
+  `/app/bruce-operational-dashboard`, and other `bruce_*` route/module paths
+  remain temporarily for compatibility with existing links and internal module
+  paths.
 - `Bruce Live Class`, whose visible label should be Aula ao vivo.
 - `Bruce Student Access`, whose visible label should be Acesso do aluno or
   Acessos dos alunos and which remains the technical source of pedagogical
@@ -45,11 +51,15 @@ Known compatibility names kept for this phase:
 
 For this phase, keep those internal identifiers for compatibility. Do not expose
 legacy personal names or old video-provider names in new visible product copy.
-A future migration can rename technical DocTypes and routes with patches,
-redirects, fixture updates, and regression tests.
+Translations in `melura_lms/translations/pt-BR.csv` map the legacy technical
+DocType names and common generated Desk labels to neutral Portuguese labels
+where Frappe applies translations. These translations are UI-only and must not
+be used for technical code behavior. A future migration can rename technical
+DocTypes, tables, Python modules, folders, and routes with patches, redirects,
+fixture updates, and regression tests.
 
 The `Melura` Workspace intentionally links to some legacy technical DocTypes
-and routes while displaying neutral labels such as `Aulas ao vivo`,
-`Configurações de WhatsApp`, `Acessos dos alunos`, `Painel do professor`, and
-`Painel operacional`. This avoids a risky technical rename while giving users a
-Melura-branded navigation entry in Frappe Desk.
+while displaying neutral labels such as `Aulas ao vivo`, `Configurações de
+WhatsApp`, and `Acessos dos alunos`. Dashboard Workspace links should prefer
+the Melura page aliases. This avoids a risky technical rename while giving users
+a Melura-branded navigation entry in Frappe Desk.

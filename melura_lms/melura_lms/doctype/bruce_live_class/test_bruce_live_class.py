@@ -102,7 +102,7 @@ class TestBruceLiveClass(unittest.TestCase):
 		create_notice_log.assert_called_once()
 		self.assertEqual(doc.status, "Ao vivo")
 		self.assertEqual(result["meeting_url"], "https://meet.google.com/abc-defg-hij")
-		self.assertEqual(result["live_room_route"], "/app/bruce-live-room/BLC-2026-00001")
+		self.assertEqual(result["live_room_route"], "/app/melura-live-room/BLC-2026-00001")
 
 	def test_start_live_class_requires_meeting_url(self):
 		doc = Mock(status="Agendada", meeting_url="")

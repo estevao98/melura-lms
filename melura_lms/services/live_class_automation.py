@@ -13,6 +13,7 @@ from melura_lms.melura_lms.doctype.bruce_live_class_notice_log.bruce_live_class_
 	STATUS_WARNING,
 	create_notice_log,
 )
+from melura_lms.services.routes import get_live_room_route
 from melura_lms.services import whatsapp
 
 
@@ -315,7 +316,7 @@ def _get_live_class_public_link(live_class):
 		base_url = ""
 
 	if base_url:
-		return f"{base_url.rstrip('/')}/app/bruce-live-room/{live_class.name}"
+		return f"{base_url.rstrip('/')}{get_live_room_route(live_class.name)}"
 
 	return live_class.meeting_url
 

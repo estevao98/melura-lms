@@ -1,16 +1,20 @@
-frappe.pages["bruce-operational-dashboard"].on_page_load = function (wrapper) {
-	const page = frappe.ui.make_app_page({
-		parent: wrapper,
-		title: __("Painel Operacional"),
-		single_column: true,
-	});
+["bruce-operational-dashboard", "melura-operational-dashboard"].forEach((pageName) => {
+	frappe.pages[pageName] = frappe.pages[pageName] || {};
 
-	page.main.addClass("bruce-operational-dashboard");
-	const dashboard = new BruceOperationalDashboard(page);
+	frappe.pages[pageName].on_page_load = function (wrapper) {
+		const page = frappe.ui.make_app_page({
+			parent: wrapper,
+			title: __("Painel Operacional"),
+			single_column: true,
+		});
 
-	page.set_primary_action(__("Atualizar"), () => dashboard.load(), "refresh");
-	dashboard.load();
-};
+		page.main.addClass("bruce-operational-dashboard");
+		const dashboard = new BruceOperationalDashboard(page);
+
+		page.set_primary_action(__("Atualizar"), () => dashboard.load(), "refresh");
+		dashboard.load();
+	};
+});
 
 class BruceOperationalDashboard {
 	constructor(page) {

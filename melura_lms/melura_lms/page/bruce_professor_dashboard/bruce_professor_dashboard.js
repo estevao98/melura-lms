@@ -1,16 +1,20 @@
-frappe.pages["bruce-professor-dashboard"].on_page_load = function (wrapper) {
-	const page = frappe.ui.make_app_page({
-		parent: wrapper,
-		title: __("Painel do Professor"),
-		single_column: true,
-	});
+["bruce-professor-dashboard", "melura-professor-dashboard"].forEach((pageName) => {
+	frappe.pages[pageName] = frappe.pages[pageName] || {};
 
-	page.main.addClass("bruce-professor-dashboard");
-	const dashboard = new BruceProfessorDashboard(page);
+	frappe.pages[pageName].on_page_load = function (wrapper) {
+		const page = frappe.ui.make_app_page({
+			parent: wrapper,
+			title: __("Painel do Professor"),
+			single_column: true,
+		});
 
-	page.set_primary_action(__("Atualizar"), () => dashboard.load(), "refresh");
-	dashboard.load();
-};
+		page.main.addClass("bruce-professor-dashboard");
+		const dashboard = new BruceProfessorDashboard(page);
+
+		page.set_primary_action(__("Atualizar"), () => dashboard.load(), "refresh");
+		dashboard.load();
+	};
+});
 
 class BruceProfessorDashboard {
 	constructor(page) {
@@ -365,7 +369,7 @@ class BruceProfessorDashboard {
 	}
 
 	open_live_room(liveClass) {
-		frappe.set_route("bruce-live-room", liveClass);
+		frappe.set_route("melura-live-room", liveClass);
 	}
 
 	preview_whatsapp_link(name) {
