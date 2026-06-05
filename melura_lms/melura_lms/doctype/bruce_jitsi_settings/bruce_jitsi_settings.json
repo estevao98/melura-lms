@@ -1,6 +1,7 @@
 {
  "actions": [],
  "creation": "2026-05-30 00:00:00.000000",
+ "description": "Configuração legada de vídeo. Mantida somente para compatibilidade; o fluxo atual usa Google Meet externo.",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -19,9 +20,10 @@
    "reqd": 1
   },
   {
-   "default": "bruce",
+   "default": "legacy-video",
    "fieldname": "room_prefix",
    "fieldtype": "Data",
+   "description": "Campo legado mantido somente para compatibilidade. Não é usado no fluxo atual com Google Meet.",
    "label": "Prefixo da sala"
   },
   {

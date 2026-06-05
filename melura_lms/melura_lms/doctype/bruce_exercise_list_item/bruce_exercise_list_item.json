@@ -1,6 +1,7 @@
 {
  "actions": [],
  "creation": "2026-06-01 00:00:00.000000",
+ "description": "Item da lista de exercícios",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",

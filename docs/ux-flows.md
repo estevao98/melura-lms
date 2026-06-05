@@ -14,10 +14,10 @@ neutros em português brasileiro para agenda de aulas ao vivo, aulas ao vivo,
 `Minha Aula`, `Painel do professor`, `Painel operacional`, WhatsApp, conteúdo
 pedagógico e acessos dos alunos.
 
-Alguns destinos ainda apontam para rotas ou DocTypes técnicos com nomes legados,
-como `bruce-professor-dashboard` ou `Bruce Student Access`. Esses nomes devem
-permanecer internos nesta etapa; o usuário deve ver `Melura` ou nomes neutros,
-não os identificadores legados.
+Alguns destinos ainda apontam para rotas ou DocTypes técnicos legados, como
+o dashboard do professor (legacy internal route `bruce-professor-dashboard`) ou o DocType interno legado atualmente chamado
+Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`). Esses nomes devem permanecer internos nesta etapa; o
+usuário deve ver `Melura` ou nomes neutros, não os identificadores legados.
 
 ## Papéis
 
@@ -100,7 +100,7 @@ Regras de UX:
 3. Visualiza aula disponível.
 4. Clica em `Entrar na aula`.
 5. Sistema valida matrícula e disponibilidade.
-6. Aula abre em `/app/bruce-live-room/<aula>`, com página da Melura para abrir o Google Meet externo.
+6. Aula abre em `/app/bruce-live-room/<aula>` (legacy internal route), com página da Melura para abrir o Google Meet externo.
 
 Estados de tela:
 
@@ -114,14 +114,17 @@ Estados de tela:
 Nesta etapa, o aluno possui a página Desk `Minha Aula`, disponível pela rota
 `/app/minha-aula`.
 
-A tela valida o aluno logado no backend e mostra a primeira `Bruce Live Class`
+A tela valida o aluno logado no backend e mostra a primeira aula ao vivo
 permitida pelo status pedagógico e pelo vínculo de curso/turma, priorizando aula
-`Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro. Ela
-exibe título, curso, turma, data e horário, status da aula e ações `Entrar na
-aula` e `Copiar link`. `Entrar na aula` abre a página da aula na Melura, que
-valida o acesso no backend antes de mostrar o link externo do Google Meet.
+`Ao vivo` e, se não houver, a próxima aula `Agendada` com início futuro. A
+A implementação ainda usa o DocType interno legado atualmente chamado
+Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`). A tela exibe título, curso, turma, data e horário, status da
+aula e ações `Entrar na aula` e `Copiar link`. `Entrar na aula` abre a página da
+aula na Melura, que valida o acesso no backend antes de mostrar o link externo
+do Google Meet.
 
-O status de acesso do aluno é controlado em `Bruce Student Access`:
+O status de acesso do aluno é controlado pelo Acesso do aluno, implementado pelo
+DocType interno legado atualmente chamado Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`):
 
 - `Pendente`: não libera aula e orienta contato/aguardo;
 - `Ativo`: libera apenas aulas da turma ou curso configurados;
@@ -150,12 +153,12 @@ Esta é uma versão inicial segura: ela não envia WhatsApp, não chama automaç
 não expõe API key no frontend, não confia em parâmetros enviados pelo navegador
 e não altera o core do LMS. A relação com `LMS Batch Enrollment` e
 `LMS Enrollment` será refinada depois; nesta etapa, a fonte de liberação é
-`Bruce Student Access`, preparada para sincronização futura com o SaaS
-financeiro externo.
+Acesso do aluno, preparada para sincronização futura com o SaaS financeiro
+externo.
 
 ## Fluxo: professor publica material educacional
 
-1. Professor ou administrador autorizado acessa `Bruce Educational Material`.
+1. Professor ou administrador autorizado acessa `Material didático`.
 2. Informa título, tipo, curso e, quando necessário, turma e aula relacionada.
 3. Anexa o PDF quando o material for um arquivo para download.
 4. Define a visibilidade como `Aluno` quando o material puder aparecer para
@@ -176,7 +179,7 @@ Regras de UX:
 
 ## Fluxo: professor cadastra questão ENEM
 
-1. Professor ou administrador autorizado acessa `Bruce ENEM Question`.
+1. Professor ou administrador autorizado acessa `Questão ENEM`.
 2. Informa título, disciplina, dificuldade e enunciado.
 3. Classifica a questão por tópico, competência, habilidade, ano e fonte quando
    esses dados estiverem disponíveis.
@@ -203,7 +206,7 @@ Regras de UX:
 
 ## Fluxo: professor publica lista de exercícios
 
-1. Professor ou administrador autorizado acessa `Bruce Exercise List`.
+1. Professor ou administrador autorizado acessa `Lista de exercícios`.
 2. Informa título, curso e, quando necessário, turma, aula ao vivo ou material
    relacionado.
 3. Adiciona questões ENEM publicadas na tabela `Questões`.
@@ -236,7 +239,7 @@ Regras de UX:
 5. Backend retorna somente questões publicadas da lista, sem gabarito nem
    resolução comentada.
 6. Aluno seleciona alternativas.
-7. Backend salva `Bruce Student Answer` usando sempre o usuário logado.
+7. Backend salva a Resposta do aluno usando sempre o usuário logado.
 8. Backend calcula `Correta` comparando a alternativa marcada com o gabarito da
    questão.
 
@@ -250,9 +253,9 @@ Regras de UX:
 ## Fluxo: aluno consulta o próprio progresso
 
 1. Aluno acessa `/app/minha-aula`.
-2. Backend identifica o usuário logado e consulta `Bruce Student Access`.
+2. Backend identifica o usuário logado e consulta o Acesso do aluno.
 3. Se o status pedagógico for `Ativo`, backend calcula o progresso usando as
-   listas publicadas permitidas e as respostas em `Bruce Student Answer`.
+   listas publicadas permitidas e as Respostas do aluno.
 4. A tela mostra questões respondidas, acertos, erros, aproveitamento e última
    atividade.
 5. Se o status for `Pendente`, `Bloqueado` ou `Expirado`, a tela informa que o
@@ -286,7 +289,7 @@ Regras de UX:
 1. SaaS externo processa cobrança, assinatura ou regra comercial fora do Frappe.
 2. SaaS chama integração backend protegida do Frappe.
 3. Backend identifica o aluno pelo usuário/e-mail e localiza o curso/turma.
-4. Backend cria ou atualiza `Bruce Student Access`.
+4. Backend cria ou atualiza o Acesso do aluno.
 5. O LMS passa a liberar ou bloquear apenas acesso pedagógico.
 6. A página `Minha Aula` reflete o status atualizado sem receber detalhes
    financeiros.
@@ -350,7 +353,7 @@ chama n8n e não cria log de notificação. Ele registra apenas
 ## Fluxo: histórico de avisos e ações por aula ao vivo
 
 Objetivo: permitir rastreabilidade simples sobre o que aconteceu em cada
-`Bruce Live Class`, sem depender apenas do log técnico de WhatsApp.
+aula ao vivo, sem depender apenas do log técnico de WhatsApp.
 
 Eventos registrados nesta etapa:
 
@@ -372,7 +375,7 @@ Campos principais:
 - usuário;
 - data e hora.
 
-O formulário `Bruce Live Class` mostra um histórico recente em português
+O formulário de Aula ao vivo mostra um histórico recente em português
 brasileiro. O `Painel do Professor` também mostra um resumo curto da próxima
 aula. O histórico é operacional e não dispara WhatsApp real, automações ou
 chamadas externas por conta própria.
@@ -422,16 +425,15 @@ ou botão de reenvio a partir do log. A aula também possui a ação
 `Pré-visualizar WhatsApp`, que mostra destinatários e mensagem final antes de
 qualquer envio real.
 
-O administrador configura o provedor em `Bruce Evolution Settings`, escolhendo
+O administrador configura o provedor em `Configurações de WhatsApp`, escolhendo
 `Evolution API` ou `n8n`. A API key da Evolution deve ficar em variável de
 ambiente ou `site_config.json`, nunca em campo aberto nem no frontend.
 
-O administrador também pode cadastrar mensagens em `Bruce WhatsApp Message
-Template`, em português brasileiro, e consultar registros em `Bruce WhatsApp
-Notification Log`.
+O administrador também pode cadastrar mensagens em `Modelos de mensagem`, em
+português brasileiro, e consultar registros em `Logs de WhatsApp`.
 
-Antes de automatizar envios, o administrador pode abrir `Bruce Evolution
-Settings` e clicar em `Testar configuração`. O teste roda no backend, não envia
+Antes de automatizar envios, o administrador pode abrir `Configurações de
+WhatsApp` e clicar em `Testar configuração`. O teste roda no backend, não envia
 mensagem real, não chama endpoint externo e confirma apenas se a integração está
 ativa, se `api_url` e `instance_name` estão preenchidos e se
 `EVOLUTION_API_KEY` existe em ambiente ou `site_config.json`. A API key nunca é
@@ -449,7 +451,7 @@ Para validar a integração com envio real, o administrador pode clicar em
 `Enviar mensagem de teste` no mesmo formulário. Esse fluxo pede um telefone
 digitado manualmente e confirmação antes do envio. O backend envia somente uma
 mensagem simples pela Evolution API, sem resolver alunos da turma e sem disparo
-em massa. O resultado fica registrado em `Bruce WhatsApp Notification Log` com
+em massa. O resultado fica registrado em `Log de WhatsApp` com
 `related_live_class` vazio, pois não está vinculado a uma aula.
 
 Mensagem enviada no teste real:
@@ -477,7 +479,7 @@ Fluxo manual de reenvio futuro previsto:
 3. Usuário escolhe `Reenviar aviso`.
 4. Backend valida permissão, busca credenciais fora do frontend e cria nova
    tentativa.
-5. O resultado fica registrado em `Bruce WhatsApp Notification Log`.
+5. O resultado fica registrado em `Log de WhatsApp`.
 
 ## Fluxo: painel do professor
 
@@ -502,8 +504,7 @@ O painel deve evitar métricas excessivas, tabelas densas e termos administrativ
 ### Versão atual no Desk
 
 A versão atual do painel é uma Page Desk simples chamada `Painel do Professor`.
-Ela usa dados reais do DocType `Bruce Live Class` e mantém a próxima aula em
-destaque:
+Ela usa dados reais de Aula ao vivo e mantém a próxima aula em destaque:
 
 - aula com status `Ao vivo`, quando existir;
 - caso contrário, a próxima aula `Agendada` com início futuro.
@@ -534,15 +535,15 @@ Ações disponíveis:
 
 - `Abrir aula`, quando a aula tiver link, abrindo a página interna da sala;
 - `Iniciar aula`, para aula `Agendada`, chamando a validação backend já existente
-  de `Bruce Live Class` e abrindo a sala interna.
+  da Aula ao vivo e abrindo a sala interna.
 - `Copiar link`, quando a aula tiver link e o navegador permitir cópia simples,
   mantendo o fallback externo.
 - `Pré-visualizar WhatsApp`, chamando o backend de prévia já existente, sem
   enviar mensagem real, sem chamar Evolution API/n8n e sem criar log.
-- `Ir para a aula no Desk`, abrindo o formulário da `Bruce Live Class`.
+- `Ir para a aula no Desk`, abrindo o formulário da Aula ao vivo.
 - `Histórico recente`, mostrando os últimos avisos e ações registrados para a
   aula.
-- `Ver detalhes`, na lista semanal, abrindo o formulário da `Bruce Live Class`.
+- `Ver detalhes`, na lista semanal, abrindo o formulário da Aula ao vivo.
 
 Status visuais exibidos:
 
@@ -557,20 +558,20 @@ Se não houver aula agendada ou ao vivo visível para o usuário, o painel mostr
 `Nenhuma aula ao vivo encontrada.`
 
 Nesta versão, o painel não envia link por WhatsApp. O envio manual continua no
-formulário `Bruce Live Class`, enquanto o painel mostra o status operacional e
+formulário de Aula ao vivo, enquanto o painel mostra o status operacional e
 permite revisar destinatários e mensagem antes de qualquer envio real. Ele ainda
 não reenviará avisos a partir dos logs e não substitui os fluxos administrativos
 do Desk.
 
 ### Base atual para sala ao vivo com Google Meet
 
-A rota `/app/bruce-live-room/<aula>` mostra uma página interna para a aula ao
+A rota legada `/app/bruce-live-room/<aula>` (legacy internal route) mostra uma página interna para a aula ao
 vivo. Ela carrega título, curso, turma, status, provedor `Google Meet` e ações
 `Entrar na aula` e `Copiar link`.
 
 O frontend informa apenas o identificador da aula na rota. A liberação real é
 feita no backend, que valida usuário logado, status da aula, link válido do
-Google Meet, acesso ativo do aluno por `Bruce Student Access`, escopo de
+Google Meet, acesso ativo do aluno, escopo de
 curso/turma, professor responsável ou papel administrativo.
 
 O botão `Entrar na aula` em `/app/minha-aula` abre essa rota interna. O botão
@@ -607,7 +608,7 @@ Regras de UX:
 ### Versão atual no Desk
 
 A versão inicial do painel administrativo é uma Page Desk chamada `Painel
-Operacional`, disponível pela rota `/app/bruce-operational-dashboard`.
+Operacional`, disponível pela rota legada `/app/bruce-operational-dashboard` (legacy internal route).
 
 A tela é funcional e enxuta, com seções em português brasileiro:
 
@@ -619,7 +620,7 @@ A tela é funcional e enxuta, com seções em português brasileiro:
 
 Indicadores exibidos:
 
-- total de alunos com `Bruce Student Access`;
+- total de alunos com acesso pedagógico;
 - alunos `Ativo`, `Pendente`, `Bloqueado` e `Expirado`;
 - aulas ao vivo da semana;
 - próximas aulas da semana sem link ou sala;
@@ -627,9 +628,9 @@ Indicadores exibidos:
 - questões ENEM publicadas;
 - listas de exercícios publicadas;
 - respostas registradas;
-- aproveitamento médio simples a partir de `Bruce Student Answer`;
+- aproveitamento médio simples a partir das Respostas do aluno;
 - alunos ativos sem atividade recente, quando identificável por
-  `Bruce Student Answer`.
+  Respostas do aluno.
 
 A tela não implementa cobrança, dashboard financeiro, newsletter, blog ou CRM.
 Ela não expõe dados sensíveis desnecessários e usa uma API backend agregada que

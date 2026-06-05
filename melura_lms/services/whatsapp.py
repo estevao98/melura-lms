@@ -66,7 +66,7 @@ def send_live_class_link(live_class):
 
 @frappe.whitelist()
 def preview_live_class_link(live_class):
-	"""Preview the WhatsApp message for a Bruce Live Class without sending it."""
+	"""Preview the WhatsApp message for a live class without sending it."""
 	doc = frappe.get_doc("Bruce Live Class", live_class)
 	doc.check_permission("write")
 	result = build_live_class_link_preview(doc)

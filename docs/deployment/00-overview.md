@@ -9,7 +9,7 @@ repeatable deployment, not a replacement for infrastructure ownership.
 
 This repository contains the pedagogical LMS core:
 
-- student access through `Bruce Student Access`;
+- student access through the legacy internal DocType currently named `Bruce Student Access`;
 - `Minha Aula`;
 - live classes with external Google Meet links;
 - educational materials, ENEM questions, exercise lists, answers, and progress;
@@ -28,7 +28,7 @@ The external financial/commercial SaaS remains responsible for:
 - financial operations.
 
 A future external SaaS integration may update pedagogical access status and
-opaque references in `Bruce Student Access`, but it must not move billing or
+opaque references in the legacy internal DocType currently named `Bruce Student Access`, but it must not move billing or
 commercial logic into `melura_lms`.
 
 ## Out Of Scope

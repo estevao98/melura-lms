@@ -101,8 +101,9 @@ extend them when they fit.
 
 ## 7. Core Domains
 
-- Student Access: controls pedagogical access through the legacy internal
-  `Bruce Student Access` DocType.
+- Student Access: controls pedagogical access through access records. The
+  implementation still uses the legacy internal DocType currently named
+  `Bruce Student Access`.
 - Live Classes: represents scheduled, live, ended, or canceled classes that
   open externally in Google Meet.
 - Student Home / "Minha Aula": gives students one simple entry point for class,
@@ -127,20 +128,20 @@ extend them when they fit.
 
 | Domain | Main DocType / Entity | Responsibility |
 | ------ | --------------------- | -------------- |
-| Student Access | Bruce Student Access | Legacy internal DocType that stores pedagogical access status, student, course/batch scope, access window, and opaque external reference. |
-| Live Classes | Bruce Live Class | Legacy internal DocType that stores class metadata, LMS scope, instructor, Google Meet link, status, schedule source, and WhatsApp status. |
+| Student Access | Acesso do aluno | Implemented by the legacy internal DocType currently named `Bruce Student Access`; stores pedagogical access status, student, course/batch scope, access window, and opaque external reference. |
+| Live Classes | Aula ao vivo | Implemented by the legacy internal DocType currently named `Bruce Live Class`; stores class metadata, LMS scope, instructor, Google Meet link, status, schedule source, and WhatsApp status. |
 | Live Class Schedules | Melura Live Class Schedule | Stores recurring schedule rules, default Google Meet URL, generation window, and reminder settings. |
-| Educational Materials | Bruce Educational Material | Stores learning materials, publication state, visibility, file/reference, and LMS scope. |
-| ENEM Question Bank | Bruce ENEM Question | Stores ENEM question content, classification, answer key, resolution metadata, publication state, and LMS scope. |
-| ENEM Alternatives | Bruce ENEM Question Alternative | Stores alternatives for ENEM questions. |
-| Exercise Lists | Bruce Exercise List | Stores published exercise lists, LMS scope, related content, and publication state. |
-| Exercise List Items | Bruce Exercise List Item | Links questions to exercise lists with ordering and optional points. |
-| Student Answers | Bruce Student Answer | Stores the logged-in student's selected answer and server-computed correctness. |
-| Legacy Video Settings | Bruce Jitsi Settings | Obsolete internal DocType kept temporarily for compatibility; not part of the Melura MVP video path. |
-| WhatsApp Settings | Bruce Evolution Settings | Stores non-sensitive provider configuration and references to secrets kept outside Git/frontend. |
-| WhatsApp Templates | Bruce WhatsApp Message Template | Stores Brazilian Portuguese WhatsApp message templates. |
-| WhatsApp Logs | Bruce WhatsApp Notification Log | Records WhatsApp send/test attempts, status, timestamps, related class, and short errors. |
-| Live Class History | Bruce Live Class Notice Log | Records operational events and notices for live classes. |
+| Educational Materials | Material didático | Implemented by the legacy internal DocType currently named `Bruce Educational Material`; stores learning materials, publication state, visibility, file/reference, and LMS scope. |
+| ENEM Question Bank | Questão ENEM | Implemented by the legacy internal DocType currently named `Bruce ENEM Question`; stores ENEM question content, classification, answer key, resolution metadata, publication state, and LMS scope. |
+| ENEM Alternatives | Alternativa da questão ENEM | Implemented by the legacy internal child DocType currently named `Bruce ENEM Question Alternative`; stores alternatives for ENEM questions. |
+| Exercise Lists | Lista de exercícios | Implemented by the legacy internal DocType currently named `Bruce Exercise List`; stores published exercise lists, LMS scope, related content, and publication state. |
+| Exercise List Items | Item da lista de exercícios | Implemented by the legacy internal child DocType currently named `Bruce Exercise List Item`; links questions to exercise lists with ordering and optional points. |
+| Student Answers | Resposta do aluno | Implemented by the legacy internal DocType currently named `Bruce Student Answer`; stores the logged-in student's selected answer and server-computed correctness. |
+| Legacy Video Settings | Configuração legada de vídeo | Implemented by the obsolete legacy internal DocType currently named `Bruce Jitsi Settings`; kept temporarily for compatibility and not part of the Melura MVP video path. |
+| WhatsApp Settings | Configurações de WhatsApp | Implemented by the legacy internal DocType currently named `Bruce Evolution Settings`; stores non-sensitive provider configuration and references to secrets kept outside Git/frontend. |
+| WhatsApp Templates | Modelo de mensagem | Implemented by the legacy internal DocType currently named `Bruce WhatsApp Message Template`; stores Brazilian Portuguese WhatsApp message templates. |
+| WhatsApp Logs | Log de WhatsApp | Implemented by the legacy internal DocType currently named `Bruce WhatsApp Notification Log`; records WhatsApp send/test attempts, status, timestamps, related class, and short errors. |
+| Live Class History | Histórico da aula ao vivo | Implemented by the legacy internal DocType currently named `Bruce Live Class Notice Log`; records operational events and notices for live classes. |
 
 ## 9. Access and Permission Architecture
 
@@ -149,8 +150,9 @@ authorization.
 
 Student identity must come from `frappe.session.user`. Students must not send
 `student_user`, course, or batch from the frontend as trusted authorization
-input. Student access is controlled by `Bruce Student Access`, and student
-content must be scoped to the allowed course and/or batch.
+input. Student access is controlled by access records in the legacy internal
+DocType currently named `Bruce Student Access`, and student content must be
+scoped to the allowed course and/or batch.
 
 Admin and teacher dashboards must reject normal students. Permission behavior
 must match `docs/roles-permissions.md` and `SECURITY.md`.
@@ -166,7 +168,8 @@ Access statuses:
 Student opens "Minha Aula":
 
 1. Backend identifies the logged-in student.
-2. Backend checks `Bruce Student Access`.
+2. Backend checks the access record in the legacy internal DocType currently
+   named `Bruce Student Access`.
 3. If access is "Ativo", the page shows allowed class, materials, exercise
    lists, and progress.
 4. If access is not active, the page shows a blocked/pending/expired state
@@ -181,7 +184,8 @@ Student enters live class:
 
 Teacher starts/opens a live class:
 
-1. Teacher uses "Painel do Professor" or the `Bruce Live Class` form.
+1. Teacher uses "Painel do Professor" or the Aula ao vivo form, implemented by
+   the legacy internal DocType currently named `Bruce Live Class`.
 2. Backend validates role, class status, and responsibility/scope.
 3. The class opens in the internal live-room page and may move to "Ao vivo".
 
@@ -202,7 +206,8 @@ Future external SaaS updates student pedagogical status:
 
 1. External SaaS calls a protected backend endpoint.
 2. Backend verifies the webhook and resolves student/course/batch.
-3. Backend updates only `Bruce Student Access` status and opaque references.
+3. Backend updates only the student access status and opaque references in the
+   legacy internal DocType currently named `Bruce Student Access`.
 
 ## 11. Integration Architecture
 

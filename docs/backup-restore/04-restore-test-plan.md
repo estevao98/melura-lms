@@ -36,11 +36,11 @@ protected during the test.
 
 - [ ] Login works with a safe test account.
 - [ ] `melura_lms` appears in the installed app list.
-- [ ] Key DocTypes are available, including `Bruce Student Access`,
-      `Bruce Live Class`, `Bruce Educational Material`,
-      `Bruce ENEM Question`, `Bruce Exercise List`, `Bruce Student Answer`,
-      live-class schedules, `Bruce Evolution Settings`, and
-      `Bruce WhatsApp Notification Log`.
+- [ ] Key DocTypes are available, including Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`),
+      Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`), Material didático (legacy internal DocType currently named `Bruce Educational Material`),
+      Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`), Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`), Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`),
+      live-class schedules, Configurações de WhatsApp (legacy internal DocType currently named `Bruce Evolution Settings`), and
+      Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`).
 - [ ] Student access records exist and statuses such as `Ativo`, `Pendente`,
       `Bloqueado`, and `Expirado` behave as expected.
 - [ ] Live class records load and do not expose unauthorized room data.

@@ -5,6 +5,7 @@
  "autoname": "format:BEL-{YYYY}-{#####}",
  "creation": "2026-06-01 00:00:00.000000",
  "default_view": "List",
+ "description": "Lista de exercícios",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",

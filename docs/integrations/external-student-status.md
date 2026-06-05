@@ -10,7 +10,7 @@ capture, and financial/commercial workflows.
 ## Purpose
 
 The integration exists only to let a trusted external system update
-`Bruce Student Access.access_status` after a commercial decision has already
+Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) `access_status` after a commercial decision has already
 been made outside this app.
 
 Allowed Melura LMS statuses:
@@ -49,7 +49,7 @@ Melura LMS must never receive or store:
 - API keys, webhook secrets, passwords, or provider credentials;
 - complete provider payloads.
 
-The current foundation updates existing `Bruce Student Access` records only.
+The current foundation updates existing Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) records only.
 It does not create subscriptions, invoices, leads, CRM records, billing
 entities, or financial records.
 
@@ -118,7 +118,7 @@ Example with placeholders only:
 ```
 
 If `access_name` is not sent, the service can locate exactly one existing
-`Bruce Student Access` record by `external_reference`.
+Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) record by `external_reference`.
 
 The response is intentionally small:
 
@@ -151,7 +151,7 @@ Operational logging, when added, should store only:
 
 - timestamp;
 - result status;
-- target `Bruce Student Access` reference or opaque correlation ID;
+- target Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) reference or opaque correlation ID;
 - short error category.
 
 It must not store secrets, signatures, card data, payment payloads, customer
@@ -182,7 +182,7 @@ signature, provider payload, or student private data.
 - Confirm missing secret fails closed.
 - Confirm missing signature fails closed.
 - Confirm invalid signature fails closed.
-- Confirm a valid signed payload updates only `Bruce Student Access`.
+- Confirm a valid signed payload updates only Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`).
 - Confirm `Ativo` unlocks only normal pedagogical access through existing
   backend checks.
 - Confirm `Pendente`, `Bloqueado`, and `Expirado` do not unlock content.
@@ -196,7 +196,7 @@ signature, provider payload, or student private data.
 
 ## Current Limitations
 
-- The integration updates existing `Bruce Student Access` records only.
+- The integration updates existing Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) records only.
 - There is no persistent idempotency-event table or replay history.
 - There is no provider-specific parser.
 - There is no billing, checkout, subscription, CRM, blog, newsletter, or lead

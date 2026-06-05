@@ -18,7 +18,7 @@ incidents.
 
 Backup and restore planning must cover:
 
-- Frappe site database data, including `Bruce Student Access`, live classes,
+- Frappe site database data, including Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`), aulas ao vivo,
   educational materials, ENEM questions, exercise lists, student answers,
   progress-related records, WhatsApp notification logs, and settings DocTypes;
 - private files needed by protected pedagogical content;

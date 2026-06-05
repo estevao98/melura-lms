@@ -33,13 +33,14 @@ Source chunks used:
 | Incident response | `SECURITY.md` defines vulnerability reporting and severity; current logs avoid secrets by policy | Add incident response runbook, evidence preservation, secret rotation checklist, and notification decision tree | Decide who evaluates incidents, who communicates, and criteria for ANPD/titular notification |
 | Logs | Notice and WhatsApp logs record operational events; provider responses are redacted for sensitive keys | Define retention, access review, and log minimization for Frappe logs, provider logs, and backups | Decide retention periods and acceptable personal data in logs |
 | Controller/operator/processor boundary | Docs state future financial SaaS is external and this app is pedagogical | Maintain provider/suboperator map for hosting, Google Meet, Evolution API, n8n, email/storage/backup, and future SaaS | Define whether Melura, external SaaS, and providers act as controller/operator in each flow |
-| Future external SaaS webhook risk | No webhook implemented in current feature; `Bruce Student Access.external_reference` is documented as opaque | Implement signature/secret validation, idempotency, payload schema, allowed status mapping, and minimal logging | Decide trusted source, payload contract, allowed references, and failure handling |
+| Future external SaaS webhook risk | No webhook implemented in current feature; the Acesso do aluno `external_reference` field is documented as opaque and is currently implemented by the legacy internal DocType currently named `Bruce Student Access` | Implement signature/secret validation, idempotency, payload schema, allowed status mapping, and minimal logging | Decide trusted source, payload contract, allowed references, and failure handling |
 
 ## Current Technical Requirements
 
 - Keep custom work inside `apps/melura_lms`.
 - Do not modify `frappe/`, `lms/`, or `frappe-ui/`.
-- Use `Bruce Student Access` as the source of pedagogical access.
+- Use Acesso do aluno as the source of pedagogical access. The implementation
+  still uses the legacy internal DocType currently named `Bruce Student Access`.
 - Unlock protected content only for `Ativo` access.
 - Treat `Pendente`, `Bloqueado`, and `Expirado` as non-unlocking statuses.
 - Derive current student from `frappe.session.user`.

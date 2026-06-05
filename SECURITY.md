@@ -16,7 +16,8 @@ The main security rule is simple:
 Frontend visibility is not authorization. Hiding a button in Vue, Desk, or a
 custom page does not protect the action. Every sensitive operation must be
 protected by backend checks, and student access must be controlled through
-`Bruce Student Access`.
+student access records. The implementation still uses the legacy internal
+DocType currently named `Bruce Student Access`.
 
 Core principles:
 
@@ -36,9 +37,11 @@ Project examples:
   checks before returning operational data.
 - live classes and the live-room route must validate access before returning a
   Google Meet link.
-- `Bruce Educational Material`, `Bruce ENEM Question`, `Bruce Exercise List`,
-  `Bruce Student Answer`, and student progress APIs must be scoped by
-  `Bruce Student Access`.
+- Materials, ENEM questions, exercise lists, student answers, and student
+  progress APIs must be scoped by active student access. The current internal
+  technical DocTypes still use legacy names such as `Bruce Educational
+  Material`, `Bruce ENEM Question`, `Bruce Exercise List`, `Bruce Student
+  Answer`, and `Bruce Student Access`.
 
 ## 2. Supported Versions
 
@@ -261,8 +264,9 @@ Accounts should be separated by responsibility:
 
 ## 11. Student Access Security
 
-`Bruce Student Access` is the source of pedagogical access inside this Frappe
-app.
+Student access is the source of pedagogical access inside this Frappe app. The
+implementation still uses the legacy internal DocType currently named
+`Bruce Student Access`.
 
 User-facing statuses must stay in Brazilian Portuguese:
 
@@ -307,8 +311,9 @@ The live-room route must validate:
 - logged-in user;
 - live class exists;
 - class has a valid Google Meet `meeting_url`;
-- student has `Bruce Student Access` with status `Ativo` for the correct course
-  or batch;
+- student has active access with status `Ativo` for the correct course or
+  batch, stored for now in the legacy internal DocType currently named
+  `Bruce Student Access`;
 - teacher/admin has the correct role;
 - class status allows access.
 
@@ -339,21 +344,23 @@ in Brazilian Portuguese.
 
 ## 14. Educational Materials Security
 
-Rules for `Bruce Educational Material`:
+Rules for Material didático, implemented by the legacy internal DocType
+currently named `Bruce Educational Material`:
 
 - student materials must be published;
 - student materials must have visibility `Aluno`;
 - `Professor` and `Interno` visibility must not be returned to `LMS Student`;
 - `published_at` is set server-side when published;
 - frontend must not define student/course/batch access;
-- student receives only materials compatible with active `Bruce Student Access`;
+- student receives only materials compatible with active student access;
 - `Pendente`, `Bloqueado`, and `Expirado` do not unlock materials;
 - private file access must require authorization;
 - avoid public URLs for private student-only files unless intentionally public.
 
 ## 15. ENEM Question Bank Security
 
-Rules for `Bruce ENEM Question`:
+Rules for Questão ENEM, implemented by the legacy internal DocType currently
+named `Bruce ENEM Question`:
 
 - student-visible questions must be published;
 - published questions must have answer key configured;
@@ -367,12 +374,14 @@ Rules for `Bruce ENEM Question`:
 
 ## 16. Exercise Lists and Student Answers Security
 
-Rules for `Bruce Exercise List` and `Bruce Student Answer`:
+Rules for Lista de exercícios and Resposta do aluno, implemented by the legacy
+internal DocTypes currently named `Bruce Exercise List` and
+`Bruce Student Answer`:
 
 - student-visible lists must be published;
 - published list must have at least one question;
 - `published_at` is set server-side;
-- student receives only lists compatible with active `Bruce Student Access`;
+- student receives only lists compatible with active student access;
 - student can fetch only questions from allowed published lists;
 - student question API must not return answer key or commented resolution before
   answer submission when controlled attempts are implemented;
@@ -390,7 +399,7 @@ Rules:
 - progress is calculated server-side;
 - student cannot provide another `student_user` to view progress;
 - student sees only their own progress;
-- student progress is shown only when `Bruce Student Access` is `Ativo`;
+- student progress is shown only when student access is `Ativo`;
 - `Pendente`, `Bloqueado`, and `Expirado` return blocked state without
   pedagogical metrics;
 - teacher/admin summary by class requires authorized role;
@@ -635,7 +644,7 @@ If a secret was committed:
 - [ ] New endpoints validate authentication.
 - [ ] New endpoints validate authorization server-side.
 - [ ] Student data queries are scoped to `frappe.session.user` and
-      `Bruce Student Access`.
+      the legacy internal DocType currently named `Bruce Student Access`.
 - [ ] Course/batch parameters from frontend do not grant access.
 - [ ] Admin-only APIs reject `LMS Student`.
 - [ ] Teacher/admin actions validate role.
@@ -653,7 +662,7 @@ If a secret was committed:
 
 | Area | Main Rule | Risk if Broken |
 | ---- | --------- | -------------- |
-| Student access | `Bruce Student Access` controls pedagogical access. | Blocked or unauthorized students may access protected content. |
+| Student access | Student access controls pedagogical access; the implementation still uses the legacy internal DocType currently named `Bruce Student Access`. | Blocked or unauthorized students may access protected content. |
 | Live class/Google Meet | Google Meet links are returned only after backend permission checks. | Unauthorized users may enter live classes. |
 | Materials | Student materials must be published and allowed for the user scope. | Private or internal materials may leak. |
 | ENEM questions | Student APIs must not expose answer keys too early. | Students may see answers before attempting questions. |

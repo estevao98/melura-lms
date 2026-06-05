@@ -46,7 +46,7 @@ Never add a global cache for:
 - any response that includes phone, email, recipient, message body, access
   status, answer data, live-room access context, or private file references.
 
-`Bruce Student Access` remains the access source of truth. Its status must be
+Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) remains the access source of truth. Its status must be
 read fresh for protected student flows unless a future cache is explicitly
 scoped to the authenticated user and invalidated on every relevant access
 change.

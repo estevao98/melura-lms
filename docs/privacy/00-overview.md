@@ -21,7 +21,8 @@ The audit has four practical goals:
 The most important security rule remains unchanged: frontend visibility is not
 authorization. Sensitive access decisions must be made on the backend, using
 the authenticated user from `frappe.session.user` and the pedagogical access
-record in `Bruce Student Access`.
+record in Acesso do aluno. The implementation still uses the legacy internal
+DocType currently named `Bruce Student Access`.
 
 ## Product Boundary
 
@@ -78,8 +79,9 @@ webhook secrets, provider tokens, auth headers, and private configuration must
 not be exposed to frontend responses, HTML, repository files, or logs.
 
 The future external financial SaaS is outside this app. It may send protected
-access-status updates to `Bruce Student Access`, but only after server-side
-origin validation and payload minimization.
+access-status updates to Acesso do aluno, implemented for now by the legacy
+internal DocType currently named `Bruce Student Access`, but only after
+server-side origin validation and payload minimization.
 
 ## LGPD Knowledge Usage
 

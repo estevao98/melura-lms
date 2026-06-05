@@ -4,6 +4,7 @@
  "autoname": "format:BWN-{YYYY}-{#####}",
  "creation": "2026-05-30 00:00:00.000000",
  "default_view": "List",
+ "description": "Log de WhatsApp",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",

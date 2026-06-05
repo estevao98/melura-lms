@@ -24,15 +24,20 @@ dependencies.
 
 ## What Should Be Retained
 
-- `Bruce Student Access` records needed to explain why a student had or did not
+- Acesso do aluno records, currently implemented by the legacy internal DocType
+  currently named `Bruce Student Access`, needed to explain why a student had or did not
   have access at a given time.
-- `Bruce Live Class` records needed for class history, support, and operational
+- Aula ao vivo records, currently implemented by the legacy internal DocType
+  currently named `Bruce Live Class`, needed for class history, support, and operational
   audit.
-- `Bruce Live Class Notice Log` entries for class actions such as opening,
-  starting, previewing, or send failures.
-- `Bruce Student Answer` records while needed for student progress, course
-  support, educational review, and accountability.
-- `Bruce WhatsApp Notification Log` entries while needed for communication
+- Histórico da aula ao vivo entries, currently implemented by the legacy
+  internal DocType currently named `Bruce Live Class Notice Log`, for class actions such
+  as opening, starting, previewing, or send failures.
+- Resposta do aluno records, currently implemented by the legacy internal
+  DocType currently named `Bruce Student Answer`, while needed for student progress,
+  course support, educational review, and accountability.
+- Log de WhatsApp entries, currently implemented by the legacy internal DocType
+  currently named `Bruce WhatsApp Notification Log`, while needed for communication
   support, resend history, provider dispute diagnosis, and incident review.
 - Settings DocTypes as long as the integration/configuration is active.
 

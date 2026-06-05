@@ -149,16 +149,16 @@ Implementação atual:
 
 - a página Desk `Minha Aula` (`/app/minha-aula`) está liberada para o papel
   `LMS Student`;
-- a tela consulta somente a próxima `Bruce Live Class` ativa ou agendada
+- a tela consulta somente a próxima Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`) ativa ou agendada
   permitida ao aluno logado no backend;
-- a tela também consulta materiais recentes de `Bruce Educational Material`
+- a tela também consulta materiais recentes de Material didático (legacy internal DocType currently named `Bruce Educational Material`)
   permitidos ao aluno logado no backend;
-- o status pedagógico do aluno é representado em `Bruce Student Access` como
+- o status pedagógico do aluno é representado em Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) como
   `Pendente`, `Ativo`, `Bloqueado` ou `Expirado`;
 - somente `Ativo`, dentro do período configurado, libera aulas;
 - a liberação é escopada por `LMS Batch` quando a turma estiver preenchida ou
   por `LMS Course` quando houver apenas curso;
-- a ação do aluno abre `/app/bruce-live-room/<aula>` e o backend valida o acesso
+- a ação do aluno abre a rota legada `/app/bruce-live-room/<aula>` e o backend valida o acesso
   antes de retornar dados do Google Meet;
 - o link externo salvo permanece disponível apenas como cópia/fallback;
 - em materiais, o aluno só vê registros publicados, com visibilidade `Aluno` e
@@ -169,11 +169,11 @@ Implementação atual:
   pedagógicas liberadas na seção de progresso;
 - a tela não inicia aula, não agenda aula, não envia WhatsApp, não consulta logs
   e não expõe configurações sensíveis;
-- `Bruce Live Class` e `Bruce Educational Material` possuem permissões scripted
+- Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`) e Material didático (legacy internal DocType currently named `Bruce Educational Material`) possuem permissões scripted
   na app customizada para que `LMS Student` não leia registros fora do seu
   escopo;
 - a relação com `LMS Batch Enrollment` e `LMS Enrollment` ainda será refinada
-  depois. Nesta etapa, a fonte segura de liberação é `Bruce Student Access`,
+  depois. Nesta etapa, a fonte segura de liberação é Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`),
   preparada para ser atualizada por integração externa.
 
 ### Administrador LMS
@@ -241,7 +241,7 @@ Limites:
 ### Aulas ao vivo
 
 As aulas ao vivo serão representadas futuramente por DocType customizado, como
-`Bruce Live Class`, mas este documento não cria esse DocType.
+Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`), mas este documento não cria esse DocType.
 
 Permissões esperadas:
 
@@ -269,7 +269,7 @@ Regras importantes:
 
 ### Materiais educacionais
 
-Materiais educacionais são representados por `Bruce Educational Material`.
+Materiais educacionais são representados por Material didático (legacy internal DocType currently named `Bruce Educational Material`).
 
 Permissões esperadas:
 
@@ -294,8 +294,8 @@ Regras importantes:
 
 ### Banco de questões ENEM
 
-Questões ENEM são representadas por `Bruce ENEM Question`, com alternativas na
-tabela filha `Bruce ENEM Question Alternative`.
+Questões ENEM são representadas por Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`), com alternativas na
+tabela filha Alternativa da questão ENEM (legacy internal child DocType currently named `Bruce ENEM Question Alternative`).
 
 Permissões esperadas:
 
@@ -312,16 +312,16 @@ Regras importantes:
 
 - a questão publicada precisa ter enunciado e gabarito;
 - quando publicada, `published_at` é preenchido no backend;
-- alunos só recebem questões publicadas e compatíveis com `Bruce Student Access`;
+- alunos só recebem questões publicadas e compatíveis com Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`);
 - a API inicial de aluno não retorna gabarito nem resolução comentada;
 - esta etapa não implementa simulado completo, tentativa de resposta, nota ou
   correção do aluno.
 
 ### Listas de exercícios
 
-Listas de exercícios são representadas por `Bruce Exercise List`, com questões
-vinculadas pela tabela filha `Bruce Exercise List Item`. As respostas do aluno
-são registradas em `Bruce Student Answer`.
+Listas de exercícios são representadas por Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`), com questões
+vinculadas pela tabela filha Item da lista de exercícios (legacy internal child DocType currently named `Bruce Exercise List Item`). As respostas do aluno
+são registradas em Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`).
 
 Permissões esperadas:
 
@@ -339,11 +339,11 @@ Regras importantes:
 
 - lista publicada precisa ter pelo menos uma questão;
 - quando publicada, `published_at` é preenchido no backend;
-- alunos só veem listas publicadas e compatíveis com `Bruce Student Access`;
+- alunos só veem listas publicadas e compatíveis com Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`);
 - a página `/app/minha-aula` mostra listas permitidas na seção `Listas de
   exercícios`;
 - a API de aluno retorna questões da lista sem gabarito nem resolução comentada;
-- `Bruce Student Answer` é salvo pelo backend usando o usuário logado, nunca um
+- Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`) é salvo pelo backend usando o usuário logado, nunca um
   aluno enviado pelo frontend;
 - `is_correct` é calculado no backend a partir do gabarito da questão;
 - aluno com acesso `Pendente`, `Bloqueado` ou `Expirado` não lista nem responde
@@ -361,18 +361,18 @@ Contrato esperado em alto nível:
 
 - identificar o aluno pelo usuário/e-mail já existente no Frappe;
 - informar curso e, preferencialmente, turma;
-- atualizar `Bruce Student Access.access_status` para `Pendente`, `Ativo`,
+- atualizar o status pedagógico no Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) para `Pendente`, `Ativo`,
   `Bloqueado` ou `Expirado`;
 - preencher `external_reference` com uma referência opaca e não sensível;
 - não enviar API keys, tokens, dados de cartão ou payloads financeiros completos.
 
 Até essa integração existir, a operação pode cadastrar ou ajustar
-`Bruce Student Access` manualmente por usuário autorizado.
+Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) manualmente por usuário autorizado.
 
 ### Logs de WhatsApp
 
 Os logs de WhatsApp serão representados futuramente por DocType customizado,
-como `Bruce WhatsApp Message Log`, mas este documento não cria esse DocType.
+como Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`), mas este documento não cria esse DocType.
 
 Permissões esperadas:
 
@@ -396,12 +396,12 @@ Regras importantes:
 ### KPIs
 
 Os KPIs administrativos básicos poderão ser consultados em tempo real ou
-armazenados futuramente em estrutura como `Bruce Admin KPI Snapshot`, mas este
+armazenados futuramente em estrutura como Snapshot de KPI (legacy internal DocType currently named `Bruce Admin KPI Snapshot`), mas este
 documento não cria esse DocType.
 
 Implementação atual:
 
-- a página Desk `Painel Operacional` (`/app/bruce-operational-dashboard`) mostra
+- a página Desk `Painel Operacional` (rota legada `/app/bruce-operational-dashboard`) mostra
   agregados operacionais iniciais para administração;
 - o backend valida acesso antes de retornar dados agregados;
 - o usuário `Administrator`, `System Manager`, `Administrador LMS`,
@@ -431,8 +431,8 @@ Regras importantes:
 
 ### Progresso do aluno
 
-O progresso inicial do aluno é calculado a partir de `Bruce Exercise List` e
-`Bruce Student Answer`, respeitando o escopo de `Bruce Student Access`.
+O progresso inicial do aluno é calculado a partir de Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`) e
+Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`), respeitando o escopo de Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`).
 
 Permissões esperadas:
 
@@ -459,7 +459,7 @@ Regras importantes:
 ### Configurações
 
 As configurações operacionais poderão ser representadas futuramente por DocType
-customizado, como `Bruce Integration Settings`, mas este documento não cria esse
+customizado, como Configuração de integração (legacy internal DocType currently named `Bruce Integration Settings`), mas este documento não cria esse
 DocType.
 
 Permissões esperadas:

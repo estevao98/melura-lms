@@ -77,7 +77,7 @@ flowchart TD
 - `LICENSE`: licença MIT.
 - `docs/design-system.md`: regras de UI, UX, linguagem e consistência.
 - `docs/roles-permissions.md`: papéis, permissões e separação de contas.
-- `docs/student-access-integration.md`: regras de `Bruce Student Access` e integração externa futura.
+- `docs/student-access-integration.md`: regras de acesso do aluno e integração externa futura.
 - `docs/decisions/ADR-0002-google-meet-only-live-flow.md`: decisão de Google Meet externo como único fluxo de vídeo do MVP.
 - `docs/development/naming-debt.md`: dívida de nomenclatura técnica legada.
 - `docs/ux-flows.md`: fluxos de professor, aluno, admin, Google Meet, WhatsApp e progresso.
@@ -144,7 +144,7 @@ Credenciais de provedores nunca devem ser expostas no frontend, renderizadas em 
 
 Veja [SECURITY.md](SECURITY.md) para a política completa.
 
-Autorização backend é obrigatória. Visibilidade no frontend não é autorização. `Bruce Student Access` controla o acesso pedagógico: somente `Ativo` desbloqueia conteúdo, aulas, materiais, questões, listas, respostas e progresso. Alunos não devem acessar conteúdo fora do curso ou turma permitidos.
+Autorização backend é obrigatória. Visibilidade no frontend não é autorização. O acesso do aluno controla a liberação pedagógica: somente `Ativo` desbloqueia conteúdo, aulas, materiais, questões, listas, respostas e progresso. A implementação ainda usa o DocType interno legado atualmente chamado `Bruce Student Access`, que será renomeado em uma migração futura. Alunos não devem acessar conteúdo fora do curso ou turma permitidos.
 
 Leituras relacionadas:
 

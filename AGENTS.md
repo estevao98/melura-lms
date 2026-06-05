@@ -20,7 +20,7 @@ The product must remain simple for:
 
 This app handles pedagogical LMS features: live classes with Google Meet
 external links,
-teacher and operational dashboards, `Minha Aula`, Bruce Student Access,
+teacher and operational dashboards, `Minha Aula`, student access,
 educational materials, ENEM questions, exercise lists, student answers,
 progress, WhatsApp notification preparation, protected Evolution API / n8n
 flows, logs, and Portuguese user-facing interfaces.
@@ -100,7 +100,8 @@ The preferred path is extension, not core modification.
 
 ## 7. Student Access Rules
 
-`Bruce Student Access` is the source of pedagogical access.
+Student access is the source of pedagogical access. The implementation still
+uses the legacy internal DocType currently named `Bruce Student Access`.
 
 Allowed statuses:
 

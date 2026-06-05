@@ -902,13 +902,13 @@ Suggested sections:
 
 Examples:
 
-- `Bruce Live Class`: main information, pedagogical scope, Google Meet link, WhatsApp,
+- Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`): main information, pedagogical scope, Google Meet link, WhatsApp,
   history.
-- `Bruce Educational Material`: main information, pedagogical scope,
+- Material didático (legacy internal DocType currently named `Bruce Educational Material`): main information, pedagogical scope,
   publication, attachment.
-- `Bruce ENEM Question`: main information, classification, alternatives, answer
+- Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`): main information, classification, alternatives, answer
   key, commented resolution, publication.
-- `Bruce Student Access`: student, scope, status, access window, external
+- Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`): student, scope, status, access window, external
   reference.
 
 ## 8. Page Patterns
@@ -1021,7 +1021,7 @@ Current reference:
 
 - `/app/minha-aula` is the current initial student route.
 - It shows live class access, materials, exercise lists, and progress based on
-  backend validation and `Bruce Student Access`.
+  backend validation and Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`).
 
 Future:
 
@@ -1483,7 +1483,7 @@ Examples of data that must not appear in student/teacher UI:
 
 ### Phase 2 - After
 
-- Future: `bruce_tokens.css`.
+- Future: tokens file (legacy internal name `bruce_tokens.css`).
 - Future: refactor mobile portal.
 - Future: light/dark theme implementation.
 - Future: PWA shell.
@@ -1500,7 +1500,7 @@ Examples of data that must not appear in student/teacher UI:
 
 ## 18. Recommended Next Steps
 
-1. Future: create `bruce_tokens.css` in a separate feature.
+1. Future: create the tokens file (legacy internal name `bruce_tokens.css`) in a separate feature.
 2. Future: apply tokens only to new custom screens first.
 3. Future: refactor the paused mobile student portal using this design system.
 4. Future: create user documentation with screenshots.

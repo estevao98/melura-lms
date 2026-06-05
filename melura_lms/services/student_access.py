@@ -107,7 +107,7 @@ def get_current_student_access_status():
 
 
 def can_current_student_access_live_class(live_class):
-	"""Return whether the logged student may access the given Bruce Live Class."""
+	"""Return whether the logged student may access the given live class."""
 	if isinstance(live_class, str):
 		live_class = frappe.get_doc("Bruce Live Class", live_class)
 
@@ -118,7 +118,7 @@ def can_current_student_access_live_class(live_class):
 
 
 def get_permitted_live_classes_for_current_student(statuses=None, starts_from=None, limit=20):
-	"""Return only Bruce Live Class rows allowed for the logged student."""
+	"""Return only live class rows allowed for the logged student."""
 	statuses = tuple(statuses or LIVE_CLASS_VISIBLE_STATUSES)
 	classes_by_name = {}
 

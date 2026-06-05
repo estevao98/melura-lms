@@ -4,6 +4,7 @@
  "autoname": "format:BLCN-{YYYY}-{#####}",
  "creation": "2026-05-31 00:00:00.000000",
  "default_view": "List",
+ "description": "Histórico da aula ao vivo",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",

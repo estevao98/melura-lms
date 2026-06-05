@@ -5,8 +5,8 @@
 `melura_lms` customizes Frappe Learning/LMS for an online ENEM / Ciências
 Humanas course operation.
 
-The goal is to deliver a clean pedagogical LMS layer for students, Professor
-the professor, and operational admins. The app should stay upgrade-friendly by using
+The goal is to deliver a clean pedagogical LMS layer for students, the
+professor, and operational admins. The app should stay upgrade-friendly by using
 Frappe extension points and avoiding direct changes to Frappe, Frappe LMS,
 or Frappe UI core.
 
@@ -113,7 +113,8 @@ Goal: build the main LMS experience for student, teacher, and operational admin.
 
 Deliverables:
 
-- Bruce Student Access;
+- student access records, implemented for now by the legacy internal DocType
+  currently named `Bruce Student Access`;
 - `Minha Aula`;
 - educational materials;
 - ENEM question bank;
@@ -199,7 +200,8 @@ Current foundation:
 
 - signed, provider-neutral status webhook service;
 - conservative external status mapping into Melura pedagogical statuses;
-- updates existing `Bruce Student Access` records only;
+- updates existing student access records only, implemented for now by the
+  legacy internal DocType currently named `Bruce Student Access`;
 - rejects overbroad financial/card/customer payload fields;
 - no billing, checkout, subscription, CRM, blog, newsletter, or lead capture
   logic.
@@ -207,7 +209,7 @@ Current foundation:
 Scope:
 
 - receive external access status updates;
-- map external customer/plan references to Bruce Student Access;
+- map external customer/plan references to student access records;
 - update only pedagogical status and opaque external IDs;
 - keep billing, checkout, subscriptions, CRM, blog, newsletter, and financial
   logic outside this app.

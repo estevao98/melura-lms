@@ -7,30 +7,30 @@ Esta etapa implementa o envio manual de link de aula por WhatsApp dentro da app
 
 Implementado:
 
-- serviço backend para envio manual do link de uma `Bruce Live Class`;
-- suporte a `Evolution API` e `n8n` conforme `Bruce Evolution Settings`;
-- uso de template ativo de `Bruce WhatsApp Message Template` para o evento
+- serviço backend para envio manual do link de uma Aula ao vivo;
+- suporte a `Evolution API` e `n8n` conforme `Configurações de WhatsApp`;
+- uso de template ativo de `Modelo de mensagem` para o evento
   `Link de aula disponível`, quando existir;
-- criação de `Bruce WhatsApp Notification Log` para cada tentativa;
+- criação de `Log de WhatsApp` para cada tentativa;
 - status `Pendente`, `Enviado` ou `Falhou` no log;
 - atualização do `Status do WhatsApp` da aula;
-- fallback manual/teste na `Bruce Live Class` com nome e telefone do
+- fallback manual/teste na Aula ao vivo com nome e telefone do
   destinatário;
-- resolução automática de destinatários da turma da `Bruce Live Class` quando o
+- resolução automática de destinatários da turma da Aula ao vivo quando o
   telefone manual não estiver preenchido;
 - deduplicação por telefone normalizado antes do envio;
-- pré-visualização da mensagem final de WhatsApp na `Bruce Live Class`, usando
+- pré-visualização da mensagem final de WhatsApp na Aula ao vivo, usando
   os mesmos destinatários resolvidos do envio manual;
-- registro de eventos operacionais em `Bruce Live Class Notice Log` quando há
+- registro de eventos operacionais em `Histórico da aula ao vivo` quando há
   pré-visualização, tentativa manual, falha de envio ou integração desativada;
-- ação no formulário `Bruce Live Class`: `Enviar aviso aos alunos`;
-- ação no formulário `Bruce Live Class`: `Pré-visualizar WhatsApp`;
+- ação no formulário de Aula ao vivo: `Enviar aviso aos alunos`;
+- ação no formulário de Aula ao vivo: `Pré-visualizar WhatsApp`;
 - status visual de WhatsApp no `Painel do Professor`;
 - ação no `Painel do Professor`: `Pré-visualizar WhatsApp`, sem envio real;
-- verificação administrativa segura no `Bruce Evolution Settings` com a ação
+- verificação administrativa segura em `Configurações de WhatsApp` com a ação
   `Testar configuração`;
 - envio real, manual e controlado de uma única mensagem de teste pela
-  `Evolution API`, acionado em `Bruce Evolution Settings`;
+  `Evolution API`, acionado em `Configurações de WhatsApp`;
 - teste unitário com mock, sem chamada externa real.
 
 Ainda não foram implementados nesta etapa:
@@ -45,7 +45,8 @@ O envio acontece exclusivamente no backend do Frappe ou por um fluxo n8n chamado
 pelo backend. O frontend apenas solicita a ação autorizada e nunca recebe tokens,
 API keys ou endpoints sensíveis além do próprio link da aula já registrado.
 
-O provedor ativo será definido em `Bruce Evolution Settings`:
+O provedor ativo será definido em `Configurações de WhatsApp`, implementadas
+pelo DocType interno legado atualmente chamado `Bruce Evolution Settings`:
 
 - `Evolution API`: backend chama a Evolution API diretamente;
 - `n8n`: backend chama um webhook n8n, e o n8n executa a integração externa.
@@ -72,7 +73,7 @@ professor ou aluno recebe essa credencial.
 
 ## DocTypes criados
 
-### Bruce Evolution Settings
+### Configurações de WhatsApp
 
 DocType único para configuração operacional não sensível.
 
@@ -95,7 +96,7 @@ Quando a integração estiver ativa, a validação exige:
 A ação `Testar configuração` valida a configuração básica da Evolution API sem
 enviar mensagem e sem chamar endpoint externo. Ela verifica:
 
-- se `Bruce Evolution Settings` está disponível;
+- se `Configurações de WhatsApp` está disponível;
 - se a integração está ativa;
 - se `api_url` está preenchida;
 - se `instance_name` está preenchido;
@@ -105,11 +106,11 @@ enviar mensagem e sem chamar endpoint externo. Ela verifica:
 Mensagens possíveis para o administrador:
 
 - `Configuração da Evolution API válida. A integração está ativa e a API key foi encontrada.`
-- `A integração de WhatsApp está desativada em Bruce Evolution Settings.`
-- `Informe a URL da API em Bruce Evolution Settings.`
-- `Informe o nome da instância em Bruce Evolution Settings.`
+- `A integração de WhatsApp está desativada nas configurações de WhatsApp.`
+- `Informe a URL da API nas configurações de WhatsApp.`
+- `Informe o nome da instância nas configurações de WhatsApp.`
 - `Configure EVOLUTION_API_KEY em variável de ambiente ou site_config.json.`
-- `Bruce Evolution Settings não foi encontrado. Revise a instalação da app.`
+- `As configurações de WhatsApp não foram encontradas. Revise a instalação da app.`
 
 O resultado do teste é mostrado no Desk e registrado no logger
 `melura_lms.whatsapp` apenas com o status técnico, sem credenciais.
@@ -118,12 +119,12 @@ A ação `Enviar mensagem de teste` envia uma mensagem real e única pela Evolut
 API para um telefone informado manualmente. Antes do envio, o Desk solicita o
 telefone e pede confirmação. O backend:
 
-- valida permissão de escrita em `Bruce Evolution Settings`;
+- valida permissão de escrita em `Configurações de WhatsApp`;
 - normaliza o telefone brasileiro com a mesma regra usada no envio manual;
 - reutiliza a validação de configuração da Evolution API;
 - não expõe API key, endpoint sensível ou payload técnico no frontend;
 - não usa turma, não resolve destinatários automaticamente e não envia em massa;
-- cria um `Bruce WhatsApp Notification Log` com status `Pendente`;
+- cria um `Log de WhatsApp` com status `Pendente`;
 - marca o log como `Enviado` ou `Falhou` conforme o resultado do provedor.
 
 Mensagem enviada:
@@ -136,7 +137,7 @@ Quando a integração estiver desativada, a configuração estiver incompleta ou
 API key não existir em ambiente/site config, a mensagem real não é enviada e o
 log é marcado como `Falhou` com uma mensagem amigável.
 
-### Bruce WhatsApp Message Template
+### Modelo de mensagem
 
 DocType para armazenar modelos de mensagem em português brasileiro.
 
@@ -161,7 +162,7 @@ Variáveis disponíveis no corpo da mensagem:
 | `{link}` | Link da aula. |
 | `{meeting_url}` | Mesmo valor de `{link}`. |
 
-### Bruce WhatsApp Notification Log
+### Log de WhatsApp
 
 DocType para registrar tentativas futuras de envio.
 
@@ -175,17 +176,17 @@ Campos:
 | `status` | Status | Select | `Pendente`, `Enviado`, `Falhou`, `Reenviado`. |
 | `error_message` | Mensagem de erro | Small Text | Erro legível quando houver falha. |
 | `sent_at` | Enviado em | Datetime | Data/hora do aceite ou tentativa registrada. |
-| `related_live_class` | Aula ao vivo relacionada | Link | Referência a `Bruce Live Class`. |
+| `related_live_class` | Aula ao vivo relacionada | Link | Referência à Aula ao vivo. |
 | `provider_response` | Resposta do provedor | Code | JSON técnico sem tokens ou segredos. |
 
 O log deve ser usado para auditoria operacional e suporte. Dados sensíveis não
 devem ser persistidos no campo `provider_response`.
 
-### Bruce Live Class Notice Log
+### Histórico da aula ao vivo
 
-DocType para registrar o histórico operacional de uma `Bruce Live Class`.
+DocType para registrar o histórico operacional de uma Aula ao vivo.
 
-Ele complementa o `Bruce WhatsApp Notification Log`: o log de notificação guarda
+Ele complementa o `Log de WhatsApp`: o log de notificação guarda
 uma entrada por destinatário/tentativa, enquanto o histórico da aula mostra uma
 linha curta sobre a ação ou aviso ocorrido naquela aula.
 
@@ -202,7 +203,7 @@ Campos principais:
 
 | Campo | Label | Tipo | Observação |
 | --- | --- | --- | --- |
-| `related_live_class` | Aula ao vivo relacionada | Link | Referência a `Bruce Live Class`. |
+| `related_live_class` | Aula ao vivo relacionada | Link | Referência à Aula ao vivo. |
 | `event_type` | Tipo de evento | Select | Evento operacional registrado. |
 | `title` | Título | Data | Resumo curto em português. |
 | `message` | Mensagem | Text | Detalhe amigável, sem segredo. |
@@ -215,7 +216,7 @@ o log técnico por destinatário.
 
 ## Fluxo manual implementado
 
-1. Usuário autorizado abre uma `Bruce Live Class` ou o `Painel do Professor`.
+1. Usuário autorizado abre uma Aula ao vivo ou o `Painel do Professor`.
 2. Para validação operacional, preenche opcionalmente `Nome do destinatário
    WhatsApp` e `Telefone WhatsApp` na aula.
 3. Clica em `Enviar aviso aos alunos`.
@@ -241,24 +242,24 @@ mensagem de erro amigável.
 
 ## Fluxo de pré-visualização de WhatsApp
 
-1. Usuário autorizado abre uma `Bruce Live Class`.
+1. Usuário autorizado abre uma Aula ao vivo.
 2. Clica em `Pré-visualizar WhatsApp`.
 3. Backend valida permissão na aula.
 4. Backend resolve destinatários usando a mesma regra do envio manual:
    destinatário manual/teste quando preenchido ou alunos da turma quando o
    telefone manual estiver vazio.
 5. Backend monta a mensagem final usando o template ativo de
-   `Bruce WhatsApp Message Template` ou a mensagem padrão em português.
+   `Modelo de mensagem` ou a mensagem padrão em português.
 6. Backend retorna somente dados de prévia:
    - quantidade de destinatários;
    - nome e telefone dos destinatários;
    - texto final da mensagem;
-   - aviso quando a integração estiver desativada em `Bruce Evolution Settings`.
+   - aviso quando a integração estiver desativada em `Configurações de WhatsApp`.
 7. A tela mostra a prévia em um diálogo de leitura.
 
 Esse fluxo não chama Evolution API, não chama webhook n8n, não envia mensagem
-real e não cria `Bruce WhatsApp Notification Log`. Ele cria apenas um registro
-operacional em `Bruce Live Class Notice Log`.
+real e não cria `Log de WhatsApp`. Ele cria apenas um registro operacional em
+`Histórico da aula ao vivo`.
 
 ## Status no Painel do Professor
 
@@ -268,15 +269,15 @@ simples de WhatsApp:
 - `WhatsApp pendente`: aula sem envio registrado ou com status `Pendente`;
 - `WhatsApp enviado`: aula com status `Enviado` ou `Reenviado`;
 - `WhatsApp falhou`: aula com status `Falhou`;
-- `Integração desativada`: `Bruce Evolution Settings` desativado ou indisponível.
+- `Integração desativada`: `Configurações de WhatsApp` desativadas ou indisponíveis.
 
 A ação `Pré-visualizar WhatsApp` no painel usa o mesmo backend de prévia da
-`Bruce Live Class`. Ela não chama Evolution API, não chama n8n, não envia
+Aula ao vivo. Ela não chama Evolution API, não chama n8n, não envia
 mensagem real e não cria log.
 
 ## Fluxo de teste de configuração
 
-1. Administrador abre `Bruce Evolution Settings`.
+1. Administrador abre `Configurações de WhatsApp`.
 2. Clica em `Testar configuração`.
 3. Se houver alteração não salva, a tela pede para salvar antes de testar.
 4. Backend valida somente os campos básicos e a presença de `EVOLUTION_API_KEY`.
@@ -285,14 +286,14 @@ mensagem real e não cria log.
 
 ## Fluxo de mensagem real de teste
 
-1. Administrador abre `Bruce Evolution Settings`.
+1. Administrador abre `Configurações de WhatsApp`.
 2. Clica em `Enviar mensagem de teste`.
 3. Se houver alteração não salva, a tela pede para salvar antes de continuar.
 4. A tela solicita um único telefone WhatsApp.
 5. A tela pede confirmação explícita antes do envio.
 6. Backend normaliza o telefone e valida a configuração da Evolution API.
 7. Backend envia uma única mensagem simples de teste pela Evolution API.
-8. Backend registra o resultado em `Bruce WhatsApp Notification Log`.
+8. Backend registra o resultado em `Log de WhatsApp`.
 9. Tela mostra resultado curto em português, sem API key ou dados sensíveis.
 
 ## Próximas etapas

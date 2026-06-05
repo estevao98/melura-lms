@@ -7,6 +7,10 @@ should be updated as permissions, DocTypes, pages, or integrations change.
 No core Frappe, Frappe LMS, Frappe UI, payments, or external app files were
 modified for this audit foundation.
 
+Names containing `Bruce` in this report are legacy internal technical
+identifiers kept temporarily for compatibility. Product-facing labels should use
+neutral Melura names.
+
 ## Current Custom Pages
 
 | Page | Files | Roles In Page JSON | Main Data Flow |
@@ -74,12 +78,12 @@ WhatsApp:
 `melura_lms/hooks.py` defines permission query conditions and `has_permission`
 hooks for:
 
-- `Bruce Live Class`
-- `Bruce Educational Material`
-- `Bruce ENEM Question`
-- `Bruce Exercise List`
+- Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`)
+- Material didático (legacy internal DocType currently named `Bruce Educational Material`)
+- Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`)
+- Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`)
 
-These hooks restrict `LMS Student` users by active `Bruce Student Access`
+These hooks restrict `LMS Student` users by active Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`)
 records and course/batch scope. Users with unrestricted roles such as
 `System Manager`, `Moderator`, `Batch Evaluator`, and `Course Creator` are not
 restricted by these student filters.
@@ -88,30 +92,30 @@ restricted by these student filters.
 
 Highest sensitivity:
 
-- `Bruce Student Access`: access status, course/batch scope, external opaque
+- Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`): access status, course/batch scope, external opaque
   reference, notes.
-- `Bruce Student Answer`: student, selected option, correctness, timestamp.
-- `Bruce WhatsApp Notification Log`: recipient name/phone, message, status,
+- Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`): student, selected option, correctness, timestamp.
+- Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`): recipient name/phone, message, status,
   provider response, error message.
-- `Bruce Evolution Settings`: provider mode, API URL, n8n webhook URL, and
+- Configurações de WhatsApp (legacy internal DocType currently named `Bruce Evolution Settings`): provider mode, API URL, n8n webhook URL, and
   credential note. API key is expected outside this DocType.
-- `Bruce Live Class`: legacy internal DocType with Google Meet URL, instructor,
+- Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`): legacy internal DocType with Google Meet URL, instructor,
   schedule source, class scope, and reminder status.
 
 Pedagogical sensitivity:
 
-- `Bruce Educational Material`
-- `Bruce ENEM Question`
-- `Bruce Exercise List`
-- `Bruce Live Class Notice Log`
-- `Bruce WhatsApp Message Template`
-- `Bruce Jitsi Settings` legacy compatibility settings, obsolete for the MVP
+- Material didático (legacy internal DocType currently named `Bruce Educational Material`)
+- Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`)
+- Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`)
+- Histórico da aula ao vivo (legacy internal DocType currently named `Bruce Live Class Notice Log`)
+- Modelo de mensagem (legacy internal DocType currently named `Bruce WhatsApp Message Template`)
+- Configuração legada de vídeo (legacy internal DocType currently named `Bruce Jitsi Settings`) legacy compatibility settings, obsolete for the MVP
   video flow.
 
 Child table sensitivity:
 
-- `Bruce ENEM Question Alternative`
-- `Bruce Exercise List Item`
+- Alternativa da questão ENEM (legacy internal child DocType currently named `Bruce ENEM Question Alternative`)
+- Item da lista de exercícios (legacy internal child DocType currently named `Bruce Exercise List Item`)
 
 ## Likely Student-Facing Data Flows
 
@@ -144,9 +148,9 @@ Child table sensitivity:
 - WhatsApp retry loads the notification log, requires backend write permission
   on the log or related live class, and only retries `Pendente` or `Falhou`
   live-class logs.
-- Evolution configuration test requires `Bruce Evolution Settings` read
+- Evolution configuration test requires Configurações de WhatsApp (legacy internal DocType currently named `Bruce Evolution Settings`) read
   permission.
-- Evolution test send requires `Bruce Evolution Settings` write permission.
+- Evolution test send requires Configurações de WhatsApp (legacy internal DocType currently named `Bruce Evolution Settings`) write permission.
 - Live class notice log methods call `doc.check_permission("read")` on the
   related live class.
 
@@ -156,21 +160,21 @@ Child table sensitivity:
   methods. It still relies on Frappe list permissions for detailed class
   visibility rather than a custom instructor-scope filter in the page
   controller, so it needs integration tests against a real site role setup.
-- `Bruce Educational Material` and `Bruce Exercise List` grant read permission
+- Material didático (legacy internal DocType currently named `Bruce Educational Material`) and Lista de exercícios (legacy internal DocType currently named `Bruce Exercise List`) grant read permission
   to `LMS Student`; the permission hooks restrict records, but field-level
   exposure in Desk list/form views should be manually verified.
-- `Bruce Live Class` grants read permission to `LMS Student`; hooks restrict
+- Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`) grants read permission to `LMS Student`; hooks restrict
   records, but the form/list exposure of `room_name` and `meeting_url` should
   be verified. The safer student path is `bruce-live-room`, which has backend
   checks.
-- `Bruce WhatsApp Notification Log` grants read permission to `Batch Evaluator`.
+- Log de WhatsApp (legacy internal DocType currently named `Bruce WhatsApp Notification Log`) grants read permission to `Batch Evaluator`.
   Confirm that this role is operationally trusted to see recipient names,
   phones, message bodies, errors, and provider response summaries.
-- `Bruce Live Class Notice Log` grants read permission to `Batch Evaluator`.
+- Histórico da aula ao vivo (legacy internal DocType currently named `Bruce Live Class Notice Log`) grants read permission to `Batch Evaluator`.
   Confirm that notice messages never include secrets or excessive personal data.
 - `Bruce Student Access.notes` can become a privacy risk if operators paste
   financial/commercial payloads, sensitive context, or support transcripts.
-- Direct `Bruce Student Answer` writes now recompute `is_correct` on validation
+- Direct Resposta do aluno (legacy internal DocType currently named `Bruce Student Answer`) writes now recompute `is_correct` on validation
   from the linked question's `correct_option`. This avoids trusting caller
   supplied correctness, including backend/API writes that bypass the student
   page service.
@@ -178,7 +182,7 @@ Child table sensitivity:
   `melura_lms.services.external_student_status`. It verifies an HMAC signature
   before parsing or updating, rejects overbroad financial payload fields, maps
   external statuses into `Ativo`, `Pendente`, `Bloqueado`, and `Expirado`, and
-  updates only existing `Bruce Student Access` status plus existing opaque
+  updates only existing Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) status plus existing opaque
   integration metadata.
 - External webhook replay history is not persisted because there is no current
   idempotency-event field or DocType. Repeated events are naturally idempotent
@@ -294,8 +298,8 @@ Open cache risks:
 - Direct student calls to `save_student_answer` for each explicit inactive
   status value (`Pendente`, `Bloqueado`, and `Expirado`) in a real Frappe site
   permission context.
-- Student direct Desk read/list/form access for `Bruce Live Class`,
-  `Bruce Educational Material`, `Bruce ENEM Question`, and `Bruce Exercise
+- Student direct Desk read/list/form access for Aula ao vivo (legacy internal DocType currently named `Bruce Live Class`),
+  Material didático (legacy internal DocType currently named `Bruce Educational Material`), Questão ENEM (legacy internal DocType currently named `Bruce ENEM Question`), and `Bruce Exercise
   List` in a real Frappe site.
 - Professor dashboard class scope with real instructor and non-instructor users.
 - Provider response redaction for broader mixed-case sensitive key aliases

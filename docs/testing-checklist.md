@@ -28,12 +28,12 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Abrir `/app`.
 - Confirmar que o Workspace `Melura` aparece no Frappe Desk.
 - Confirmar que `Agenda de aulas ao vivo` abre o DocType `Melura Live Class Schedule`.
-- Confirmar que `Aulas ao vivo` abre o DocType técnico `Bruce Live Class`, mas
+- Confirmar que `Aulas ao vivo` abre o DocType técnico (legacy internal DocType currently named `Bruce Live Class`), mas
   o rótulo visível no Workspace não expõe o nome legado.
 - Confirmar que `Minha Aula` abre `/app/minha-aula`.
-- Confirmar que `Painel do professor` abre `/app/bruce-professor-dashboard`
+- Confirmar que `Painel do professor` abre o dashboard técnico (legacy internal route `/app/bruce-professor-dashboard`)
   com rótulo visível neutro.
-- Confirmar que `Painel operacional` abre `/app/bruce-operational-dashboard`
+- Confirmar que `Painel operacional` abre o dashboard técnico (legacy internal route `/app/bruce-operational-dashboard`)
   com rótulo visível neutro.
 - Confirmar que `Configurações de WhatsApp`, `Modelos de mensagem` e
   `Logs de WhatsApp` abrem seus DocTypes técnicos existentes sem expor o nome
@@ -43,9 +43,26 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que `Acessos dos alunos` e `Respostas dos alunos` abrem os DocTypes
   técnicos existentes sem expor o nome legado no Workspace.
 - Confirmar que nenhum rótulo visível do Workspace usa o nome pessoal legado.
+- Confirmar que o Workspace não exibe `Bruce`, `bruce`, `Professor Bruce` ou
+  `Bruce's` em rótulos, cards, atalhos ou descrições visíveis.
 - Confirmar que as rotas diretas existentes, como `/app/minha-aula`,
   `/app/bruce-professor-dashboard`, `/app/bruce-operational-dashboard` e
   `/app/bruce-live-room/<aula>`, continuam funcionando conforme permissões.
+
+## Remoção de nomenclatura legada visível
+
+- Abrir o Workspace `Melura`.
+- Confirmar que os rótulos visíveis não expõem o nome pessoal legado.
+- Abrir o formulário `Aula ao vivo`.
+- Confirmar que os principais rótulos e descrições visíveis não expõem o nome
+  pessoal legado.
+- Abrir `Configurações de WhatsApp`.
+- Confirmar que os principais rótulos, mensagens e descrições visíveis não
+  expõem o nome pessoal legado.
+- Abrir `Minha Aula` e a página de Aula ao vivo.
+- Confirmar que textos de interface não expõem o nome pessoal legado.
+- Confirmar que a rota legada `/app/bruce-live-room/<aula>` continua
+  funcionando conforme permissões.
 
 ## Permissões e papéis
 
@@ -62,7 +79,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 
 ## Permission hardening validation
 
-- Direct API calls to `bruce-professor-dashboard` reject `LMS Student` and
+- Direct API calls to the professor dashboard (legacy internal route `bruce-professor-dashboard`) reject `LMS Student` and
   `Guest` users before returning live class, notice log, or progress data.
 - Student-facing methods derive the student from `frappe.session.user`; calls
   must not accept `student_user`, `user`, `email`, `student`, or `owner` as
@@ -70,8 +87,8 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - `Pendente`, `Bloqueado`, `Expirado`, expired windows, and missing access do
   not unlock classes, materials, exercise lists, answers, progress, or live
   room context.
-- `Bruce Student Answer.is_correct` is recomputed on the backend from the
-  linked question answer key, including direct document writes.
+- Resposta do aluno `is_correct` is recomputed on the backend from the linked
+  question answer key, including direct document writes.
 - WhatsApp preview/send/test responses and logs do not expose API keys, tokens,
   authorization headers, webhook secrets, or raw provider secret values.
 
@@ -105,7 +122,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Aula encerrada não permite nova entrada indevida.
 - Aula cancelada não pode ser iniciada sem regra explícita.
 - Nenhuma credencial sensível aparece no HTML, JS ou resposta da API.
-- `/app/bruce-live-room/<aula>` retorna `external_url` somente após validação
+- `/app/bruce-live-room/<aula>` (legacy internal route) retorna `external_url` somente após validação
   backend e não retorna campos antigos de sala embutida.
 - A página não carrega scripts de vídeo externo, não cria iframe de vídeo e
   abre o Google Meet em nova aba/app.
@@ -123,7 +140,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que a geração não duplica aula para a mesma agenda e horário.
 - Confirmar que aulas geradas copiam curso, turma, professor, início, término,
   link do Google Meet e referência da agenda.
-- Confirmar que lembrete automático dos alunos respeita `Bruce Student Access`
+- Confirmar que lembrete automático dos alunos respeita acesso pedagógico
   `Ativo` e escopo de curso/turma.
 - Confirmar que lembrete do professor é separado do lembrete dos alunos.
 - Confirmar que integração de WhatsApp desativada registra aviso/log seguro e
@@ -131,7 +148,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que o fluxo do professor abre/inicia a aula com conta operacional
   não-`Administrator`.
 - Confirmar que o fluxo do aluno `Ativo` entra na sala correta a partir de
-  `Minha Aula` ou `/app/bruce-live-room/<aula>`.
+  `Minha Aula` ou da rota legada `/app/bruce-live-room/<aula>`.
 - Confirmar em staging que aluno `Pendente`, `Bloqueado`, `Expirado`, sem
   acesso ou de outra turma/curso não recebe `meeting_url` nem `external_url`.
 - Confirmar que professor/admin autorizado consegue abrir a sala sem usar
@@ -156,7 +173,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 ## WhatsApp real sending and retry validation
 
 - Confirm preview does not call Evolution API or n8n and does not create
-  `Bruce WhatsApp Notification Log`.
+  WhatsApp notification logs.
 - Confirm disabled provider mode creates a safe failed log and makes no external
   provider call.
 - Confirm missing `EVOLUTION_API_KEY` fails safely without exposing the missing
@@ -183,7 +200,7 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que o segredo do webhook fica fora do Git, em ambiente ou
   `site_config.json`.
 - Confirmar que segredo ausente, assinatura ausente e assinatura inválida
-  falham antes de localizar ou atualizar `Bruce Student Access`.
+  falham antes de localizar ou atualizar o acesso do aluno.
 - Confirmar que payload assinado e válido mapeia status externo para `Ativo`,
   `Pendente`, `Bloqueado` ou `Expirado`.
 - Confirmar que status externo desconhecido é rejeitado.

@@ -6,7 +6,7 @@ newsletter ou CRM.
 
 ## Fonte de verdade no Frappe
 
-O DocType customizado `Bruce Student Access` representa a liberação pedagógica.
+O DocType customizado Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) representa a liberação pedagógica.
 
 Status permitidos:
 
@@ -69,7 +69,7 @@ Esse endpoint deve:
 - autenticar a origem;
 - validar assinatura HMAC antes de processar o payload;
 - validar payload mínimo;
-- localizar um registro existente de `Bruce Student Access` por referência
+- localizar um registro existente de Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`) por referência
   segura;
 - atualizar apenas status pedagógico e referência opaca existente;
 - rejeitar payload financeiro amplo;
@@ -82,7 +82,7 @@ CRM, blog, newsletter ou captação de leads.
 
 As APIs de aluno, como `/app/minha-aula`, a listagem inicial de questões ENEM e
 as listas de exercícios, devem consultar aulas, materiais, questões e listas a
-partir do usuário logado e do `Bruce Student Access`. O frontend não deve enviar
+partir do usuário logado e do Acesso do aluno (legacy internal DocType currently named `Bruce Student Access`). O frontend não deve enviar
 escopo de curso, turma ou aluno para ampliar acesso.
 
 O acesso também pode continuar sendo mantido manualmente por usuários

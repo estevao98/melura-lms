@@ -145,7 +145,7 @@ Provider credentials must never be exposed to the frontend, rendered in HTML, re
 
 See [SECURITY.md](SECURITY.md) for the full policy.
 
-Backend authorization is mandatory. Frontend visibility is not authorization. `Bruce Student Access` controls pedagogical access: only `Ativo` unlocks content, classes, materials, questions, lists, answers, and progress. Students must not access content outside their allowed course or batch.
+Backend authorization is mandatory. Frontend visibility is not authorization. Student access controls pedagogical access: only `Ativo` unlocks content, classes, materials, questions, lists, answers, and progress. The implementation still uses the legacy internal DocType currently named `Bruce Student Access`, which should be renamed in a future migration. Students must not access content outside their allowed course or batch.
 
 Related reading:
 

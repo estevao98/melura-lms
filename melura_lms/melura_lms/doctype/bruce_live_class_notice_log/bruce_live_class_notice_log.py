@@ -56,7 +56,7 @@ class BruceLiveClassNoticeLog(Document):
 
 
 def create_notice_log(live_class, event_type, title, message="", status=STATUS_REGISTERED):
-	"""Create an operational audit entry for a Bruce Live Class."""
+	"""Create an operational audit entry for a live class."""
 	if not live_class:
 		return None
 
