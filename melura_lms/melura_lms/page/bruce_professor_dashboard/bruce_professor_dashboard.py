@@ -63,7 +63,7 @@ def _assert_can_access_professor_dashboard(user=None):
 	if _can_access_professor_dashboard(user):
 		return
 
-	frappe.throw(_("Você não tem permissão para acessar o Painel do Professor."), frappe.PermissionError)
+	frappe.throw(_("Você não tem permissão para acessar o Painel do professor."), frappe.PermissionError)
 
 
 def _can_access_professor_dashboard(user=None):

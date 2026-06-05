@@ -86,6 +86,29 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
   se aplica.
 - Confirmar que nomes técnicos de DocType ainda podem aparecer internamente
   enquanto a renomeação técnica completa não for executada.
+- Confirmar que esta etapa não renomeou DocTypes, tabelas, módulos Python,
+  pastas nem removeu rotas legadas.
+
+## Polimento de formulários e listas no Desk
+
+- Abrir a lista de Aula ao vivo pelo Workspace `Melura`.
+- Confirmar que a lista mostra `Lista de aulas ao vivo` quando o hook de
+  listview customizado for aplicado pelo Desk.
+- Confirmar que o botão padrão de novo registro aparece como
+  `Adicionar aula ao vivo` ou outro rótulo equivalente traduzido, sem expor
+  `Bruce` quando a tradução do Frappe for aplicada.
+- Abrir um novo formulário de Aula ao vivo.
+- Confirmar que o título visível do formulário mostra `Nova aula ao vivo`.
+- Abrir uma aula existente e confirmar que o formulário usa o título da aula ou
+  o identificador do registro, sem introduzir novo texto visível com `Bruce`.
+- Confirmar que os botões da Aula ao vivo usam rótulos claros em português:
+  `Abrir aula`, `Copiar link`, `Iniciar aula`,
+  `Pré-visualizar WhatsApp` e `Enviar aviso aos alunos`.
+- Confirmar que `Painel do professor`, `Painel operacional` e `Minha Aula`
+  geram links de sala usando `/app/melura-live-room/<aula>`.
+- Confirmar que formulários e listas nativos do Frappe ainda podem exibir nomes
+  técnicos legados em breadcrumbs, seletor de rota, permissões, metadados ou
+  áreas que não aceitam override seguro até a futura renomeação técnica.
 
 ## Permissões e papéis
 

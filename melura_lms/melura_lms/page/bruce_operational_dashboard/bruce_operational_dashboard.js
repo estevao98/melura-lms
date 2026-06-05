@@ -4,7 +4,7 @@
 	frappe.pages[pageName].on_page_load = function (wrapper) {
 		const page = frappe.ui.make_app_page({
 			parent: wrapper,
-			title: __("Painel Operacional"),
+			title: __("Painel operacional"),
 			single_column: true,
 		});
 
@@ -203,7 +203,7 @@ class BruceOperationalDashboard {
 				<td>${this.escape_html(this.format_datetime(liveClass.starts_at) || __("Não informado"))}</td>
 				<td>
 					<button class="btn btn-xs btn-default bruce-operational-dashboard__open-class" data-name="${this.escape_attr(liveClass.name)}">
-						${this.escape_html(__("Abrir"))}
+						${this.escape_html(__("Ver detalhes"))}
 					</button>
 				</td>
 			</tr>

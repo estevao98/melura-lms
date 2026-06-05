@@ -1,5 +1,7 @@
 frappe.ui.form.on("Bruce Live Class", {
 	refresh(frm) {
+		set_live_class_form_title(frm);
+
 		if (frm.is_new()) {
 			return;
 		}
@@ -115,6 +117,17 @@ frappe.ui.form.on("Bruce Live Class", {
 		render_notice_history(frm);
 	},
 });
+
+function set_live_class_form_title(frm) {
+	if (!frm.page || !frm.page.set_title) {
+		return;
+	}
+
+	const title = frm.is_new()
+		? __("Nova aula ao vivo")
+		: frm.doc.title || frm.doc.name || __("Aula ao vivo");
+	frm.page.set_title(title);
+}
 
 function get_meeting_url(frm) {
 	return (frm.doc.meeting_url || "").trim();

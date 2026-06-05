@@ -23,6 +23,14 @@ temporariamente por compatibilidade. Esses nomes legados devem permanecer
 internos nesta etapa; o usuário deve ver `Melura` ou nomes neutros, não os
 identificadores legados.
 
+O polimento atual melhora rótulos, traduções, títulos de formulário/lista e
+links gerados, mas não renomeia DocTypes, tabelas, módulos Python, pastas ou
+rotas técnicas. Algumas áreas nativas do Frappe, como breadcrumbs, URLs de
+DocType, permissões, metadados e títulos gerados fora dos hooks customizados,
+podem continuar exibindo nomes técnicos legados até uma futura migração de
+renomeação técnica. A rota técnica `/app/bruce-live-class` e as rotas
+compatíveis `/app/bruce-*` permanecem válidas nesta etapa.
+
 ## Papéis
 
 ### Professor

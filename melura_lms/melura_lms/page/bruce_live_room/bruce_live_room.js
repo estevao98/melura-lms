@@ -40,7 +40,7 @@ class BruceLiveRoom {
 		const liveClass = this.get_live_class_from_route();
 
 		if (!liveClass) {
-			this.render_error(__("Aula não informada."), __("Abra a aula a partir da página Minha Aula ou do Painel do Professor."));
+			this.render_error(__("Aula não informada."), __("Abra a aula a partir da página Minha Aula ou do Painel do professor."));
 			return;
 		}
 

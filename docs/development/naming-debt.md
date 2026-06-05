@@ -63,3 +63,19 @@ while displaying neutral labels such as `Aulas ao vivo`, `Configurações de
 WhatsApp`, and `Acessos dos alunos`. Dashboard Workspace links should prefer
 the Melura page aliases. This avoids a risky technical rename while giving users
 a Melura-branded navigation entry in Frappe Desk.
+
+The `feat/melura-desk-form-polish` phase adds Desk UI polish only. It keeps
+`Bruce Live Class` as the technical DocType and preserves `/app/bruce-live-class`
+and the older `/app/bruce-*` page routes, while generated user-facing links use
+the preferred Melura aliases. The Aula ao vivo form and listview have lightweight
+JavaScript title overrides, and translation rows cover common Frappe-generated
+labels such as `Bruce Live Class`, `Bruce Live Class List`,
+`Add Bruce Live Class`, and `New Bruce Live Class`.
+
+Remaining visible debt is expected in Frappe-native surfaces that derive labels
+directly from DocType metadata or route names before custom JavaScript or
+translations can run. This includes some breadcrumbs, browser routes, permission
+screens, metadata dialogs, export/import tools, developer utilities, and any
+third-party Desk component that renders raw DocType names. Those are accepted
+until a dedicated technical rename feature plans database migrations, fixture
+updates, redirects, and regression coverage.
