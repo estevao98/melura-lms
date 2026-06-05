@@ -9,6 +9,9 @@ The `feat/remove-legacy-bruce-technical-naming` migration renamed the legacy
 `Bruce ...` technical DocTypes to `Melura ...` DocTypes and moved the matching
 DocType Python/JavaScript/test module paths from `bruce_*` to `melura_*`.
 
+The `Melura ...` technical DocTypes are now the source of truth for runtime
+code, hooks, fixtures, service helpers, tests, and new documentation.
+
 Migrated DocTypes:
 
 - `Melura Live Class`
@@ -38,11 +41,19 @@ Compatibility names kept temporarily:
 - Historical filenames such as `docs/jitsi-integration.md` and
   `docs/integrations/jitsi-production-decision.md` are kept as obsolete
   pointers for old links.
+- The migration patch keeps old `Bruce ...` names only as historical source
+  names passed to Frappe rename operations.
 
 New generated links, new DocType references, new service code, and new tests
 must use the Melura names. Do not add new `Bruce ...` DocTypes or new `bruce_*`
 technical modules except when explicitly maintaining the compatibility aliases
 listed above.
+
+Post-rename validation lives in
+`docs/development/post-rename-validation.md`. Future cleanup may remove
+compatibility routes and visual-only `bruce-*` selectors after route/link
+validation proves they are no longer needed. That cleanup must be separate from
+the technical DocType migration and must not delete data.
 
 `Melura Legacy Video Settings`, `melura_legacy_video_settings`,
 `section_break_jitsi`, `column_break_jitsi`, and old cache-key constants are

@@ -27,6 +27,10 @@ WEEKDAY_INDEX = {
 	"Domingo": 6,
 }
 
+LIVE_CLASS_DOCTYPE = "Melura Live Class"
+LIVE_CLASS_SCHEDULE_DOCTYPE = "Melura Live Class Schedule"
+STUDENT_ACCESS_DOCTYPE = "Melura Student Access"
+
 
 def validate_google_meet_url(url):
 	value = (url or "").strip()
@@ -50,7 +54,7 @@ def validate_google_meet_url(url):
 def generate_live_classes_from_schedules(today=None):
 	base_date = _coerce_date(today) if today else _coerce_date(frappe.utils.today())
 	schedules = frappe.get_all(
-		"Melura Live Class Schedule",
+		LIVE_CLASS_SCHEDULE_DOCTYPE,
 		filters={"enabled": 1},
 		fields=[
 			"name",
@@ -104,7 +108,7 @@ def generate_live_classes_for_schedule(schedule, today=None):
 
 		doc = frappe.get_doc(
 			{
-				"doctype": "Melura Live Class",
+				"doctype": LIVE_CLASS_DOCTYPE,
 				"title": _build_generated_title(schedule, starts_at),
 				"status": "Agendada",
 				"whatsapp_status": "Não enviado",
@@ -128,7 +132,7 @@ def generate_live_classes_for_schedule(schedule, today=None):
 
 def find_existing_generated_class(schedule, starts_at):
 	return frappe.db.exists(
-		"Melura Live Class",
+		LIVE_CLASS_DOCTYPE,
 		{
 			"generated_from_schedule": _get(schedule, "name"),
 			"starts_at": get_datetime(starts_at),
@@ -139,7 +143,7 @@ def find_existing_generated_class(schedule, starts_at):
 def send_due_live_class_reminders(now=None):
 	now_value = get_datetime(now) if now else now_datetime()
 	classes = frappe.get_all(
-		"Melura Live Class",
+		LIVE_CLASS_DOCTYPE,
 		filters={
 			"status": ["in", ["Agendada", "Ao vivo"]],
 			"meeting_url": ["is", "set"],
@@ -195,7 +199,7 @@ def send_student_reminders_for_live_class(live_class):
 
 	whatsapp.update_live_class_whatsapp_status(doc, results)
 	if results and all(result["status"] == "sent" for result in results):
-		frappe.db.set_value("Melura Live Class", doc.name, "reminder_sent_at", now_datetime(), update_modified=True)
+		frappe.db.set_value(LIVE_CLASS_DOCTYPE, doc.name, "reminder_sent_at", now_datetime(), update_modified=True)
 		return {"live_class": doc.name, "status": "sent", "sent": True}
 
 	return {"live_class": doc.name, "status": "failed", "sent": False}
@@ -227,7 +231,7 @@ def send_professor_reminder_for_live_class(live_class):
 
 	if result["status"] == "sent":
 		frappe.db.set_value(
-			"Melura Live Class",
+			LIVE_CLASS_DOCTYPE,
 			doc.name,
 			"professor_reminder_sent_at",
 			now_datetime(),
@@ -254,7 +258,7 @@ def _student_has_active_access(live_class, student):
 		scope_filters.append({**filters, "course": live_class.course})
 
 	for scope_filter in scope_filters:
-		if frappe.db.exists("Melura Student Access", scope_filter):
+		if frappe.db.exists(STUDENT_ACCESS_DOCTYPE, scope_filter):
 			return True
 
 	return False
@@ -266,7 +270,7 @@ def _get_schedule_for_live_class(live_class):
 		return None
 
 	try:
-		return frappe.get_doc("Melura Live Class Schedule", schedule_name)
+		return frappe.get_doc(LIVE_CLASS_SCHEDULE_DOCTYPE, schedule_name)
 	except Exception:
 		return None
 
@@ -301,12 +305,12 @@ def _is_within_due_window(starts_at, minutes_before, now_value):
 
 def _ensure_live_class_doc(live_class):
 	if isinstance(live_class, str):
-		return frappe.get_doc("Melura Live Class", live_class)
+		return frappe.get_doc(LIVE_CLASS_DOCTYPE, live_class)
 
-	if getattr(live_class, "doctype", None) == "Melura Live Class":
+	if getattr(live_class, "doctype", None) == LIVE_CLASS_DOCTYPE:
 		return live_class
 
-	return frappe.get_doc("Melura Live Class", _get(live_class, "name"))
+	return frappe.get_doc(LIVE_CLASS_DOCTYPE, _get(live_class, "name"))
 
 
 def _get_live_class_public_link(live_class):
@@ -341,7 +345,7 @@ def _record_disabled_or_missing_notice(live_class, message):
 def _mark_schedule_generated(schedule):
 	name = _get(schedule, "name")
 	if name:
-		frappe.db.set_value("Melura Live Class Schedule", name, "last_generated_at", now_datetime(), update_modified=True)
+		frappe.db.set_value(LIVE_CLASS_SCHEDULE_DOCTYPE, name, "last_generated_at", now_datetime(), update_modified=True)
 
 
 def _build_generated_title(schedule, starts_at):

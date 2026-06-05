@@ -316,8 +316,9 @@ The live-room route must validate:
 - teacher/admin has the correct role;
 - class status allows access.
 
-The compatibility route `/app/bruce-live-room/<class>` remains for now, but it
-must render a Melura launch page and open Google Meet externally.
+The preferred route is `/app/melura-live-room/<class>`. The compatibility route
+`/app/bruce-live-room/<class>` remains for now, but it must render the same
+Melura launch page and open Google Meet externally.
 
 ## 13. WhatsApp, Evolution API, and n8n Security
 
@@ -408,7 +409,7 @@ Rules:
 
 ## 18. Operational Dashboard Security
 
-Rules for `Painel Operacional` / `bruce-operational-dashboard`:
+Rules for `Painel Operacional` / `melura-operational-dashboard`:
 
 - backend API must validate permission before querying data;
 - only `Administrator`, `System Manager`, `Administrador LMS`,
@@ -418,6 +419,8 @@ Rules for `Painel Operacional` / `bruce-operational-dashboard`:
 - do not return API keys, tokens, sensitive endpoints, financial data, full
   integration payloads, or unnecessary personal data;
 - frontend is not authorization.
+- `/app/bruce-operational-dashboard` remains only as a temporary compatibility
+  route for old links.
 
 ## 19. External Financial SaaS Integration Security
 

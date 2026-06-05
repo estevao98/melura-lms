@@ -179,7 +179,9 @@ Student enters live class:
 
 1. Student clicks "Entrar na aula".
 2. Backend validates user, live class, status, Google Meet URL, and access scope.
-3. `/app/bruce-live-room/<class>` shows the Melura launch page.
+3. `/app/melura-live-room/<class>` shows the Melura launch page.
+   `/app/bruce-live-room/<class>` remains a temporary compatibility route for
+   old links.
 4. The student opens the external Google Meet link from that page.
 
 Teacher starts/opens a live class:

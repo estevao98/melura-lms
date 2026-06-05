@@ -11,6 +11,14 @@ from melura_lms.services.student_access import (
 	ACCESS_BLOCKED,
 	ACCESS_EXPIRED,
 	ACCESS_PENDING,
+	EDUCATIONAL_MATERIAL_DOCTYPE,
+	ENEM_QUESTION_ALTERNATIVE_DOCTYPE,
+	ENEM_QUESTION_DOCTYPE,
+	EXERCISE_LIST_DOCTYPE,
+	EXERCISE_LIST_ITEM_DOCTYPE,
+	LIVE_CLASS_DOCTYPE,
+	STUDENT_ACCESS_DOCTYPE,
+	STUDENT_ANSWER_DOCTYPE,
 	can_current_student_access_live_class,
 	get_permitted_educational_materials_for_current_student,
 	get_current_student_access_status,
@@ -28,6 +36,16 @@ from melura_lms.services.student_access import (
 
 
 class TestStudentAccess(unittest.TestCase):
+	def test_post_rename_doctype_constants_use_melura_names(self):
+		self.assertEqual(STUDENT_ACCESS_DOCTYPE, "Melura Student Access")
+		self.assertEqual(LIVE_CLASS_DOCTYPE, "Melura Live Class")
+		self.assertEqual(EDUCATIONAL_MATERIAL_DOCTYPE, "Melura Educational Material")
+		self.assertEqual(ENEM_QUESTION_DOCTYPE, "Melura ENEM Question")
+		self.assertEqual(ENEM_QUESTION_ALTERNATIVE_DOCTYPE, "Melura ENEM Question Alternative")
+		self.assertEqual(EXERCISE_LIST_DOCTYPE, "Melura Exercise List")
+		self.assertEqual(EXERCISE_LIST_ITEM_DOCTYPE, "Melura Exercise List Item")
+		self.assertEqual(STUDENT_ANSWER_DOCTYPE, "Melura Student Answer")
+
 	def test_active_student_with_current_access_is_active(self):
 		records = [
 			frappe._dict(

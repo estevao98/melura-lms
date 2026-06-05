@@ -7,6 +7,9 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from melura_lms.services.live_class_automation import (
+	LIVE_CLASS_DOCTYPE,
+	LIVE_CLASS_SCHEDULE_DOCTYPE,
+	STUDENT_ACCESS_DOCTYPE,
 	generate_live_classes_for_schedule,
 	send_due_live_class_reminders,
 	send_professor_reminder_for_live_class,
@@ -38,6 +41,11 @@ class FakeLog:
 
 
 class TestLiveClassAutomation(unittest.TestCase):
+	def test_post_rename_doctype_constants_use_melura_names(self):
+		self.assertEqual(LIVE_CLASS_DOCTYPE, "Melura Live Class")
+		self.assertEqual(LIVE_CLASS_SCHEDULE_DOCTYPE, "Melura Live Class Schedule")
+		self.assertEqual(STUDENT_ACCESS_DOCTYPE, "Melura Student Access")
+
 	def make_schedule(self, **values):
 		schedule = SimpleNamespace(
 			name="MLCS-2026-00001",

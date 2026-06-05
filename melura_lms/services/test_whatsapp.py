@@ -12,10 +12,14 @@ from melura_lms.services.whatsapp import (
 	CONFIG_STATUS_MISSING_INSTANCE,
 	CONFIG_STATUS_MISSING_SETTINGS,
 	CONFIG_STATUS_VALID,
+	LIVE_CLASS_DOCTYPE,
 	LOG_STATUS_FAILED,
 	LOG_STATUS_PENDING,
 	LOG_STATUS_RESENT,
 	LOG_STATUS_SENT,
+	WHATSAPP_NOTIFICATION_LOG_DOCTYPE,
+	WHATSAPP_SETTINGS_DOCTYPE,
+	WHATSAPP_TEMPLATE_DOCTYPE,
 	build_live_class_link_preview,
 	build_live_class_message,
 	get_safe_provider_error,
@@ -68,6 +72,12 @@ class FakeResponse:
 
 
 class TestWhatsAppService(unittest.TestCase):
+	def test_post_rename_doctype_constants_use_melura_names(self):
+		self.assertEqual(LIVE_CLASS_DOCTYPE, "Melura Live Class")
+		self.assertEqual(WHATSAPP_SETTINGS_DOCTYPE, "Melura WhatsApp Settings")
+		self.assertEqual(WHATSAPP_TEMPLATE_DOCTYPE, "Melura WhatsApp Message Template")
+		self.assertEqual(WHATSAPP_NOTIFICATION_LOG_DOCTYPE, "Melura WhatsApp Notification Log")
+
 	def make_live_class(self):
 		return SimpleNamespace(
 			name="BLC-2026-00001",

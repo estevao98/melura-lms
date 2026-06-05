@@ -28,9 +28,10 @@ Communication can be prepared through WhatsApp using Evolution API or n8n, alway
 In Frappe Desk, the `Melura` Workspace centralizes operational navigation for
 this app. Users should access classes, dashboards, WhatsApp records, content,
 and student access from this Workspace at `/app` instead of typing direct
-routes. Some internal routes and DocTypes still keep legacy technical names for
-compatibility, but visible labels should use Melura or neutral Brazilian
-Portuguese names.
+routes. Some internal routes and CSS classes still keep legacy technical names
+for compatibility, but the `Melura ...` technical DocTypes are the source of
+truth and visible labels should use Melura or neutral Brazilian Portuguese
+names.
 
 ## Core Features
 
@@ -81,6 +82,7 @@ flowchart TD
 - `docs/student-access-integration.md`: pedagogical access rules and future external integration.
 - `docs/decisions/ADR-0002-google-meet-only-live-flow.md`: decision for external Google Meet as the MVP video path.
 - `docs/development/naming-debt.md`: legacy technical naming debt.
+- `docs/development/post-rename-validation.md`: post-rename technical validation.
 - `docs/ux-flows.md`: teacher, student, admin, Google Meet, WhatsApp, and progress flows.
 - `docs/testing-checklist.md`: manual validation and future automation checklist.
 - `docs/deployment/`: deployment and production-readiness documentation.
@@ -151,7 +153,9 @@ Preferred Desk routes now use Melura aliases: `/app/melura-live-room/<class>`,
 `/app/melura-professor-dashboard`, and `/app/melura-operational-dashboard`.
 Legacy `/app/bruce-*` routes remain temporarily for compatibility. Residual
 `bruce` references in routes, CSS classes, or alias modules are temporary
-compatibility only; new generated links must use the Melura routes.
+compatibility only; new generated links must use the Melura routes. Future
+removal of those compatibility paths should happen only after link and route
+validation, without deleting data.
 
 Related reading:
 
@@ -204,6 +208,7 @@ These responsibilities may belong to another repository or an external SaaS, not
 - [docs/roles-permissions.md](docs/roles-permissions.md): roles, permissions, and account separation.
 - [docs/student-access-integration.md](docs/student-access-integration.md): pedagogical access source and future external integration.
 - [docs/decisions/ADR-0002-google-meet-only-live-flow.md](docs/decisions/ADR-0002-google-meet-only-live-flow.md): external Google Meet decision.
+- [docs/development/post-rename-validation.md](docs/development/post-rename-validation.md): post-rename technical validation.
 - [docs/ux-flows.md](docs/ux-flows.md): operational flows for student, teacher, admin, WhatsApp, and progress.
 - [docs/testing-checklist.md](docs/testing-checklist.md): manual validation and future automation.
 - [docs/deployment/00-overview.md](docs/deployment/00-overview.md): deployment and production-readiness overview.

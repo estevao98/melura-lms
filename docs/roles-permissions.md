@@ -158,8 +158,10 @@ Implementação atual:
 - somente `Ativo`, dentro do período configurado, libera aulas;
 - a liberação é escopada por `LMS Batch` quando a turma estiver preenchida ou
   por `LMS Course` quando houver apenas curso;
-- a ação do aluno abre a rota legada `/app/bruce-live-room/<aula>` e o backend valida o acesso
+- a ação do aluno abre a rota preferencial `/app/melura-live-room/<aula>` e o backend valida o acesso
   antes de retornar dados do Google Meet;
+- a rota legada `/app/bruce-live-room/<aula>` continua temporariamente como
+  compatibilidade para links antigos;
 - o link externo salvo permanece disponível apenas como cópia/fallback;
 - em materiais, o aluno só vê registros publicados, com visibilidade `Aluno` e
   compatíveis com seu curso ou turma;
@@ -401,8 +403,10 @@ documento não cria esse DocType.
 
 Implementação atual:
 
-- a página Desk `Painel Operacional` (rota legada `/app/bruce-operational-dashboard`) mostra
+- a página Desk `Painel Operacional` (rota preferencial `/app/melura-operational-dashboard`) mostra
   agregados operacionais iniciais para administração;
+- a rota legada `/app/bruce-operational-dashboard` continua temporariamente
+  como compatibilidade para links antigos;
 - o backend valida acesso antes de retornar dados agregados;
 - o usuário `Administrator`, `System Manager`, `Administrador LMS`,
   `Admin operacional` ou `LMS Admin` pode consultar o painel;

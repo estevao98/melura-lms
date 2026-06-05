@@ -11,6 +11,15 @@ ACCESS_ACTIVE = "Ativo"
 ACCESS_BLOCKED = "Bloqueado"
 ACCESS_EXPIRED = "Expirado"
 
+STUDENT_ACCESS_DOCTYPE = "Melura Student Access"
+LIVE_CLASS_DOCTYPE = "Melura Live Class"
+EDUCATIONAL_MATERIAL_DOCTYPE = "Melura Educational Material"
+ENEM_QUESTION_DOCTYPE = "Melura ENEM Question"
+ENEM_QUESTION_ALTERNATIVE_DOCTYPE = "Melura ENEM Question Alternative"
+EXERCISE_LIST_DOCTYPE = "Melura Exercise List"
+EXERCISE_LIST_ITEM_DOCTYPE = "Melura Exercise List Item"
+STUDENT_ANSWER_DOCTYPE = "Melura Student Answer"
+
 LIVE_CLASS_VISIBLE_STATUSES = ("Agendada", "Ao vivo")
 STUDENT_ACCESS_FIELDS = [
 	"name",
@@ -109,7 +118,7 @@ def get_current_student_access_status():
 def can_current_student_access_live_class(live_class):
 	"""Return whether the logged student may access the given live class."""
 	if isinstance(live_class, str):
-		live_class = frappe.get_doc("Melura Live Class", live_class)
+		live_class = frappe.get_doc(LIVE_CLASS_DOCTYPE, live_class)
 
 	if not live_class or _get_value(live_class, "status") not in LIVE_CLASS_VISIBLE_STATUSES:
 		return False
@@ -135,7 +144,7 @@ def get_permitted_live_classes_for_current_student(statuses=None, starts_from=No
 		filters.update(scope_filter)
 
 		for live_class in frappe.get_all(
-			"Melura Live Class",
+			LIVE_CLASS_DOCTYPE,
 			filters=filters,
 			fields=LIVE_CLASS_FIELDS,
 			order_by="starts_at asc",
@@ -164,7 +173,7 @@ def get_permitted_educational_materials_for_current_student(limit=10):
 			filters.update(scope_filter)
 
 			for material in frappe.get_all(
-				"Melura Educational Material",
+				EDUCATIONAL_MATERIAL_DOCTYPE,
 				filters=filters,
 				fields=EDUCATIONAL_MATERIAL_FIELDS,
 				order_by="published_at desc, modified desc",
@@ -213,7 +222,7 @@ def get_class_progress_summary(batch=None, course=None, limit=50):
 		access_filters["course"] = course
 
 	access_records = frappe.get_all(
-		"Melura Student Access",
+		STUDENT_ACCESS_DOCTYPE,
 		filters=access_filters,
 		fields=STUDENT_ACCESS_FIELDS,
 		order_by="student asc, modified desc",
@@ -275,7 +284,7 @@ def _get_permitted_exercise_lists(access_records, limit=10):
 			filters.update(scope_filter)
 
 			for exercise_list in frappe.get_all(
-				"Melura Exercise List",
+				EXERCISE_LIST_DOCTYPE,
 				filters=filters,
 				fields=EXERCISE_LIST_FIELDS,
 				order_by="published_at desc, modified desc",
@@ -366,7 +375,7 @@ def get_permitted_enem_questions_for_current_student(limit=20):
 			filters.update(scope_filter)
 
 			for question in frappe.get_all(
-				"Melura ENEM Question",
+				ENEM_QUESTION_DOCTYPE,
 				filters=filters,
 				fields=ENEM_QUESTION_FIELDS,
 				order_by="published_at desc, modified desc",
@@ -390,7 +399,7 @@ def get_exercise_list_for_current_student(exercise_list):
 	if not exercise_list:
 		frappe.throw(_("Informe a lista de exercícios."), frappe.ValidationError)
 
-	doc = frappe.get_doc("Melura Exercise List", exercise_list)
+	doc = frappe.get_doc(EXERCISE_LIST_DOCTYPE, exercise_list)
 	assert_current_student_can_access_exercise_list(doc)
 
 	items = _get_exercise_list_items(doc.name)
@@ -424,18 +433,18 @@ def save_student_answer(exercise_list, question, selected_option):
 	if not is_current_student_active():
 		frappe.throw(_("Seu acesso ainda não está ativo. Entre em contato com o suporte."), frappe.PermissionError)
 
-	doc = frappe.get_doc("Melura Exercise List", exercise_list)
+	doc = frappe.get_doc(EXERCISE_LIST_DOCTYPE, exercise_list)
 	assert_current_student_can_access_exercise_list(doc)
 
 	if not _exercise_list_contains_question(doc.name, question):
 		frappe.throw(_("Esta questão não pertence à lista informada."), frappe.PermissionError)
 
-	correct_option = frappe.db.get_value("Melura ENEM Question", question, "correct_option")
+	correct_option = frappe.db.get_value(ENEM_QUESTION_DOCTYPE, question, "correct_option")
 	if not correct_option:
 		frappe.throw(_("A questão ainda não possui gabarito cadastrado."), frappe.ValidationError)
 
 	answer_name = frappe.db.get_value(
-		"Melura Student Answer",
+		STUDENT_ANSWER_DOCTYPE,
 		{
 			"exercise_list": doc.name,
 			"question": question,
@@ -443,7 +452,7 @@ def save_student_answer(exercise_list, question, selected_option):
 		},
 		"name",
 	)
-	answer_doc = frappe.get_doc("Melura Student Answer", answer_name) if answer_name else frappe.new_doc("Melura Student Answer")
+	answer_doc = frappe.get_doc(STUDENT_ANSWER_DOCTYPE, answer_name) if answer_name else frappe.new_doc(STUDENT_ANSWER_DOCTYPE)
 	answer_doc.exercise_list = doc.name
 	answer_doc.question = question
 	answer_doc.student_user = frappe.session.user
@@ -471,7 +480,7 @@ def get_active_student_access_records(user=None):
 		return []
 
 	records = frappe.get_all(
-		"Melura Student Access",
+		STUDENT_ACCESS_DOCTYPE,
 		filters={"student": user},
 		fields=STUDENT_ACCESS_FIELDS,
 		order_by="modified desc",
@@ -636,7 +645,7 @@ def _get_student_access_status(user):
 		return ACCESS_PENDING
 
 	records = frappe.get_all(
-		"Melura Student Access",
+		STUDENT_ACCESS_DOCTYPE,
 		filters={"student": user},
 		fields=STUDENT_ACCESS_FIELDS,
 		order_by="modified desc",
@@ -676,7 +685,7 @@ def _get_student_answers_for_lists(student, exercise_lists):
 	return [
 		dict(answer)
 		for answer in frappe.get_all(
-			"Melura Student Answer",
+			STUDENT_ANSWER_DOCTYPE,
 			filters={
 				"student_user": student,
 				"exercise_list": ["in", exercise_lists],
@@ -979,10 +988,10 @@ def _add_visible_question_alternatives(questions):
 	alternatives_by_question = {name: [] for name in question_names}
 
 	for alternative in frappe.get_all(
-		"Melura ENEM Question Alternative",
+		ENEM_QUESTION_ALTERNATIVE_DOCTYPE,
 		filters={
 			"parent": ["in", question_names],
-			"parenttype": "Melura ENEM Question",
+			"parenttype": ENEM_QUESTION_DOCTYPE,
 		},
 		fields=ENEM_QUESTION_ALTERNATIVE_FIELDS,
 		order_by="parent asc, idx asc",
@@ -1010,10 +1019,10 @@ def _add_exercise_list_question_counts(exercise_lists):
 	counts = {name: 0 for name in exercise_list_names}
 
 	for item in frappe.get_all(
-		"Melura Exercise List Item",
+		EXERCISE_LIST_ITEM_DOCTYPE,
 		filters={
 			"parent": ["in", exercise_list_names],
-			"parenttype": "Melura Exercise List",
+			"parenttype": EXERCISE_LIST_DOCTYPE,
 		},
 		fields=["parent"],
 	):
@@ -1027,10 +1036,10 @@ def _get_exercise_list_items(exercise_list):
 	return [
 		dict(item)
 		for item in frappe.get_all(
-			"Melura Exercise List Item",
+			EXERCISE_LIST_ITEM_DOCTYPE,
 			filters={
 				"parent": exercise_list,
-				"parenttype": "Melura Exercise List",
+				"parenttype": EXERCISE_LIST_DOCTYPE,
 			},
 			fields=EXERCISE_LIST_ITEM_FIELDS,
 			order_by="`order` asc, idx asc",
@@ -1046,7 +1055,7 @@ def _get_visible_questions_for_exercise_items(items):
 	questions_by_name = {}
 
 	for question in frappe.get_all(
-		"Melura ENEM Question",
+		ENEM_QUESTION_DOCTYPE,
 		filters={
 			"name": ["in", question_names],
 			"published": 1,
@@ -1075,10 +1084,10 @@ def _exercise_list_contains_question(exercise_list, question):
 
 	return bool(
 		frappe.db.exists(
-			"Melura Exercise List Item",
+			EXERCISE_LIST_ITEM_DOCTYPE,
 			{
 				"parent": exercise_list,
-				"parenttype": "Melura Exercise List",
+				"parenttype": EXERCISE_LIST_DOCTYPE,
 				"question": question,
 			},
 		)

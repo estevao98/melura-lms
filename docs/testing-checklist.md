@@ -88,6 +88,29 @@ O foco inicial é garantir que a customização funcione dentro da app própria,
 - Confirmar que referências residuais `bruce` aparecem apenas em rotas antigas,
   classes CSS ou módulos de alias mantidos por compatibilidade.
 
+## Validação pós-renomeação técnica
+
+- Confirmar que os DocTypes técnicos `Melura ...` são a fonte de verdade para
+  código novo, fixtures, hooks, serviços e testes.
+- Abrir `/app/melura`.
+- Abrir `/app/melura-live-class`.
+- Abrir `/app/melura-student-access`.
+- Abrir `/app/melura-whatsapp-settings`.
+- Abrir `/app/melura-educational-material`.
+- Abrir `/app/melura-enem-question`.
+- Abrir `/app/melura-exercise-list`.
+- Abrir `/app/melura-student-answer`.
+- Abrir `/app/melura-live-room/BLC-2026-00017`.
+- Abrir `/app/melura-professor-dashboard`.
+- Abrir `/app/melura-operational-dashboard`.
+- Confirmar que `/app/bruce-live-room/BLC-2026-00017`,
+  `/app/bruce-professor-dashboard` e `/app/bruce-operational-dashboard`
+  continuam funcionando somente se a compatibilidade tiver sido preservada
+  intencionalmente.
+- Confirmar que novos links gerados usam `/app/melura-live-room/<aula>`.
+- Confirmar que `bruce-*` residual aparece somente em rotas compatíveis,
+  classes CSS visuais, módulos de alias ou documentação histórica.
+
 ## Polimento de formulários e listas no Desk
 
 - Abrir a lista de Aula ao vivo pelo Workspace `Melura`.

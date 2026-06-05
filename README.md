@@ -28,8 +28,9 @@ A comunicação pode ser preparada por WhatsApp usando Evolution API ou n8n, sem
 No Frappe Desk, o Workspace `Melura` centraliza os atalhos operacionais da app.
 Usuários devem acessar aulas, painéis, WhatsApp, conteúdos e acessos por esse
 Workspace em `/app`, sem precisar digitar rotas diretas. Algumas rotas e
-DocTypes internos ainda mantêm nomes técnicos legados para compatibilidade, mas
-os rótulos visíveis devem usar Melura ou nomes neutros em português brasileiro.
+classes CSS internas ainda mantêm nomes técnicos legados para compatibilidade,
+mas os DocTypes técnicos `Melura ...` são a fonte de verdade e os rótulos
+visíveis devem usar Melura ou nomes neutros em português brasileiro.
 
 ## Funcionalidades principais
 
@@ -80,6 +81,7 @@ flowchart TD
 - `docs/student-access-integration.md`: regras de acesso do aluno e integração externa futura.
 - `docs/decisions/ADR-0002-google-meet-only-live-flow.md`: decisão de Google Meet externo como único fluxo de vídeo do MVP.
 - `docs/development/naming-debt.md`: dívida de nomenclatura técnica legada.
+- `docs/development/post-rename-validation.md`: validação pós-renomeação técnica.
 - `docs/ux-flows.md`: fluxos de professor, aluno, admin, Google Meet, WhatsApp e progresso.
 - `docs/testing-checklist.md`: checklist de validação manual e futura automação.
 - `docs/deployment/`: documentação de prontidão de deploy e produção.
@@ -150,7 +152,9 @@ As rotas Desk preferenciais usam aliases Melura: `/app/melura-live-room/<aula>`,
 `/app/melura-professor-dashboard` e `/app/melura-operational-dashboard`. As
 rotas antigas `/app/bruce-*` permanecem temporariamente para compatibilidade.
 Referências residuais `bruce` em rotas, classes CSS ou módulos de alias são
-compatibilidade temporária; novos links gerados devem usar as rotas Melura.
+compatibilidade temporária; novos links gerados devem usar as rotas Melura. A
+remoção futura dessas compatibilidades deve acontecer somente após validação de
+links e rotas, sem exclusão de dados.
 
 Leituras relacionadas:
 
@@ -203,6 +207,7 @@ Essas responsabilidades podem pertencer a outro repositório ou a um SaaS extern
 - [docs/roles-permissions.md](docs/roles-permissions.md): papéis, permissões e separação de contas.
 - [docs/student-access-integration.md](docs/student-access-integration.md): fonte de acesso pedagógico e integração externa futura.
 - [docs/decisions/ADR-0002-google-meet-only-live-flow.md](docs/decisions/ADR-0002-google-meet-only-live-flow.md): decisão de Google Meet externo.
+- [docs/development/post-rename-validation.md](docs/development/post-rename-validation.md): validação pós-renomeação técnica.
 - [docs/ux-flows.md](docs/ux-flows.md): fluxos operacionais de aluno, professor, admin, WhatsApp e progresso.
 - [docs/testing-checklist.md](docs/testing-checklist.md): validações manuais e futuras automações.
 - [docs/deployment/00-overview.md](docs/deployment/00-overview.md): visão geral de prontidão de deploy e produção.
